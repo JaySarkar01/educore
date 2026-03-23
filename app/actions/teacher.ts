@@ -5,6 +5,20 @@ import { TeacherModel } from "@/lib/models/Teacher"
 import { cookies } from "next/headers"
 import { decrypt } from "@/lib/session"
 import { revalidatePath } from "next/cache"
+import { z } from "zod"
+
+const TeacherSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  employeeId: z.string().optional(),
+  department: z.string().min(1, "Department is required"),
+  joiningDate: z.string().min(1, "Joining date is required"),
+  gender: z.enum(["Male", "Female", "Other"]),
+  dateOfBirth: z.string().min(1, "Date of birth is required"),
+  phone: z.string().regex(/^\d{10}$/, "Invalid phone (exactly 10 digits)"),
+  email: z.string().email("Invalid email address"),
+  qualification: z.string().min(2, "Qualification is required"),
+  experience: z.number().min(0, "Experience cannot be negative"),
+})
 
 async function getSession() {
   const cookieStore = await cookies()
@@ -60,6 +74,27 @@ export async function addTeacher(formData: FormData) {
   const session = await getSession()
   if (!session || !session.schoolId) return { error: "Not authorized" }
 
+  const rawData = {
+    name: formData.get("name")?.toString(),
+    employeeId: formData.get("employeeId")?.toString(),
+    department: formData.get("department")?.toString()?.replace(/^Department\s+/i, ""),
+    joiningDate: formData.get("joiningDate")?.toString(),
+    gender: formData.get("gender")?.toString(),
+    dateOfBirth: formData.get("dateOfBirth")?.toString(),
+    phone: formData.get("phone")?.toString(),
+    email: formData.get("email")?.toString(),
+    qualification: formData.get("qualification")?.toString(),
+    experience: parseFloat(formData.get("experience")?.toString() || "0"),
+  }
+
+  const validated = TeacherSchema.safeParse(rawData)
+  if (!validated.success) {
+    return { 
+      error: "Validation Failed", 
+      fieldErrors: validated.error.flatten().fieldErrors 
+    }
+  }
+
   await connectToDatabase()
   
   const getString = (key: string) => formData.get(key)?.toString() || ""
@@ -67,28 +102,21 @@ export async function addTeacher(formData: FormData) {
 
   // Auto-generate employee ID
   const count = await TeacherModel.countDocuments({ schoolId: session.schoolId })
-  const employeeId = getString("employeeId") || `EMP-${1000 + count + 1}`
+  const employeeId = validated.data.employeeId || `EMP-${1000 + count + 1}`
 
   const newTeacher = {
     schoolId: session.schoolId,
-    name: getString("name") || "New Teacher",
+    ...validated.data,
     employeeId: employeeId,
-    gender: getString("gender") || "Other",
-    dateOfBirth: getString("dateOfBirth"),
-    phone: getString("phone"),
-    email: getString("email"),
     address: getString("address"),
-    qualification: getString("qualification"),
-    experience: getNum("experience"),
-    joiningDate: getString("joiningDate") || new Date().toISOString().split('T')[0],
-    department: getString("department"),
+    department: validated.data.department,
     subjects: getString("subjects").split(',').map(s => s.trim()).filter(Boolean),
     baseSalary: getNum("baseSalary"),
     status: getString("status") || "Active",
     timeline: [
       {
         title: "Faculty Onboarded",
-        description: `Teacher officially joined the ${getString("department")} department.`,
+        description: `Teacher officially joined ${validated.data.department}.`,
         date: new Date()
       }
     ]

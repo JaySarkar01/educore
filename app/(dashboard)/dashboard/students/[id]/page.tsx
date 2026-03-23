@@ -115,7 +115,7 @@ export default async function StudentProfilePage(
                   <div className="flex justify-between items-center pb-3 border-b border-border/40">
                     <span className="text-muted-fg">Unpaid Balance</span>
                     <span className={`font-semibold ${(feeStats?.pendingBalance || 0) > 0 ? 'text-red-600 dark:text-red-400' : 'text-emerald-600'}`}>
-                      ${feeStats?.pendingBalance?.toFixed(2) || '0.00'}
+                      ₹{feeStats?.pendingBalance?.toFixed(2) || '0.00'}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
@@ -267,15 +267,15 @@ export default async function StudentProfilePage(
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-surface-50 dark:bg-surface-950 border border-border/50 rounded-xl p-6 shadow-sm">
                 <p className="text-sm font-medium text-muted-fg mb-1">Total Billed</p>
-                <p className="text-3xl font-bold text-fg">${feeStats?.totalBilled?.toFixed(2) || '0.00'}</p>
+                <p className="text-3xl font-bold text-fg">₹{feeStats?.totalBilled?.toFixed(2) || '0.00'}</p>
               </div>
               <div className="bg-surface-50 dark:bg-surface-950 border border-border/50 rounded-xl p-6 shadow-sm">
                 <p className="text-sm font-medium text-muted-fg mb-1">Total Paid</p>
-                <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">${feeStats?.totalPaid?.toFixed(2) || '0.00'}</p>
+                <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">₹{feeStats?.totalPaid?.toFixed(2) || '0.00'}</p>
               </div>
               <div className="bg-surface-50 dark:bg-surface-950 border border-border/50 rounded-xl p-6 shadow-sm">
                 <p className="text-sm font-medium text-muted-fg mb-1">Pending Balance</p>
-                <p className="text-3xl font-bold text-red-600 dark:text-red-400">${feeStats?.pendingBalance?.toFixed(2) || '0.00'}</p>
+                <p className="text-3xl font-bold text-red-600 dark:text-red-400">₹{feeStats?.pendingBalance?.toFixed(2) || '0.00'}</p>
               </div>
             </div>
 
@@ -309,8 +309,8 @@ export default async function StudentProfilePage(
                               )}
                             </td>
                             <td className="px-6 py-4 font-medium">{inv.dueDate}</td>
-                            <td className="px-6 py-4 font-semibold text-fg">${inv.amount.toFixed(2)}</td>
-                            <td className="px-6 py-4 font-semibold text-emerald-600 dark:text-emerald-400">${inv.amountPaid.toFixed(2)}</td>
+                            <td className="px-6 py-4 font-semibold text-fg">₹{inv.amount.toFixed(2)}</td>
+                            <td className="px-6 py-4 font-semibold text-emerald-600 dark:text-emerald-400">₹{inv.amountPaid.toFixed(2)}</td>
                             <td className="px-6 py-4">
                               <span className={`px-2.5 py-1 rounded-sm text-xs font-semibold border ${
                                 inv.status === 'Paid' ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20' :

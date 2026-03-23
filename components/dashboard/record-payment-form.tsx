@@ -52,11 +52,11 @@ export function RecordPaymentForm({ invoiceId, pendingAmount, invoiceTitle }: { 
           <form action={handleAction} className="p-6 space-y-5">
             <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-lg p-4 mb-2">
               <p className="text-sm text-amber-800 dark:text-amber-300 font-medium text-center">Pending Balance</p>
-              <p className="text-2xl font-bold text-amber-900 dark:text-amber-400 text-center">${pendingAmount.toFixed(2)}</p>
+              <p className="text-2xl font-bold text-amber-900 dark:text-amber-400 text-center">₹{pendingAmount.toFixed(2)}</p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="amount">Payment Amount ($) *</Label>
+              <Label htmlFor="amount">Payment Amount (₹) *</Label>
               <Input id="amount" name="amount" type="number" step="0.01" max={pendingAmount} required defaultValue={pendingAmount} />
             </div>
 

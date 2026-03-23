@@ -63,7 +63,7 @@ export function GenerateInvoiceForm({ students }: { students: any[] }) {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="amount">Total Amount ($)</Label>
+                <Label htmlFor="amount">Total Amount (₹)</Label>
                 <Input id="amount" name="amount" type="number" step="0.01" min="1" required placeholder="500.00" />
               </div>
               <div className="space-y-2">

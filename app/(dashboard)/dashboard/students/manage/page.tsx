@@ -65,8 +65,8 @@ export default async function ManageStudentsPage({ searchParams }: { searchParam
                       <div className="text-xs text-muted-fg mt-1">Ph: {s.phone || 'N/A'}</div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="font-medium text-brand-700 dark:text-brand-300">
-                        Class {s.className} {s.section ? `- Sec ${s.section}` : ''}
+                      <div className="font-medium text-brand-700 dark:text-brand-300 text-base">
+                        {s.className} {s.section ? `• Sec ${s.section}` : ''}
                       </div>
                       <div className="text-xs font-mono text-muted-fg mt-1">Adm: {s.admissionNo} | Roll: {s.rollNumber}</div>
                     </td>

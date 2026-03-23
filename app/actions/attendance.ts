@@ -20,8 +20,18 @@ export async function getClassAttendance(className: string, section: string, dat
   
   await connectToDatabase()
   
-  // Clean empty section to ensure unique query match
-  const sec = section || ""
+  // Build student query
+  const studentQuery: any = { 
+    schoolId: session.schoolId, 
+    className, 
+    status: 'Active' 
+  }
+  if (section && section !== 'All') {
+    studentQuery.section = section
+  }
+
+  // Clean empty section for attendance record lookup
+  const sec = (!section || section === 'All') ? "" : section
   
   const attendance = await AttendanceModel.findOne({
     schoolId: session.schoolId,
@@ -34,13 +44,8 @@ export async function getClassAttendance(className: string, section: string, dat
     return JSON.parse(JSON.stringify(attendance))
   }
 
-  // If no attendance exists for this date, fetch all students in this class/section and build a blank sheet
-  const students = await StudentModel.find({ 
-    schoolId: session.schoolId, 
-    className, 
-    section: sec,
-    status: 'Active' 
-  }).sort({ rollNumber: 1 }).lean()
+  // If no attendance exists for this date, fetch students based on the flexible query
+  const students = await StudentModel.find(studentQuery).sort({ rollNumber: 1 }).lean()
 
   if (!students.length) return { template: true, records: [] }
 
@@ -61,7 +66,7 @@ export async function saveClassAttendance(className: string, section: string, da
   if (!session || !session.schoolId) return { error: "Not authorized" }
 
   await connectToDatabase()
-  const sec = section || ""
+  const sec = (!section || section === 'All') ? "" : section
 
   // Upsert the attendance document
   await AttendanceModel.findOneAndUpdate(
@@ -70,7 +75,7 @@ export async function saveClassAttendance(className: string, section: string, da
     { upsert: true, new: true, setDefaultsOnInsert: true }
   )
 
-  // As a bonus (timeline hook), we log to the Student models if they are marked Absent
+  // As a bonus (timeline hook), we log to the Student models if they are marked Absent or Leave
   const absentStudents = records.filter(r => r.status === 'Absent')
   for (const record of absentStudents) {
     await StudentModel.findByIdAndUpdate(record.studentId, {
@@ -78,6 +83,19 @@ export async function saveClassAttendance(className: string, section: string, da
         timeline: {
           title: "Marked Absent",
           description: `Student was marked Absent on ${date}.`,
+          date: new Date()
+        }
+      }
+    })
+  }
+
+  const leaveStudents = records.filter(r => r.status === 'Leave')
+  for (const record of leaveStudents) {
+    await StudentModel.findByIdAndUpdate(record.studentId, {
+      $push: {
+        timeline: {
+          title: "On Leave",
+          description: `Student was on Approved Leave on ${date}.`,
           date: new Date()
         }
       }
@@ -128,4 +146,27 @@ export async function getStudentAttendanceStats(studentId: string) {
     percentage,
     history
   }))
+}
+
+// Get monthly attendance for a whole class (for the Calendar view)
+export async function getMonthlyClassAttendance(className: string, section: string, month: number, year: number) {
+  const session = await getSession()
+  if (!session || !session.schoolId) return []
+  
+  await connectToDatabase()
+  const sec = (!section || section === 'All') ? "" : section
+
+  // Create regex or range for the month
+  // Date format is YYYY-MM-DD
+  const monthStr = month < 10 ? `0${month}` : `${month}`
+  const prefix = `${year}-${monthStr}`
+
+  const attendances = await AttendanceModel.find({
+    schoolId: session.schoolId,
+    className,
+    section: sec,
+    date: { $regex: `^${prefix}` }
+  }).sort({ date: 1 }).lean()
+
+  return JSON.parse(JSON.stringify(attendances))
 }

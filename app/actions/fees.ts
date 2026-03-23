@@ -47,7 +47,7 @@ export async function generateFeeInvoice(formData: FormData) {
     $push: {
       timeline: {
         title: "Fee Invoice Generated",
-        description: `An invoice of $${amount} for '${title}' was issued.`,
+        description: `An invoice of ₹${amount} for '${title}' was issued.`,
         date: new Date()
       }
     }
@@ -90,7 +90,7 @@ export async function recordFeePayment(invoiceId: string, amountToPay: number, m
     $push: {
       timeline: {
         title: "Fee Payment Received",
-        description: `Payment of $${amountToPay} via ${method} mapped to '${invoice.title}'. (Receipt: ${receiptNumber})`,
+        description: `Payment of ₹${amountToPay} via ${method} mapped to '${invoice.title}'. (Receipt: ${receiptNumber})`,
         date: new Date()
       }
     }

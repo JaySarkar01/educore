@@ -5,6 +5,21 @@ import { StudentModel } from "@/lib/models/Student"
 import { cookies } from "next/headers"
 import { decrypt } from "@/lib/session"
 import { revalidatePath } from "next/cache"
+import { z } from "zod"
+
+const StudentSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  admissionNo: z.string().optional(),
+  className: z.string().min(1, "Class is required"),
+  section: z.string().min(1, "Section is required"),
+  gender: z.enum(["Male", "Female", "Other"]),
+  dateOfBirth: z.string().min(1, "Date of birth is required"),
+  phone: z.string().regex(/^\d{10}$/, "Invalid phone number (exactly 10 digits)"),
+  address: z.string().min(5, "Address must be descriptive"),
+  pincode: z.string().regex(/^\d{5,6}$/, "Invalid pincode"),
+  parentName: z.string().min(2, "Parent name is required"),
+  parentPhone: z.string().regex(/^\d{10}$/, "Invalid Parent phone number (exactly 10 digits)"),
+})
 
 async function getSession() {
   const cookieStore = await cookies()
@@ -61,9 +76,31 @@ export async function addStudent(formData: FormData) {
   const session = await getSession()
   if (!session || !session.schoolId) return { error: "Not authorized" }
 
+  const rawData = {
+    name: formData.get("name")?.toString(),
+    admissionNo: formData.get("admissionNo")?.toString(),
+    className: formData.get("className")?.toString()?.replace(/^Class\s+/i, ""),
+    section: formData.get("section")?.toString(),
+    gender: formData.get("gender")?.toString(),
+    dateOfBirth: formData.get("dateOfBirth")?.toString(),
+    phone: formData.get("phone")?.toString(),
+    address: formData.get("address")?.toString(),
+    pincode: formData.get("pincode")?.toString(),
+    parentName: formData.get("parentName")?.toString(),
+    parentPhone: formData.get("parentPhone")?.toString(),
+  }
+
+  const validated = StudentSchema.safeParse(rawData)
+  if (!validated.success) {
+    return { 
+      error: "Validation Failed", 
+      fieldErrors: validated.error.flatten().fieldErrors 
+    }
+  }
+
   await connectToDatabase()
   
-  const className = formData.get("className")?.toString() || ""
+  const { className } = validated.data
   
   // Auto-assign roll number
   const classStudents = await StudentModel.find({ schoolId: session.schoolId, className }).lean()
@@ -80,18 +117,9 @@ export async function addStudent(formData: FormData) {
 
   const newStudent = {
     schoolId: session.schoolId,
-    name: getString("name") || "New Student",
-    admissionNo: getString("admissionNo") || `ADM${Date.now().toString().slice(-6)}`,
-    className: className,
-    section: getString("section"),
+    ...validated.data,
+    admissionNo: validated.data.admissionNo || `ADM${Date.now().toString().slice(-6)}`,
     rollNumber: assignedRoll,
-    gender: getString("gender") || "Other",
-    dateOfBirth: getString("dateOfBirth"),
-    phone: getString("phone"),
-    address: getString("address"),
-    pincode: getString("pincode"),
-    parentName: getString("parentName"),
-    parentPhone: getString("parentPhone"),
     motherName: getString("motherName"),
     motherPhone: getString("motherPhone"),
     emergencyContact: getString("emergencyContact"),
@@ -104,7 +132,7 @@ export async function addStudent(formData: FormData) {
     timeline: [
       {
         title: "Admission Created",
-        description: `Student successfully onboarded to Class ${className}.`,
+        description: `Student successfully onboarded to ${className}.`,
         date: new Date()
       }
     ]

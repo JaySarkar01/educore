@@ -6,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 
 export default async function FeesPage() {
-  const invoices = await getAllInvoices()
   const students = await getStudents()
+  const studentIds = new Set(students.map((s: any) => s.id))
+  const invoices = (await getAllInvoices()).filter((inv: any) => studentIds.has(inv.studentId))
   
   const totalBilled = invoices.reduce((sum: number, inv: any) => sum + inv.amount, 0)
   const totalCollected = invoices.reduce((sum: number, inv: any) => sum + inv.amountPaid, 0)
@@ -31,7 +32,7 @@ export default async function FeesPage() {
             <Wallet className="w-4 h-4 text-brand-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-fg">${totalBilled.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-fg">₹{totalBilled.toFixed(2)}</div>
             <p className="text-xs text-muted-fg mt-1">Historically invoiced</p>
           </CardContent>
         </Card>
@@ -41,7 +42,7 @@ export default async function FeesPage() {
             <CheckCircle2 className="w-4 h-4 text-emerald-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${totalCollected.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">₹{totalCollected.toFixed(2)}</div>
             <p className="text-xs text-muted-fg mt-1">Cash & Online Receipts</p>
           </CardContent>
         </Card>
@@ -51,7 +52,7 @@ export default async function FeesPage() {
             <Clock className="w-4 h-4 text-amber-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">${pendingCollection.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">₹{pendingCollection.toFixed(2)}</div>
             <p className="text-xs text-muted-fg mt-1">Unpaid balances</p>
           </CardContent>
         </Card>
@@ -92,7 +93,7 @@ export default async function FeesPage() {
                       <Link href={`/dashboard/students/${inv.studentId}?tab=fees`} className="hover:underline">{inv.studentName} ({inv.className})</Link>
                     </td>
                     <td className="px-6 py-4 text-muted-fg">{inv.title}</td>
-                    <td className="px-6 py-4 font-medium text-fg">${inv.amount.toFixed(2)}</td>
+                    <td className="px-6 py-4 font-medium text-fg">₹{inv.amount.toFixed(2)}</td>
                     <td className="px-6 py-4">
                       <span className={`px-2.5 py-1 rounded-sm text-xs font-semibold border ${
                         inv.status === 'Paid' ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20' :

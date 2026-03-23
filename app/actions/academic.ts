@@ -30,7 +30,7 @@ export async function addClass(formData: FormData) {
   if (!session || !session.schoolId) return { error: "Not authorized" }
   await connectToDatabase()
 
-  const className = formData.get("className")?.toString().trim()
+  const className = formData.get("className")?.toString().trim().replace(/^Class\s+/i, "")
   const sectionsInput = formData.get("sections")?.toString() || ""
   
   if (!className) return { error: "Class name is required" }

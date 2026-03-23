@@ -4,7 +4,7 @@ export interface IAttendanceRecord {
   studentId: string;
   studentName: string;
   rollNumber: string;
-  status: 'Present' | 'Absent' | 'Late' | 'Half-Day';
+  status: 'Present' | 'Absent' | 'Late' | 'Half-Day' | 'Leave';
   remarks?: string;
 }
 
@@ -25,7 +25,7 @@ const AttendanceSchema = new Schema({
     studentId: { type: String, required: true },
     studentName: { type: String, required: true },
     rollNumber: { type: String, required: true },
-    status: { type: String, enum: ['Present', 'Absent', 'Late', 'Half-Day'], required: true },
+    status: { type: String, enum: ['Present', 'Absent', 'Late', 'Half-Day', 'Leave'], required: true },
     remarks: String
   }]
 }, { timestamps: true });

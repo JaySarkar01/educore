@@ -11,7 +11,9 @@ export default async function StudentsDashboard() {
   const activeCount = students.filter((s: any) => s.status === 'Active').length
   const inactiveCount = students.filter((s: any) => s.status === 'Inactive').length
   
-  const recentInvoices = invoices.slice(0, 5)
+  const studentIds = new Set(students.map((s: any) => s.id))
+  const validInvoices = invoices.filter((inv: any) => studentIds.has(inv.studentId))
+  const recentInvoices = validInvoices.slice(0, 5)
   
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
@@ -94,19 +96,23 @@ export default async function StudentsDashboard() {
             <CardContent className="p-0">
                <div className="divide-y divide-border/40">
                   {recentInvoices.map((inv: any) => (
-                    <div key={inv.id} className="flex items-center justify-between px-6 py-4 hover:bg-surface-100/30 dark:hover:bg-surface-900/30 transition-colors">
+                    <Link 
+                      key={inv._id} 
+                      href={`/dashboard/students/${inv.studentId}?tab=fees`}
+                      className="flex items-center justify-between px-6 py-4 hover:bg-surface-100/30 dark:hover:bg-surface-900/30 transition-colors group"
+                    >
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-fg truncate">{inv.studentName}</p>
+                        <p className="text-sm font-semibold text-fg group-hover:text-brand-600 dark:group-hover:text-brand-400 truncate transition-colors">{inv.studentName}</p>
                         <p className="text-xs text-muted-fg truncate">{inv.title}</p>
                       </div>
                       <div className="text-right ml-4">
-                        <p className="text-sm font-bold text-fg">${inv.amount}</p>
+                        <p className="text-sm font-bold text-fg">₹{inv.amount}</p>
                         <p className={`text-[10px] font-bold uppercase tracking-widest ${
                           inv.status === 'Paid' ? 'text-emerald-500' : 
                           inv.status === 'Partial' ? 'text-blue-500' : 'text-amber-500'
                         }`}>{inv.status}</p>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                   {recentInvoices.length === 0 && <div className="p-8 text-center text-muted-fg text-sm italic">No recent financial activity.</div>}
                </div>

@@ -1,32 +1,91 @@
 "use client"
-import { useState, useTransition } from "react"
+import { useState, useTransition, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Loader2, ArrowLeft, Save } from "lucide-react"
+import { Loader2, ArrowLeft, Save, AlertCircle } from "lucide-react"
 import { addStudent } from "@/app/actions/student"
 import { getClasses } from "@/app/actions/academic"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useEffect } from "react"
 
 export default function AddStudentPage() {
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
   const [classes, setClasses] = useState<any[]>([])
-  const [selectedClass, setSelectedClass] = useState<string>("")
+  const [errors, setErrors] = useState<Record<string, string[]>>({})
+  const [isDirty, setIsDirty] = useState(false)
+  const [formValues, setFormValues] = useState({
+    admissionNo: "",
+    className: "",
+    section: "None",
+    admissionDate: new Date().toISOString().split('T')[0],
+    previousSchool: "",
+    status: "Active",
+    name: "",
+    gender: "Male",
+    dateOfBirth: "",
+    phone: "",
+    pincode: "",
+    address: "",
+    parentName: "",
+    parentPhone: "",
+    motherName: "",
+    motherPhone: "",
+    transportRoute: "",
+    hostelRoom: "",
+    medicalNotes: ""
+  })
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormValues(prev => ({ ...prev, [name]: value }))
+    setIsDirty(true)
+  }
+
+  const handlePhoneInput = (e: React.FormEvent<HTMLInputElement>) => {
+    const target = e.target as HTMLInputElement
+    target.value = target.value.replace(/\D/g, '').slice(0, 10)
+    setFormValues(prev => ({ ...prev, [target.name]: target.value }))
+    setIsDirty(true)
+  }
 
   useEffect(() => {
     getClasses().then(setClasses)
   }, [])
 
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault()
+        e.returnValue = ""
+      }
+    }
+    window.addEventListener("beforeunload", handleBeforeUnload)
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload)
+  }, [isDirty])
+
   const handleAction = (formData: FormData) => {
+    setErrors({})
     startTransition(async () => {
       const res = await addStudent(formData)
       if (res?.success) {
+        setIsDirty(false) // Reset dirty state before navigation
         router.push("/dashboard/students/manage")
+      } else if (res?.fieldErrors) {
+        setErrors(res.fieldErrors)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
       }
     })
+  }
+
+  const ErrorWarning = ({ field }: { field: string }) => {
+    if (!errors[field]) return null
+    return (
+      <p className="text-[10px] font-bold text-red-600 dark:text-red-400 mt-1 uppercase tracking-widest flex items-center gap-1">
+        <AlertCircle className="w-3 h-3" /> {errors[field][0]}
+      </p>
+    )
   }
 
   return (
@@ -41,7 +100,20 @@ export default function AddStudentPage() {
       </div>
 
       <div className="bg-surface-50 dark:bg-surface-950 border border-border/50 rounded-xl shadow-lg overflow-hidden mt-6">
-        <form action={handleAction} className="p-8 space-y-8">
+        <form 
+          action={handleAction} 
+          className="p-8 space-y-8"
+        >
+          
+          {Object.keys(errors).length > 0 && (
+            <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 p-4 rounded-lg flex items-center gap-3 animate-in slide-in-from-top-2">
+              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+              <div>
+                <p className="text-sm font-bold text-red-700 dark:text-red-300">Form Submission Warning</p>
+                <p className="text-xs text-red-600 dark:text-red-400">Please correct the highlighted fields below to continue.</p>
+              </div>
+            </div>
+          )}
           
           {/* Academic Info */}
           <div className="space-y-4">
@@ -49,7 +121,7 @@ export default function AddStudentPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="admissionNo">Admission No</Label>
-                <Input id="admissionNo" name="admissionNo" placeholder="Leave empty to auto-generate" />
+                <Input id="admissionNo" name="admissionNo" value={formValues.admissionNo} onChange={handleChange} placeholder="Auto-gen if empty" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="className">Class *</Label>
@@ -57,46 +129,50 @@ export default function AddStudentPage() {
                   id="className" 
                   name="className" 
                   required 
-                  value={selectedClass}
-                  onChange={(e) => setSelectedClass(e.target.value)}
-                  className="flex h-9 w-full rounded-md border border-border bg-surface-50 dark:bg-surface-950 px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500"
+                  value={formValues.className}
+                  onChange={handleChange}
+                  className="flex h-10 w-full rounded-md border border-border bg-surface-50 dark:bg-surface-950 px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus:ring-1 focus:ring-brand-500"
                 >
                   <option value="" disabled>Select Class</option>
                   {classes.map((c) => (
                     <option key={c._id} value={c.className}>{c.className}</option>
                   ))}
                 </select>
+                <ErrorWarning field="className" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="section">Section *(Requires Class)</Label>
+                <Label htmlFor="section">Section *</Label>
                 <select 
                   id="section" 
                   name="section" 
                   required 
-                  className="flex h-9 w-full rounded-md border border-border bg-surface-50 dark:bg-surface-950 px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500"
-                  disabled={!selectedClass}
+                  value={formValues.section}
+                  onChange={handleChange}
+                  className="flex h-10 w-full rounded-md border border-border bg-surface-50 dark:bg-surface-950 px-3 py-1 text-sm shadow-sm transition-colors focus:ring-1 focus:ring-brand-500"
+                  disabled={!formValues.className}
                 >
-                  {classes.find(c => c.className === selectedClass)?.sections?.map((s: string) => (
+                  {classes.find(c => c.className === formValues.className)?.sections?.map((s: string) => (
                     <option key={s} value={s}>{s}</option>
                   ))}
-                  {(!classes.find(c => c.className === selectedClass)?.sections || classes.find(c => c.className === selectedClass)?.sections?.length === 0) && (
+                  {(!classes.find(c => c.className === formValues.className)?.sections || classes.find(c => c.className === formValues.className)?.sections?.length === 0) && (
                     <option value="None">None Available</option>
                   )}
                 </select>
+                <ErrorWarning field="section" />
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="admissionDate">Admission Date</Label>
-                <Input id="admissionDate" name="admissionDate" type="date" defaultValue={new Date().toISOString().split('T')[0]} />
+                <Input id="admissionDate" name="admissionDate" type="date" value={formValues.admissionDate} onChange={handleChange} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="previousSchool">Previous School</Label>
-                <Input id="previousSchool" name="previousSchool" placeholder="Optional" />
+                <Input id="previousSchool" name="previousSchool" value={formValues.previousSchool} onChange={handleChange} placeholder="Optional" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="status">Status</Label>
-                <select id="status" name="status" className="flex h-9 w-full rounded-md border border-border bg-surface-50 dark:bg-surface-950 px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500">
+                <select id="status" name="status" value={formValues.status} onChange={handleChange} className="flex h-10 w-full rounded-md border border-border bg-surface-50 dark:bg-surface-950 px-3 py-1 text-sm shadow-sm">
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
                 </select>
@@ -110,11 +186,12 @@ export default function AddStudentPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="name">Full Name *</Label>
-                <Input id="name" name="name" required placeholder="John Doe" />
+                <Input id="name" name="name" required value={formValues.name} onChange={handleChange} placeholder="John Doe" className={errors.name ? "border-red-500 bg-red-50/30" : ""} />
+                <ErrorWarning field="name" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="gender">Gender</Label>
-                <select id="gender" name="gender" className="flex h-9 w-full rounded-md border border-border bg-surface-50 dark:bg-surface-950 px-3 py-1 text-sm shadow-sm">
+                <select id="gender" name="gender" value={formValues.gender} onChange={handleChange} className="flex h-10 w-full rounded-md border border-border bg-surface-50 dark:bg-surface-950 px-3 py-1 text-sm shadow-sm">
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
                   <option value="Other">Other</option>
@@ -124,20 +201,24 @@ export default function AddStudentPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="dateOfBirth">Date of Birth</Label>
-                <Input id="dateOfBirth" name="dateOfBirth" type="date" />
+                <Input id="dateOfBirth" name="dateOfBirth" type="date" value={formValues.dateOfBirth} onChange={handleChange} className={errors.dateOfBirth ? "border-red-500" : ""} />
+                <ErrorWarning field="dateOfBirth" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Student Phone</Label>
-                <Input id="phone" name="phone" placeholder="+1..." />
+                <Input id="phone" name="phone" value={formValues.phone} onInput={handlePhoneInput} placeholder="9876543210" maxLength={10} className={errors.phone ? "border-red-500" : ""} />
+                <ErrorWarning field="phone" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="pincode">Pincode / Zip</Label>
-                <Input id="pincode" name="pincode" placeholder="10001" />
+                <Input id="pincode" name="pincode" value={formValues.pincode} onChange={handleChange} placeholder="10001" className={errors.pincode ? "border-red-500" : ""} />
+                <ErrorWarning field="pincode" />
               </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="address">Full Address</Label>
-              <Input id="address" name="address" placeholder="123 Main St..." />
+              <Input id="address" name="address" value={formValues.address} onChange={handleChange} placeholder="123 Main St..." className={errors.address ? "border-red-500" : ""} />
+              <ErrorWarning field="address" />
             </div>
           </div>
 
@@ -147,19 +228,21 @@ export default function AddStudentPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="parentName">Father / Guardian Name *</Label>
-                <Input id="parentName" name="parentName" required placeholder="Jane Doe" />
+                <Input id="parentName" name="parentName" required value={formValues.parentName} onChange={handleChange} placeholder="Jane Doe" className={errors.parentName ? "border-red-500" : ""} />
+                <ErrorWarning field="parentName" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="parentPhone">Primary Emergency Phone *</Label>
-                <Input id="parentPhone" name="parentPhone" required placeholder="+1..." />
+                <Input id="parentPhone" name="parentPhone" required value={formValues.parentPhone} onInput={handlePhoneInput} placeholder="9876543210" maxLength={10} className={errors.parentPhone ? "border-red-500" : ""} />
+                <ErrorWarning field="parentPhone" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="motherName">Mother Name</Label>
-                <Input id="motherName" name="motherName" placeholder="" />
+                <Input id="motherName" name="motherName" value={formValues.motherName} onChange={handleChange} placeholder="" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="motherPhone">Mother Phone</Label>
-                <Input id="motherPhone" name="motherPhone" placeholder="+1..." />
+                <Input id="motherPhone" name="motherPhone" value={formValues.motherPhone} onInput={handlePhoneInput} placeholder="9876543210" maxLength={10} />
               </div>
             </div>
           </div>
@@ -170,15 +253,15 @@ export default function AddStudentPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="transportRoute">Transport Route</Label>
-                <Input id="transportRoute" name="transportRoute" placeholder="Bus Route 4" />
+                <Input id="transportRoute" name="transportRoute" value={formValues.transportRoute} onChange={handleChange} placeholder="Bus Route 4" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="hostelRoom">Hostel Details (Optional)</Label>
-                <Input id="hostelRoom" name="hostelRoom" placeholder="Block A, Room 102" />
+                <Input id="hostelRoom" name="hostelRoom" value={formValues.hostelRoom} onChange={handleChange} placeholder="Block A, Room 102" />
               </div>
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="medicalNotes">Medical Notes / Allergies</Label>
-                <Input id="medicalNotes" name="medicalNotes" placeholder="Allergic to peanuts..." />
+                <Input id="medicalNotes" name="medicalNotes" value={formValues.medicalNotes} onChange={handleChange} placeholder="Allergic to peanuts..." />
               </div>
             </div>
           </div>
@@ -190,7 +273,7 @@ export default function AddStudentPage() {
             <Button type="submit" disabled={isPending} className="lg:w-48 shadow-lg shadow-brand-500/20">
               {isPending ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Enrolling Data...
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Enrolling...
                 </>
               ) : (
                 <>
