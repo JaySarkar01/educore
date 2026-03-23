@@ -108,15 +108,19 @@ export default async function StudentProfilePage(
                 <div className="space-y-4 text-sm">
                   <div className="flex justify-between items-center pb-3 border-b border-border/40">
                     <span className="text-muted-fg">Attendance</span>
-                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">92%</span>
+                    <span className={`font-semibold ${(attStats?.percentage || 0) < 75 ? 'text-red-500' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                      {attStats?.percentage || 0}%
+                    </span>
                   </div>
                   <div className="flex justify-between items-center pb-3 border-b border-border/40">
-                    <span className="text-muted-fg">Unpaid Fees</span>
-                    <span className="font-semibold text-red-600 dark:text-red-400">$450.00</span>
+                    <span className="text-muted-fg">Unpaid Balance</span>
+                    <span className={`font-semibold ${(feeStats?.pendingBalance || 0) > 0 ? 'text-red-600 dark:text-red-400' : 'text-emerald-600'}`}>
+                      ${feeStats?.pendingBalance?.toFixed(2) || '0.00'}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-muted-fg">Performance</span>
-                    <span className="font-semibold text-fg">Grade A</span>
+                    <span className="text-muted-fg">Total Invoices</span>
+                    <span className="font-semibold text-fg">{feeStats?.invoices?.length || 0}</span>
                   </div>
                 </div>
               </div>

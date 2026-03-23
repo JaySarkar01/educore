@@ -58,11 +58,58 @@ export default async function TeachersDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-         <Card className="shadow-sm border-border/50 bg-surface-50 dark:bg-surface-900 border-dashed min-h-[300px] flex items-center justify-center">
-            <p className="text-muted-fg font-medium text-sm border px-4 py-2 rounded-full border-border/60">Faculty Attendance Trend (Pending)</p>
+         <Card className="shadow-sm border-border/50 bg-surface-50 dark:bg-surface-950 overflow-hidden">
+            <CardHeader className="border-b border-border/40 py-4 bg-surface-100/30 dark:bg-surface-900/10">
+              <CardTitle className="text-sm font-bold flex items-center gap-2 text-fg">
+                <BookOpen className="w-4 h-4 text-brand-500" /> Faculty by Department
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+               <div className="divide-y divide-border/40">
+                  {Array.from(new Set(teachers.map((t: any) => t.department))).filter(Boolean).sort().map(dept => {
+                    const count = teachers.filter((t: any) => t.department === dept).length
+                    return (
+                      <div key={dept} className="flex items-center justify-between px-6 py-4">
+                        <span className="text-sm font-medium text-fg">{dept}</span>
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-brand-400 border border-blue-200 dark:border-blue-500/20">
+                          {count} Staff
+                        </span>
+                      </div>
+                    )
+                  })}
+                  {teachers.length === 0 && <div className="p-8 text-center text-muted-fg text-sm italic">No department data available.</div>}
+               </div>
+            </CardContent>
          </Card>
-         <Card className="shadow-sm border-border/50 bg-surface-50 dark:bg-surface-900 border-dashed min-h-[300px] flex items-center justify-center">
-            <p className="text-muted-fg font-medium text-sm border px-4 py-2 rounded-full border-border/60">Department Overview (Pending)</p>
+
+         <Card className="shadow-sm border-border/50 bg-surface-50 dark:bg-surface-950 overflow-hidden">
+            <CardHeader className="border-b border-border/40 py-4 bg-surface-100/30 dark:bg-surface-900/10">
+              <CardTitle className="text-sm font-bold flex items-center gap-2 text-fg">
+                <UserCheck className="w-4 h-4 text-emerald-500" /> Recent Onboarding
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+               <div className="divide-y divide-border/40">
+                  {teachers.slice(0, 5).map((t: any) => (
+                    <div key={t.id} className="flex items-center justify-between px-6 py-4 hover:bg-surface-100/30 dark:hover:bg-surface-900/30 transition-colors">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-fg truncate">{t.name}</p>
+                        <p className="text-xs text-muted-fg truncate">{t.qualification}</p>
+                      </div>
+                      <div className="text-right ml-4">
+                        <p className="text-xs font-mono text-muted-fg">{t.employeeId}</p>
+                        <p className="text-[10px] font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest">{t.status}</p>
+                      </div>
+                    </div>
+                  ))}
+                  {teachers.length === 0 && <div className="p-8 text-center text-muted-fg text-sm italic">No recent faculty registrations.</div>}
+               </div>
+               {teachers.length > 5 && (
+                 <div className="p-4 bg-surface-50 dark:bg-surface-900/40 border-t border-border/40 text-center">
+                   <Link href="/dashboard/teachers/manage" className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline">Manage All Staff</Link>
+                 </div>
+               )}
+            </CardContent>
          </Card>
       </div>
     </div>

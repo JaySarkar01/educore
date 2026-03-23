@@ -26,7 +26,7 @@ export async function getDashboardStats() {
   const invoices = await FeeInvoiceModel.find({ schoolId }).lean()
   let revenue = 0
   for (const inv of invoices as any) {
-    revenue += inv.paidAmount
+    revenue += inv.amountPaid || 0
   }
 
   // Extract master global timeline

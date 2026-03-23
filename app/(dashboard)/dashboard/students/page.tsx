@@ -3,11 +3,15 @@ import { Users, CheckCircle, UserMinus, Plus } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { getAllInvoices } from "@/app/actions/fees"
 
 export default async function StudentsDashboard() {
   const students = await getStudents()
+  const invoices = await getAllInvoices()
   const activeCount = students.filter((s: any) => s.status === 'Active').length
   const inactiveCount = students.filter((s: any) => s.status === 'Inactive').length
+  
+  const recentInvoices = invoices.slice(0, 5)
   
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
@@ -57,12 +61,61 @@ export default async function StudentsDashboard() {
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-         {/* Blank placeholders to look like a massive dashboard */}
-         <Card className="shadow-sm border-border/50 bg-surface-50 dark:bg-surface-900 border-dashed min-h-[300px] flex items-center justify-center">
-            <p className="text-muted-fg font-medium text-sm border px-4 py-2 rounded-full border-border/60">Attendance Chart Module (Pending)</p>
+         <Card className="shadow-sm border-border/50 bg-surface-50 dark:bg-surface-950 overflow-hidden">
+            <CardHeader className="border-b border-border/40 py-4 bg-surface-100/30 dark:bg-surface-900/10">
+              <CardTitle className="text-sm font-bold flex items-center gap-2 text-fg">
+                <Users className="w-4 h-4 text-brand-500" /> Enrollment by Class
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+               <div className="divide-y divide-border/40">
+                  {Array.from(new Set(students.map((s: any) => s.className))).sort().map(cls => {
+                    const count = students.filter((s: any) => s.className === cls).length
+                    return (
+                      <div key={cls} className="flex items-center justify-between px-6 py-4">
+                        <span className="text-sm font-medium text-fg">Class {cls}</span>
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-500/20">
+                          {count} Students
+                        </span>
+                      </div>
+                    )
+                  })}
+                  {students.length === 0 && <div className="p-8 text-center text-muted-fg text-sm italic">No class data available.</div>}
+               </div>
+            </CardContent>
          </Card>
-         <Card className="shadow-sm border-border/50 bg-surface-50 dark:bg-surface-900 border-dashed min-h-[300px] flex items-center justify-center">
-            <p className="text-muted-fg font-medium text-sm border px-4 py-2 rounded-full border-border/60">Recent Fee Activity (Pending)</p>
+
+         <Card className="shadow-sm border-border/50 bg-surface-50 dark:bg-surface-950 overflow-hidden">
+            <CardHeader className="border-b border-border/40 py-4 bg-surface-100/30 dark:bg-surface-900/10">
+              <CardTitle className="text-sm font-bold flex items-center gap-2 text-fg">
+                <CheckCircle className="w-4 h-4 text-emerald-500" /> Recent Fee Invoices
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+               <div className="divide-y divide-border/40">
+                  {recentInvoices.map((inv: any) => (
+                    <div key={inv.id} className="flex items-center justify-between px-6 py-4 hover:bg-surface-100/30 dark:hover:bg-surface-900/30 transition-colors">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-fg truncate">{inv.studentName}</p>
+                        <p className="text-xs text-muted-fg truncate">{inv.title}</p>
+                      </div>
+                      <div className="text-right ml-4">
+                        <p className="text-sm font-bold text-fg">${inv.amount}</p>
+                        <p className={`text-[10px] font-bold uppercase tracking-widest ${
+                          inv.status === 'Paid' ? 'text-emerald-500' : 
+                          inv.status === 'Partial' ? 'text-blue-500' : 'text-amber-500'
+                        }`}>{inv.status}</p>
+                      </div>
+                    </div>
+                  ))}
+                  {recentInvoices.length === 0 && <div className="p-8 text-center text-muted-fg text-sm italic">No recent financial activity.</div>}
+               </div>
+               {recentInvoices.length > 0 && (
+                 <div className="p-4 bg-surface-50 dark:bg-surface-900/40 border-t border-border/40 text-center">
+                   <Link href="/dashboard/students/fees" className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline">View All Billing</Link>
+                 </div>
+               )}
+            </CardContent>
          </Card>
       </div>
     </div>
