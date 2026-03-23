@@ -32,16 +32,29 @@ export async function getStudents(querySearch?: string, classFilter?: string) {
   }
 
   const students = await StudentModel.find(query).sort({ _id: -1 }).lean()
-  return JSON.parse(JSON.stringify(students))
+  return students.map((s: any) => ({
+    ...JSON.parse(JSON.stringify(s)),
+    id: s._id.toString()
+  }))
 }
 
 export async function getStudentById(id: string) {
+  if (!id || id === 'undefined' || id.length !== 24) return null
+  
   const session = await getSession()
   if (!session || !session.schoolId) return null
   
   await connectToDatabase()
-  const student = await StudentModel.findOne({ _id: id, schoolId: session.schoolId }).lean()
-  return JSON.parse(JSON.stringify(student))
+  try {
+    const student = await StudentModel.findOne({ _id: id, schoolId: session.schoolId }).lean()
+    if (!student) return null
+    return {
+      ...JSON.parse(JSON.stringify(student)),
+      id: student._id.toString()
+    }
+  } catch (e) {
+    return null
+  }
 }
 
 export async function addStudent(formData: FormData) {

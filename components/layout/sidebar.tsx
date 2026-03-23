@@ -14,7 +14,7 @@ type NavLink = {
   submenu?: SubmenuLink[];
 }
 
-export function Sidebar() {
+export function Sidebar({ schoolName = 'EduCore', studentCount = 0 }: { schoolName?: string, studentCount?: number }) {
   const pathname = usePathname()
   
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
@@ -86,7 +86,7 @@ export function Sidebar() {
         <div className="bg-brand-600 text-white p-1.5 rounded-lg mr-2 shadow-sm shadow-brand-500/20">
           <Building2 className="w-5 h-5" />
         </div>
-        <span className="font-bold text-xl tracking-tight text-fg">{isSuperAdmin ? 'SuperAdmin' : 'EduCore'}</span>
+        <span className="font-bold text-xl tracking-tight text-fg truncate max-w-[160px]">{isSuperAdmin ? 'SuperAdmin' : schoolName}</span>
       </div>
       <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto scrollbar-hide">
         {links.map((link) => {
@@ -156,9 +156,12 @@ export function Sidebar() {
       <div className="p-4 border-t border-border/40">
         <div className="bg-brand-50 dark:bg-brand-500/10 rounded-xl p-4 text-xs text-brand-900 dark:text-brand-100 border border-brand-100 dark:border-brand-500/20">
           <p className="font-semibold mb-1">Standard Plan</p>
-          <p className="opacity-80">140/500 Students</p>
+          <p className="opacity-80">{studentCount}/500 Students</p>
           <div className="w-full bg-brand-200 dark:bg-brand-900 h-1.5 rounded-full mt-2 overflow-hidden">
-            <div className="bg-brand-600 dark:bg-brand-400 h-full w-[28%] rounded-full"></div>
+            <div 
+              className="bg-brand-600 dark:bg-brand-400 h-full rounded-full transition-all duration-500" 
+              style={{ width: `${Math.min((studentCount / 500) * 100, 100)}%` }}
+            ></div>
           </div>
         </div>
       </div>

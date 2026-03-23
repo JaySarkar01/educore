@@ -1,16 +1,27 @@
 import { Sidebar } from "@/components/layout/sidebar";
 import { DashboardNavbar } from "@/components/layout/dashboard-navbar";
+import { getSchoolProfile } from "@/app/actions/school";
+import { getDashboardStats } from "@/app/actions/dashboard";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const profile = await getSchoolProfile()
+  const stats = await getDashboardStats()
+
   return (
     <div className="flex h-screen w-full bg-surface-50 dark:bg-surface-950 overflow-hidden">
-      <Sidebar />
+      <Sidebar 
+        schoolName={profile?.schoolName} 
+        studentCount={stats?.studentCount} 
+      />
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
-        <DashboardNavbar />
+        <DashboardNavbar 
+          adminName={profile?.adminName} 
+          role={profile?.role === 'ADMIN' ? 'Super Admin' : 'School Admin'} 
+        />
         <main className="flex-1 overflow-y-auto bg-surface-50/50 dark:bg-surface-950/50">
           {children}
         </main>

@@ -5,7 +5,9 @@ import { logout } from '@/app/actions/school'
 import { ModeToggle } from '@/components/ui/theme-switcher'
 import Link from 'next/link'
 
-export function DashboardNavbar() {
+export function DashboardNavbar({ adminName = 'Admin User', role = 'Administrator' }: { adminName?: string, role?: string }) {
+  const initials = adminName.charAt(0).toUpperCase()
+  
   return (
     <header className="h-16 flex flex-shrink-0 items-center justify-between px-6 border-b border-border/40 bg-surface-50/50 dark:bg-surface-900/50 backdrop-blur-xl">
       <div className="flex items-center gap-4">
@@ -37,11 +39,11 @@ export function DashboardNavbar() {
         
         <div className="flex items-center gap-3">
           <div className="text-right hidden md:block">
-            <p className="text-sm font-medium leading-none text-fg">Admin User</p>
-            <p className="text-xs text-muted-fg mt-1">Administrator</p>
+            <p className="text-sm font-medium leading-none text-fg uppercase tracking-tight">{adminName}</p>
+            <p className="text-[10px] text-muted-fg mt-1 font-semibold opacity-70 uppercase tracking-widest">{role}</p>
           </div>
-          <div className="w-9 h-9 rounded-full bg-brand-100 dark:bg-brand-500/20 text-brand-700 dark:text-brand-300 flex items-center justify-center font-bold text-sm border border-brand-200 dark:border-brand-500/30">
-            A
+          <div className="w-9 h-9 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-sm border-2 border-brand-500/20 shadow-sm shadow-brand-500/10">
+            {initials}
           </div>
         </div>
         

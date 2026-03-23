@@ -31,16 +31,29 @@ export async function getTeachers(querySearch?: string, deptFilter?: string) {
   }
 
   const teachers = await TeacherModel.find(query).sort({ _id: -1 }).lean()
-  return JSON.parse(JSON.stringify(teachers))
+  return teachers.map((t: any) => ({
+    ...JSON.parse(JSON.stringify(t)),
+    id: t._id.toString()
+  }))
 }
 
 export async function getTeacherById(id: string) {
+  if (!id || id === 'undefined' || id.length !== 24) return null
+
   const session = await getSession()
   if (!session || !session.schoolId) return null
   
   await connectToDatabase()
-  const teacher = await TeacherModel.findOne({ _id: id, schoolId: session.schoolId }).lean()
-  return JSON.parse(JSON.stringify(teacher))
+  try {
+    const teacher = await TeacherModel.findOne({ _id: id, schoolId: session.schoolId }).lean()
+    if (!teacher) return null
+    return {
+      ...JSON.parse(JSON.stringify(teacher)),
+      id: teacher._id.toString()
+    }
+  } catch (e) {
+    return null
+  }
 }
 
 export async function addTeacher(formData: FormData) {

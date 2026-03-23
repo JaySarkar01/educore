@@ -92,3 +92,23 @@ export async function logout() {
   await deleteSession()
   redirect('/')
 }
+
+export async function getSchoolProfile() {
+  const { cookies } = await import('next/headers')
+  const { decrypt } = await import('@/lib/session')
+  const cookieStore = await cookies()
+  const cookie = cookieStore.get('session')?.value
+  const session = await decrypt(cookie)
+
+  if (!session || !session.schoolId) return null
+
+  await connectToDatabase()
+  const school = await SchoolModel.findById(session.schoolId).lean()
+  if (!school) return null
+
+  return {
+    schoolName: school.schoolName,
+    adminName: school.adminName,
+    role: session.role
+  }
+}

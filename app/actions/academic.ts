@@ -19,7 +19,10 @@ export async function getClasses() {
   if (!session || !session.schoolId) return []
   await connectToDatabase()
   const classes = await AcademicClassModel.find({ schoolId: session.schoolId }).sort({ className: 1 }).lean()
-  return JSON.parse(JSON.stringify(classes))
+  return classes.map((c: any) => ({
+    ...JSON.parse(JSON.stringify(c)),
+    id: c._id.toString()
+  }))
 }
 
 export async function addClass(formData: FormData) {
@@ -51,6 +54,7 @@ export async function addClass(formData: FormData) {
 export async function deleteClass(id: string) {
   const session = await getSession()
   if (!session || !session.schoolId) return;
+  if (!id || id.length !== 24) return;
   await connectToDatabase()
   await AcademicClassModel.findOneAndDelete({ _id: id, schoolId: session.schoolId })
   revalidatePath('/dashboard/classes/manage')
@@ -62,7 +66,10 @@ export async function getSubjects() {
   if (!session || !session.schoolId) return []
   await connectToDatabase()
   const subjects = await SubjectModel.find({ schoolId: session.schoolId }).sort({ subjectName: 1 }).lean()
-  return JSON.parse(JSON.stringify(subjects))
+  return subjects.map((s: any) => ({
+    ...JSON.parse(JSON.stringify(s)),
+    id: s._id.toString()
+  }))
 }
 
 export async function addSubject(formData: FormData) {
@@ -94,6 +101,7 @@ export async function addSubject(formData: FormData) {
 export async function deleteSubject(id: string) {
   const session = await getSession()
   if (!session || !session.schoolId) return;
+  if (!id || id.length !== 24) return;
   await connectToDatabase()
   await SubjectModel.findOneAndDelete({ _id: id, schoolId: session.schoolId })
   revalidatePath('/dashboard/classes/subjects')
