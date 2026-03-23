@@ -58,7 +58,16 @@ export function Sidebar() {
         { name: 'Reports', href: '/dashboard/teachers/reports' },
       ]
     },
-    { name: 'Classes', href: '/dashboard/classes', icon: BookOpen },
+    { 
+      name: 'Academics', 
+      icon: BookOpen,
+      key: 'academics',
+      submenu: [
+        { name: 'Dashboard', href: '/dashboard/classes' },
+        { name: 'Manage Classes', href: '/dashboard/classes/manage' },
+        { name: 'Manage Subjects', href: '/dashboard/classes/subjects' },
+      ]
+    },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings },
   ]
 
