@@ -1,0 +1,120 @@
+"use client"
+import { useState, useTransition } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Building2, KeyRound } from "lucide-react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { authenticate } from "@/app/actions/school"
+
+export default function LoginPage() {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+  const [errorMsg, setErrorMsg] = useState("")
+
+  const handleAction = (formData: FormData) => {
+    setErrorMsg("")
+    startTransition(async () => {
+      try {
+        const email = formData.get("email")?.toString() || ""
+        const password = formData.get("password")?.toString() || ""
+        const res = await authenticate(email, password)
+        
+        if (res.error) {
+          setErrorMsg(res.error)
+        } else {
+          if (res.role === "ADMIN") {
+            router.push("/admin")
+          } else {
+            router.push("/dashboard")
+          }
+        }
+      } catch (err) {
+        setErrorMsg("Failed to connect to the server.")
+      }
+    })
+  }
+
+  return (
+    <div className="flex-1 flex items-center justify-center p-4 py-24 bg-surface-50 dark:bg-surface-950 min-h-[calc(100vh-4rem)]">
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] -z-10" />
+      
+      <div className="w-full max-w-md mt-8">
+        <div className="flex justify-center mb-8">
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="bg-brand-600 text-white p-1.5 rounded-lg group-hover:bg-brand-500 transition-colors">
+              <Building2 className="w-6 h-6" />
+            </div>
+            <span className="font-bold text-2xl tracking-tight text-fg">EduCore</span>
+          </Link>
+        </div>
+
+        <Card className="shadow-2xl shadow-brand-500/10 border-border/50 backdrop-blur-xl bg-surface-50/80 dark:bg-surface-900/80">
+          <form action={handleAction}>
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-2xl text-center flex justify-center items-center gap-2">
+                <KeyRound className="w-5 h-5 text-brand-500" /> Welcome Back
+              </CardTitle>
+              <CardDescription className="text-center text-base">
+                Enter your email to sign in to your dashboard
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {errorMsg && (
+                <div className="bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 p-3 rounded-md text-sm border border-red-200 dark:border-red-500/20 text-center">
+                  {errorMsg}
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input 
+                  id="email" 
+                  name="email"
+                  type="email" 
+                  placeholder="admin@school.edu" 
+                  required 
+                  className="bg-white dark:bg-black/50"
+                  autoComplete="username"
+                />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Password</Label>
+                  <Link href="#" className="text-xs text-brand-600 dark:text-brand-400 hover:underline">
+                    Forgot password?
+                  </Link>
+                </div>
+                <Input 
+                  id="password" 
+                  name="password"
+                  type="password" 
+                  required 
+                  className="bg-white dark:bg-black/50"
+                  autoComplete="current-password"
+                />
+              </div>
+              
+              <div className="bg-brand-50 dark:bg-brand-500/10 p-4 rounded-lg text-xs leading-relaxed text-brand-900 dark:text-brand-100 mt-6 border border-brand-200 dark:border-brand-500/20">
+                <p className="mb-1 font-semibold">Demo Login Accounts:</p>
+                <ul className="list-disc list-inside space-y-1 ml-1 opacity-80">
+                  <li>Super Admin: <code className="bg-white/50 dark:bg-black/20 px-1 py-0.5 rounded">superadmin@educore.com</code> (Pass: <code className="bg-white/50 dark:bg-black/20 px-1 py-0.5 rounded">admin</code>)</li>
+                  <li>School Admin: Use the credentials you set up during registration</li>
+                </ul>
+              </div>
+            </CardContent>
+            <CardFooter className="flex flex-col gap-4">
+              <Button className="w-full h-11 text-base shadow-lg shadow-brand-500/20" type="submit" disabled={isPending}>
+                {isPending ? "Signing in..." : "Sign in"}
+              </Button>
+              <p className="text-center text-sm text-muted-fg">
+                Don&apos;t have a school account? <Link href="/inquiry" className="text-brand-600 dark:text-brand-400 hover:underline font-medium">Register here</Link>
+              </p>
+            </CardFooter>
+          </form>
+        </Card>
+      </div>
+    </div>
+  )
+}
