@@ -3,6 +3,8 @@
 import { connectToDatabase } from "@/lib/db"
 import { SchoolModel } from "@/lib/models/School"
 import { revalidatePath } from "next/cache"
+import { createSession, deleteSession } from "@/lib/session"
+import { redirect } from "next/navigation"
 
 export async function registerSchool(formData: FormData) {
   await connectToDatabase()
@@ -71,6 +73,7 @@ export async function getSchools() {
 
 export async function authenticate(email: string, pass: string) {
   if (email === "superadmin@educore.com" && pass === "admin") {
+    await createSession("ADMIN")
     return { role: "ADMIN" }
   }
   await connectToDatabase()
@@ -78,7 +81,14 @@ export async function authenticate(email: string, pass: string) {
   if (school) {
     if (school.status === "Pending") return { error: "Your account is still pending approval." }
     if (school.status === "Rejected") return { error: "Your account registration was rejected." }
+    
+    await createSession("SCHOOL", school._id.toString())
     return { role: "SCHOOL", schoolId: school._id.toString(), schoolName: school.schoolName }
   }
   return { error: "Invalid credentials." }
+}
+
+export async function logout() {
+  await deleteSession()
+  redirect('/')
 }
