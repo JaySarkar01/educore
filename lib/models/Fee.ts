@@ -1,0 +1,43 @@
+import mongoose, { Schema, Document } from "mongoose";
+
+export interface IFeePayment {
+  amount: number;
+  date: Date;
+  method: 'Cash' | 'Card' | 'Bank Transfer' | 'Online';
+  transactionId?: string;
+  receiptNumber: string;
+}
+
+export interface IFeeInvoice extends Document {
+  schoolId: string;
+  studentId: string;
+  studentName: string;
+  className: string;
+  title: string;
+  amount: number;
+  amountPaid: number;
+  dueDate: string;
+  status: 'Pending' | 'Partial' | 'Paid' | 'Overdue';
+  payments: IFeePayment[];
+}
+
+const FeeInvoiceSchema = new Schema({
+  schoolId: { type: String, required: true, index: true },
+  studentId: { type: String, required: true, index: true },
+  studentName: { type: String, required: true },
+  className: { type: String, required: true },
+  title: { type: String, required: true },
+  amount: { type: Number, required: true },
+  amountPaid: { type: Number, default: 0 },
+  dueDate: { type: String, required: true },
+  status: { type: String, enum: ['Pending', 'Partial', 'Paid', 'Overdue'], default: 'Pending' },
+  payments: [{
+    amount: { type: Number, required: true },
+    date: { type: Date, default: Date.now },
+    method: { type: String, enum: ['Cash', 'Card', 'Bank Transfer', 'Online'], required: true },
+    transactionId: String,
+    receiptNumber: { type: String, required: true }
+  }]
+}, { timestamps: true });
+
+export const FeeInvoiceModel = mongoose.models.FeeInvoice || mongoose.model<IFeeInvoice>("FeeInvoice", FeeInvoiceSchema);

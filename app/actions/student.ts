@@ -1,0 +1,124 @@
+"use server"
+
+import { connectToDatabase } from "@/lib/db"
+import { StudentModel } from "@/lib/models/Student"
+import { cookies } from "next/headers"
+import { decrypt } from "@/lib/session"
+import { revalidatePath } from "next/cache"
+
+async function getSession() {
+  const cookieStore = await cookies()
+  const cookie = cookieStore.get('session')?.value
+  return await decrypt(cookie)
+}
+
+export async function getStudents(querySearch?: string, classFilter?: string) {
+  const session = await getSession()
+  if (!session || !session.schoolId) return []
+  
+  await connectToDatabase()
+  
+  const query: any = { schoolId: session.schoolId }
+  if (querySearch) {
+    // Search by name or admission number broadly
+    query.$or = [
+      { name: { $regex: querySearch, $options: 'i' } },
+      { admissionNo: { $regex: querySearch, $options: 'i' } },
+      { parentPhone: { $regex: querySearch, $options: 'i' } }
+    ]
+  }
+  if (classFilter) {
+    query.className = classFilter
+  }
+
+  const students = await StudentModel.find(query).sort({ _id: -1 }).lean()
+  return JSON.parse(JSON.stringify(students))
+}
+
+export async function getStudentById(id: string) {
+  const session = await getSession()
+  if (!session || !session.schoolId) return null
+  
+  await connectToDatabase()
+  const student = await StudentModel.findOne({ _id: id, schoolId: session.schoolId }).lean()
+  return JSON.parse(JSON.stringify(student))
+}
+
+export async function addStudent(formData: FormData) {
+  const session = await getSession()
+  if (!session || !session.schoolId) return { error: "Not authorized" }
+
+  await connectToDatabase()
+  
+  const className = formData.get("className")?.toString() || ""
+  
+  // Auto-assign roll number
+  const classStudents = await StudentModel.find({ schoolId: session.schoolId, className }).lean()
+  let maxRoll = 0
+  for (const stu of classStudents) {
+    const r = parseInt(stu.rollNumber, 10)
+    if (!isNaN(r) && r > maxRoll) {
+      maxRoll = r
+    }
+  }
+  const assignedRoll = (maxRoll + 1).toString()
+
+  const getString = (key: string) => formData.get(key)?.toString() || ""
+
+  const newStudent = {
+    schoolId: session.schoolId,
+    name: getString("name") || "New Student",
+    admissionNo: getString("admissionNo") || `ADM${Date.now().toString().slice(-6)}`,
+    className: className,
+    section: getString("section"),
+    rollNumber: assignedRoll,
+    gender: getString("gender") || "Other",
+    dateOfBirth: getString("dateOfBirth"),
+    phone: getString("phone"),
+    address: getString("address"),
+    pincode: getString("pincode"),
+    parentName: getString("parentName"),
+    parentPhone: getString("parentPhone"),
+    motherName: getString("motherName"),
+    motherPhone: getString("motherPhone"),
+    emergencyContact: getString("emergencyContact"),
+    admissionDate: getString("admissionDate") || new Date().toISOString().split('T')[0],
+    medicalNotes: getString("medicalNotes"),
+    transportRoute: getString("transportRoute"),
+    hostelRoom: getString("hostelRoom"),
+    previousSchool: getString("previousSchool"),
+    status: getString("status") || "Active",
+    timeline: [
+      {
+        title: "Admission Created",
+        description: `Student successfully onboarded to Class ${className}.`,
+        date: new Date()
+      }
+    ]
+  }
+
+  await StudentModel.create(newStudent)
+  revalidatePath('/dashboard/students')
+  return { success: true }
+}
+
+export async function deleteStudent(id: string, formData?: FormData) {
+  const session = await getSession()
+  if (!session || !session.schoolId) return;
+  
+  await connectToDatabase()
+  await StudentModel.findByIdAndDelete(id)
+  revalidatePath('/dashboard/students')
+}
+
+export async function addTimelineEvent(studentId: string, title: string, description: string) {
+  const session = await getSession()
+  if (!session || !session.schoolId) return;
+  
+  await connectToDatabase()
+  await StudentModel.findOneAndUpdate(
+    { _id: studentId, schoolId: session.schoolId },
+    { $push: { timeline: { title, description, date: new Date() } } }
+  )
+  revalidatePath(`/dashboard/students/${studentId}`)
+}

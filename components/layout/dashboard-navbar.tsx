@@ -2,6 +2,7 @@
 import { Bell, Search, Menu, LogOut, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { logout } from '@/app/actions/school'
+import { ModeToggle } from '@/components/ui/theme-switcher'
 import Link from 'next/link'
 
 export function DashboardNavbar() {
@@ -26,6 +27,7 @@ export function DashboardNavbar() {
             <ExternalLink className="w-4 h-4" /> View Site
           </Button>
         </Link>
+        <ModeToggle />
         <Button variant="ghost" size="icon" className="relative text-muted-fg hover:text-fg">
           <Bell className="w-5 h-5" />
           <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-brand-500 rounded-full border border-surface-50 dark:border-surface-950"></span>

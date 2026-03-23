@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Building2, LogOut, LayoutDashboard } from "lucide-react"
 import { SessionPayload } from "@/lib/session"
 import { logout } from "@/app/actions/school"
+import { ModeToggle } from "@/components/ui/theme-switcher"
 
 export function Navbar({ session }: { session: SessionPayload | null }) {
   return (
@@ -24,6 +25,7 @@ export function Navbar({ session }: { session: SessionPayload | null }) {
         </div>
         
         <div className="flex items-center gap-4">
+          <ModeToggle />
           {session ? (
             <>
               <Link href={session.role === 'ADMIN' ? '/admin' : '/dashboard'}>
