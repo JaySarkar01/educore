@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Search, Download, Upload, Filter, MoreHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-export function StudentsFilterBar({ initialQuery, initialClass }: { initialQuery: string, initialClass: string }) {
+export function StudentsFilterBar({ initialQuery, initialClass, classes }: { initialQuery: string, initialClass: string, classes?: any[] }) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -38,13 +38,17 @@ export function StudentsFilterBar({ initialQuery, initialClass }: { initialQuery
               placeholder="Search student, adm no..." 
             />
           </div>
-          <div className="w-24 sm:w-28">
-            <Input 
+          <div className="w-28 sm:w-32">
+            <select 
               name="class" 
               defaultValue={initialClass} 
-              className="h-9 border-surface-200 dark:border-surface-800 text-sm" 
-              placeholder="Class" 
-            />
+              className="w-full h-9 rounded-md border border-border bg-surface-50 dark:bg-surface-950 text-sm px-3 text-fg focus:outline-none focus:ring-1 focus:ring-brand-500 shadow-sm"
+            >
+              <option value="">All Classes</option>
+              {classes?.map(c => (
+                <option key={c._id} value={c.className}>{c.className}</option>
+              ))}
+            </select>
           </div>
           <select title="Gender" name="gender" className="h-9 rounded-md border border-surface-200 dark:border-surface-800 text-sm px-3 bg-surface-50 dark:bg-surface-950 text-muted-fg focus:outline-none focus:ring-1 focus:ring-brand-500">
              <option value="">Gender</option>

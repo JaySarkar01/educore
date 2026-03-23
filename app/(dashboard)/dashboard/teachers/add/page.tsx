@@ -5,14 +5,26 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2, ArrowLeft, Save } from "lucide-react"
 import { addTeacher } from "@/app/actions/teacher"
+import { getSubjects } from "@/app/actions/academic"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useEffect } from "react"
 
 export default function AddTeacherPage() {
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
+  const [subjects, setSubjects] = useState<any[]>([])
+
+  useEffect(() => {
+    getSubjects().then(setSubjects)
+  }, [])
 
   const handleAction = (formData: FormData) => {
+    const checked = formData.getAll('subjects_checkbox')
+    if (checked.length > 0) {
+      formData.set('subjects', checked.join(', '))
+    }
+
     startTransition(async () => {
       const res = await addTeacher(formData)
       if (res?.success) {
@@ -54,8 +66,15 @@ export default function AddTeacherPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="subjects">Subjects Handled</Label>
-                <Input id="subjects" name="subjects" placeholder="e.g. Physics, Math (comma separated)" />
+                <Label>Subjects Handled</Label>
+                <div className="flex flex-wrap gap-3 p-3 bg-surface-100 dark:bg-surface-900 rounded-md border border-border/50 max-h-32 overflow-y-auto">
+                   {subjects.length === 0 ? <span className="text-xs text-muted-fg mt-1">No subjects structurally registered globally yet.</span> : subjects.map(sub => (
+                     <label key={sub._id} className="flex items-center gap-2 text-sm font-medium text-fg cursor-pointer hover:text-brand-600 transition-colors">
+                        <input type="checkbox" name="subjects_checkbox" value={sub.subjectName} className="accent-brand-500 rounded-sm w-4 h-4 cursor-pointer border-border" />
+                        {sub.subjectName}
+                     </label>
+                   ))}
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="baseSalary">Base Salary ($)</Label>

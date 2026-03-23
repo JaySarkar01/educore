@@ -5,12 +5,20 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2, ArrowLeft, Save } from "lucide-react"
 import { addStudent } from "@/app/actions/student"
+import { getClasses } from "@/app/actions/academic"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useEffect } from "react"
 
 export default function AddStudentPage() {
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
+  const [classes, setClasses] = useState<any[]>([])
+  const [selectedClass, setSelectedClass] = useState<string>("")
+
+  useEffect(() => {
+    getClasses().then(setClasses)
+  }, [])
 
   const handleAction = (formData: FormData) => {
     startTransition(async () => {
@@ -45,11 +53,36 @@ export default function AddStudentPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="className">Class *</Label>
-                <Input id="className" name="className" required placeholder="e.g. 10th" />
+                <select 
+                  id="className" 
+                  name="className" 
+                  required 
+                  value={selectedClass}
+                  onChange={(e) => setSelectedClass(e.target.value)}
+                  className="flex h-9 w-full rounded-md border border-border bg-surface-50 dark:bg-surface-950 px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500"
+                >
+                  <option value="" disabled>Select Class</option>
+                  {classes.map((c) => (
+                    <option key={c._id} value={c.className}>{c.className}</option>
+                  ))}
+                </select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="section">Section</Label>
-                <Input id="section" name="section" placeholder="e.g. A" />
+                <Label htmlFor="section">Section *(Requires Class)</Label>
+                <select 
+                  id="section" 
+                  name="section" 
+                  required 
+                  className="flex h-9 w-full rounded-md border border-border bg-surface-50 dark:bg-surface-950 px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500"
+                  disabled={!selectedClass}
+                >
+                  {classes.find(c => c.className === selectedClass)?.sections?.map((s: string) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                  {(!classes.find(c => c.className === selectedClass)?.sections || classes.find(c => c.className === selectedClass)?.sections?.length === 0) && (
+                    <option value="None">None Available</option>
+                  )}
+                </select>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

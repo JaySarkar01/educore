@@ -1,4 +1,5 @@
 import { getStudents, deleteStudent } from "@/app/actions/student"
+import { getClasses } from "@/app/actions/academic"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { UserMinus, Search, Plus } from "lucide-react"
@@ -11,6 +12,7 @@ export default async function ManageStudentsPage({ searchParams }: { searchParam
   const className = sp?.class || "";
   
   const students = await getStudents(q, className)
+  const classes = await getClasses()
 
   return (
     <div className="p-8 max-w-[1400px] mx-auto space-y-8 animate-in fade-in duration-500">
@@ -30,7 +32,7 @@ export default async function ManageStudentsPage({ searchParams }: { searchParam
       <Card className="shadow-lg shadow-brand-500/5 overflow-hidden border-border/50">
         <CardHeader className="flex flex-col lg:flex-row items-start lg:items-center justify-between border-b border-border/40 pb-4 gap-4 bg-surface-50/50 dark:bg-surface-900/20">
           <CardTitle className="text-xl font-semibold">Enrolled Students ({students.length})</CardTitle>
-          <StudentsFilterBar initialQuery={q} initialClass={className} />
+          <StudentsFilterBar initialQuery={q} initialClass={className} classes={classes} />
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
