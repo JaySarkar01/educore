@@ -6,36 +6,79 @@ import { revalidatePath } from "next/cache"
 import { createSession, deleteSession } from "@/lib/session"
 import { redirect } from "next/navigation"
 
-export async function registerSchool(formData: FormData) {
-  await connectToDatabase()
-  
-  const emailStr = formData.get("adminEmail")?.toString() || ""
-  const passwordStr = formData.get("password")?.toString() || ""
+// ── Helpers ──────────────────────────────────────────────────────────────────
 
-  const existingSchool = await SchoolModel.findOne({ adminEmail: emailStr })
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+}
+
+function validateRegistration(data: Record<string, string>) {
+  if (!data.schoolName.trim())
+    return "School name is required."
+  if (!data.schoolEmail.trim() || !isValidEmail(data.schoolEmail))
+    return "A valid school email is required."
+  if (!/^\d{10}$/.test(data.phone))
+    return "Phone number must be exactly 10 digits (numbers only)."
+  if (!data.city.trim())
+    return "City is required."
+  if (data.zip && !/^\d{6}$/.test(data.zip))
+    return "ZIP code must be exactly 6 digits."
+  if (!data.adminName.trim())
+    return "Administrator full name is required."
+  if (!data.adminEmail.trim() || !isValidEmail(data.adminEmail))
+    return "A valid administrator email is required."
+  if (data.password.length < 8)
+    return "Password must be at least 8 characters."
+  if (data.password !== data.confirmPassword)
+    return "Passwords do not match."
+  return null
+}
+
+// ── Actions ───────────────────────────────────────────────────────────────────
+
+export async function registerSchool(formData: FormData) {
+  const data = {
+    schoolName:      formData.get("schoolName")?.toString()      ?? "",
+    schoolEmail:     formData.get("schoolEmail")?.toString()     ?? "",
+    phone:           formData.get("phone")?.toString()           ?? "",
+    address:         formData.get("address")?.toString()         ?? "",
+    city:            formData.get("city")?.toString()            ?? "",
+    state:           formData.get("state")?.toString()           ?? "",
+    zip:             formData.get("zip")?.toString()             ?? "",
+    adminName:       formData.get("adminName")?.toString()       ?? "",
+    adminEmail:      formData.get("adminEmail")?.toString()      ?? "",
+    password:        formData.get("password")?.toString()        ?? "",
+    confirmPassword: formData.get("confirmPassword")?.toString() ?? "",
+    message:         formData.get("message")?.toString()         ?? "",
+  }
+
+  const validationError = validateRegistration(data)
+  if (validationError) return { error: validationError }
+
+  await connectToDatabase()
+
+  const existingSchool = await SchoolModel.findOne({ adminEmail: data.adminEmail })
   if (existingSchool) {
     return { error: "An account with this administrator email already exists." }
   }
 
-  const newSchool = {
-    schoolName: formData.get("schoolName")?.toString() || "",
-    schoolEmail: formData.get("schoolEmail")?.toString() || "",
-    phone: formData.get("phone")?.toString() || "",
-    address: formData.get("address")?.toString() || "",
-    city: formData.get("city")?.toString() || "",
-    state: formData.get("state")?.toString() || "",
-    country: formData.get("country")?.toString() || "",
-    adminName: formData.get("adminName")?.toString() || "",
-    adminEmail: emailStr,
-    password: passwordStr,
-    message: formData.get("message")?.toString() || "",
-    status: "Pending",
+  await SchoolModel.create({
+    schoolName:  data.schoolName,
+    schoolEmail: data.schoolEmail,
+    phone:       data.phone,
+    address:     data.address,
+    city:        data.city,
+    state:       data.state,
+    zip:         data.zip,
+    adminName:   data.adminName,
+    adminEmail:  data.adminEmail,
+    password:    data.password,
+    message:     data.message,
+    status:      "Pending",
     date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
-  }
-  
-  await SchoolModel.create(newSchool)
+  })
+
   revalidatePath('/admin')
-  
   return { success: true }
 }
 
@@ -62,7 +105,7 @@ export async function getSchools() {
     address: s.address,
     city: s.city,
     state: s.state,
-    country: s.country,
+    zip: s.zip,
     adminName: s.adminName,
     adminEmail: s.adminEmail,
     message: s.message,
@@ -79,9 +122,9 @@ export async function authenticate(email: string, pass: string) {
   await connectToDatabase()
   const school = await SchoolModel.findOne({ adminEmail: email, password: pass })
   if (school) {
-    if (school.status === "Pending") return { error: "Your account is still pending approval." }
+    if (school.status === "Pending")  return { error: "Your account is still pending approval." }
     if (school.status === "Rejected") return { error: "Your account registration was rejected." }
-    
+
     await createSession("SCHOOL", school._id.toString())
     return { role: "SCHOOL", schoolId: school._id.toString(), schoolName: school.schoolName }
   }

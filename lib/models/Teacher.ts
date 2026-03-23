@@ -15,6 +15,7 @@ export interface ITeacher extends Document {
   department: string;
   subjects: string[];
   baseSalary: number;
+  photo: string;
   status: 'Active' | 'Inactive' | 'On Leave' | 'Resigned';
   timeline: { title: string; date: Date; description?: string }[];
 }
@@ -34,6 +35,7 @@ const TeacherSchema = new Schema({
   department: { type: String, default: "" },
   subjects: { type: [String], default: [] },
   baseSalary: { type: Number, default: 0 },
+  photo:      { type: String, default: "" },
   status: { type: String, enum: ['Active', 'Inactive', 'On Leave', 'Resigned'], default: 'Active' },
   timeline: [{
     title: { type: String, required: true },

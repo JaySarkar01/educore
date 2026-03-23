@@ -15,6 +15,15 @@ export default function InquiryPage() {
 
   const handleAction = (formData: FormData) => {
     setErrorMsg("")
+
+    // Client-side password match check before hitting the server
+    const password = formData.get("password")?.toString() ?? ""
+    const confirmPassword = formData.get("confirmPassword")?.toString() ?? ""
+    if (password !== confirmPassword) {
+      setErrorMsg("Passwords do not match.")
+      return
+    }
+
     startTransition(async () => {
       try {
         const res = await registerSchool(formData)
@@ -80,7 +89,7 @@ export default function InquiryPage() {
                   {errorMsg}
                 </div>
               )}
-              
+
               {/* School Details */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
@@ -93,7 +102,20 @@ export default function InquiryPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number *</Label>
-                  <Input id="phone" name="phone" type="tel" required placeholder="+1 (555) 000-0000" />
+                  <Input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    required
+                    placeholder="9876543210"
+                    maxLength={10}
+                    pattern="[0-9]{10}"
+                    title="Enter exactly 10 digits"
+                    onInput={(e) => {
+                      const el = e.currentTarget
+                      el.value = el.value.replace(/\D/g, "").slice(0, 10)
+                    }}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="address">Street Address</Label>
@@ -101,16 +123,27 @@ export default function InquiryPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="city">City *</Label>
-                  <Input id="city" name="city" required placeholder="New York" />
+                  <Input id="city" name="city" required placeholder="Mumbai" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="state">State</Label>
-                    <Input id="state" name="state" placeholder="NY" />
+                    <Input id="state" name="state" placeholder="MH" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="country">Country</Label>
-                    <Input id="country" name="country" placeholder="USA" defaultValue="USA" />
+                    <Label htmlFor="zip">ZIP Code</Label>
+                    <Input
+                      id="zip"
+                      name="zip"
+                      placeholder="400001"
+                      maxLength={6}
+                      pattern="[0-9]{6}"
+                      title="Enter exactly 6 digits"
+                      onInput={(e) => {
+                        const el = e.currentTarget
+                        el.value = el.value.replace(/\D/g, "").slice(0, 6)
+                      }}
+                    />
                   </div>
                 </div>
               </div>
@@ -134,11 +167,12 @@ export default function InquiryPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="password">Password *</Label>
-                    <Input id="password" name="password" type="password" required />
+                    <Input id="password" name="password" type="password" required minLength={8} />
+                    <p className="text-xs text-muted-fg">Minimum 8 characters</p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="confirmPassword">Confirm Password *</Label>
-                    <Input id="confirmPassword" name="confirmPassword" type="password" required />
+                    <Input id="confirmPassword" name="confirmPassword" type="password" required minLength={8} />
                   </div>
                 </div>
               </div>

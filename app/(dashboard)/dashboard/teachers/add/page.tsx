@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Loader2, ArrowLeft, Save, AlertCircle } from "lucide-react"
 import { addTeacher } from "@/app/actions/teacher"
 import { getSubjects } from "@/app/actions/academic"
+import { CloudinaryUploader } from "@/components/dashboard/cloudinary-uploader"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 
@@ -15,6 +16,8 @@ export default function AddTeacherPage() {
   const [subjects, setSubjects] = useState<any[]>([])
   const [errors, setErrors] = useState<Record<string, string[]>>({})
   const [isDirty, setIsDirty] = useState(false)
+  const [photoUrl, setPhotoUrl] = useState("")
+
   const [formValues, setFormValues] = useState({
     employeeId: "",
     department: "",
@@ -49,10 +52,7 @@ export default function AddTeacherPage() {
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (isDirty) {
-        e.preventDefault()
-        e.returnValue = ""
-      }
+      if (isDirty) { e.preventDefault(); e.returnValue = "" }
     }
     window.addEventListener("beforeunload", handleBeforeUnload)
     return () => window.removeEventListener("beforeunload", handleBeforeUnload)
@@ -61,14 +61,14 @@ export default function AddTeacherPage() {
   const handleAction = (formData: FormData) => {
     setErrors({})
     const checked = formData.getAll('subjects_checkbox')
-    if (checked.length > 0) {
-      formData.set('subjects', checked.join(', '))
-    }
+    if (checked.length > 0) formData.set('subjects', checked.join(', '))
+    // Inject Cloudinary URL
+    formData.set("photo", photoUrl)
 
     startTransition(async () => {
       const res = await addTeacher(formData)
       if (res?.success) {
-        setIsDirty(false) // Clear dirty state before redirect
+        setIsDirty(false)
         router.push("/dashboard/teachers/manage")
       } else if (res?.fieldErrors) {
         setErrors(res.fieldErrors)
@@ -98,11 +98,8 @@ export default function AddTeacherPage() {
       </div>
 
       <div className="bg-surface-50 dark:bg-surface-950 border border-border/50 rounded-xl shadow-lg overflow-hidden mt-6">
-        <form 
-          action={handleAction} 
-          className="p-8 space-y-8"
-        >
-          
+        <form action={handleAction} className="p-8 space-y-8">
+
           {Object.keys(errors).length > 0 && (
             <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 p-4 rounded-lg flex items-center gap-3 animate-in slide-in-from-top-2">
               <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
@@ -113,7 +110,29 @@ export default function AddTeacherPage() {
             </div>
           )}
 
-          {/* Professional Info */}
+          {/* ── Profile Photo ─────────────────────────────────────────────── */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-brand-600 dark:text-brand-400 uppercase tracking-wider border-b border-border/30 pb-2">
+              Profile Photo <span className="text-muted-fg font-normal normal-case tracking-normal">(Optional • max 2 MB)</span>
+            </h3>
+            <div className="flex items-center gap-6">
+              <CloudinaryUploader
+                endpoint="/api/upload/teacher-photo"
+                accept="image/*"
+                maxMB={2}
+                avatarMode
+                value={photoUrl}
+                onChange={setPhotoUrl}
+                onRemove={() => setPhotoUrl("")}
+              />
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-fg">Upload Teacher Photo</p>
+                <p className="text-xs text-muted-fg">Drag & drop or click the avatar to upload.<br />JPG, PNG or WEBP • Max 2 MB</p>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Employment Details ────────────────────────────────────────── */}
           <div className="space-y-4">
             <h3 className="text-sm font-semibold text-brand-600 dark:text-brand-400 uppercase tracking-wider border-b border-border/30 pb-2">Employment Details</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -136,12 +155,14 @@ export default function AddTeacherPage() {
               <div className="space-y-2">
                 <Label>Subjects Handled</Label>
                 <div className="flex flex-wrap gap-3 p-3 bg-surface-100 dark:bg-surface-900 rounded-md border border-border/50 max-h-32 overflow-y-auto">
-                   {subjects.length === 0 ? <span className="text-xs text-muted-fg mt-1">No subjects structurally registered globally yet.</span> : subjects.map(sub => (
-                     <label key={sub._id} className="flex items-center gap-2 text-sm font-medium text-fg cursor-pointer hover:text-brand-600 transition-colors">
-                        <input type="checkbox" name="subjects_checkbox" value={sub.subjectName} onChange={() => setIsDirty(true)} className="accent-brand-500 rounded-sm w-4 h-4 cursor-pointer border-border" />
-                        {sub.subjectName}
-                     </label>
-                   ))}
+                  {subjects.length === 0 ? (
+                    <span className="text-xs text-muted-fg mt-1">No subjects registered yet.</span>
+                  ) : subjects.map(sub => (
+                    <label key={sub._id} className="flex items-center gap-2 text-sm font-medium text-fg cursor-pointer hover:text-brand-600 transition-colors">
+                      <input type="checkbox" name="subjects_checkbox" value={sub.subjectName} onChange={() => setIsDirty(true)} className="accent-brand-500 rounded-sm w-4 h-4 cursor-pointer border-border" />
+                      {sub.subjectName}
+                    </label>
+                  ))}
                 </div>
               </div>
               <div className="space-y-2">
@@ -151,7 +172,7 @@ export default function AddTeacherPage() {
             </div>
           </div>
 
-          {/* Personal Info */}
+          {/* ── Personal Info ─────────────────────────────────────────────── */}
           <div className="space-y-4">
             <h3 className="text-sm font-semibold text-brand-600 dark:text-brand-400 uppercase tracking-wider border-b border-border/30 pb-2">Personal Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -163,9 +184,7 @@ export default function AddTeacherPage() {
               <div className="space-y-2">
                 <Label htmlFor="gender">Gender</Label>
                 <select id="gender" name="gender" value={formValues.gender} onChange={handleChange} className="flex h-10 w-full rounded-md border border-border bg-surface-50 dark:bg-surface-950 px-3 py-1 text-sm shadow-sm">
-                  <option value="Female">Female</option>
-                  <option value="Male">Male</option>
-                  <option value="Other">Other</option>
+                  <option>Female</option><option>Male</option><option>Other</option>
                 </select>
               </div>
             </div>
@@ -192,7 +211,7 @@ export default function AddTeacherPage() {
             </div>
           </div>
 
-          {/* Academic Profile */}
+          {/* ── Academic Profile ──────────────────────────────────────────── */}
           <div className="space-y-4">
             <h3 className="text-sm font-semibold text-brand-600 dark:text-brand-400 uppercase tracking-wider border-b border-border/30 pb-2">Academic Profile</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -214,8 +233,7 @@ export default function AddTeacherPage() {
               <Button type="button" variant="ghost">Cancel</Button>
             </Link>
             <Button type="submit" disabled={isPending} className="lg:w-48 shadow-lg shadow-brand-500/20">
-              {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-              {isPending ? "Onboarding..." : "Register Teacher"}
+              {isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Onboarding...</> : <><Save className="mr-2 h-4 w-4" /> Register Teacher</>}
             </Button>
           </div>
         </form>

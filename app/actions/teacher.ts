@@ -113,6 +113,7 @@ export async function addTeacher(formData: FormData) {
     subjects: getString("subjects").split(',').map(s => s.trim()).filter(Boolean),
     baseSalary: getNum("baseSalary"),
     status: getString("status") || "Active",
+    photo: getString("photo"),
     timeline: [
       {
         title: "Faculty Onboarded",

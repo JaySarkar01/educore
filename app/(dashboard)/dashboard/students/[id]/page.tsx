@@ -2,6 +2,7 @@ import { getStudentById } from "@/app/actions/student"
 import { getStudentAttendanceStats } from "@/app/actions/attendance"
 import { getStudentFeeStats } from "@/app/actions/fees"
 import { RecordPaymentForm } from "@/components/dashboard/record-payment-form"
+import { DocumentsTab } from "@/components/dashboard/documents-tab"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, User, LayoutGrid, CalendarDays, Wallet, FileText, Activity, MapPin, Phone, GraduationCap, CheckCircle } from "lucide-react"
@@ -36,9 +37,17 @@ export default async function StudentProfilePage(
 
       {/* Profile Header Card */}
       <div className="bg-surface-50 dark:bg-surface-950 border border-border/50 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center gap-6">
-        <div className="w-24 h-24 rounded-full bg-brand-100 dark:bg-brand-500/20 text-brand-700 dark:text-brand-300 flex items-center justify-center text-3xl font-bold flex-shrink-0 border-4 border-surface-100 dark:border-surface-900">
-          {student.name.charAt(0)}
-        </div>
+        {student.photo ? (
+          <img
+            src={student.photo}
+            alt={student.name}
+            className="w-24 h-24 rounded-full object-cover flex-shrink-0 border-4 border-surface-100 dark:border-surface-900 shadow-md"
+          />
+        ) : (
+          <div className="w-24 h-24 rounded-full bg-brand-100 dark:bg-brand-500/20 text-brand-700 dark:text-brand-300 flex items-center justify-center text-3xl font-bold flex-shrink-0 border-4 border-surface-100 dark:border-surface-900">
+            {student.name.charAt(0)}
+          </div>
+        )}
         <div className="flex-1">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
@@ -341,14 +350,11 @@ export default async function StudentProfilePage(
           </div>
         )}
 
-        {['documents'].includes(tab) && (
-          <div className="bg-surface-50 dark:bg-surface-950 border border-border/50 border-dashed rounded-xl p-16 flex flex-col items-center justify-center text-center animate-in zoom-in-95 duration-300">
-            <div className="w-16 h-16 bg-surface-200 dark:bg-surface-800 rounded-full flex items-center justify-center mb-4">
-              <FileText className="w-8 h-8 text-muted-fg opacity-50" />
-            </div>
-            <h3 className="text-lg font-bold text-fg capitalize">{tab} Module</h3>
-            <p className="text-muted-fg max-w-sm mt-2">This module is currently being built and will allow you to manage {tab} records seamlessly.</p>
-          </div>
+        {tab === 'documents' && (
+          <DocumentsTab
+            studentId={student._id?.toString() || student.id}
+            initialDocs={student.documents || []}
+          />
         )}
       </div>
 

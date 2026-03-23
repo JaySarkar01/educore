@@ -27,15 +27,16 @@ async function getSession() {
   return await decrypt(cookie)
 }
 
+// ── Queries ────────────────────────────────────────────────────────────────
+
 export async function getStudents(querySearch?: string, classFilter?: string) {
   const session = await getSession()
   if (!session || !session.schoolId) return []
-  
+
   await connectToDatabase()
-  
+
   const query: any = { schoolId: session.schoolId }
   if (querySearch) {
-    // Search by name or admission number broadly
     query.$or = [
       { name: { $regex: querySearch, $options: 'i' } },
       { admissionNo: { $regex: querySearch, $options: 'i' } },
@@ -55,10 +56,10 @@ export async function getStudents(querySearch?: string, classFilter?: string) {
 
 export async function getStudentById(id: string) {
   if (!id || id === 'undefined' || id.length !== 24) return null
-  
+
   const session = await getSession()
   if (!session || !session.schoolId) return null
-  
+
   await connectToDatabase()
   try {
     const student = await StudentModel.findOne({ _id: id, schoolId: session.schoolId }).lean()
@@ -72,44 +73,47 @@ export async function getStudentById(id: string) {
   }
 }
 
+// ── Mutations ──────────────────────────────────────────────────────────────
+
 export async function addStudent(formData: FormData) {
   const session = await getSession()
   if (!session || !session.schoolId) return { error: "Not authorized" }
 
   const rawData = {
-    name: formData.get("name")?.toString(),
+    name:        formData.get("name")?.toString(),
     admissionNo: formData.get("admissionNo")?.toString(),
-    className: formData.get("className")?.toString()?.replace(/^Class\s+/i, ""),
-    section: formData.get("section")?.toString(),
-    gender: formData.get("gender")?.toString(),
+    className:   formData.get("className")?.toString()?.replace(/^Class\s+/i, ""),
+    section:     formData.get("section")?.toString(),
+    gender:      formData.get("gender")?.toString(),
     dateOfBirth: formData.get("dateOfBirth")?.toString(),
-    phone: formData.get("phone")?.toString(),
-    address: formData.get("address")?.toString(),
-    pincode: formData.get("pincode")?.toString(),
-    parentName: formData.get("parentName")?.toString(),
+    phone:       formData.get("phone")?.toString(),
+    address:     formData.get("address")?.toString(),
+    pincode:     formData.get("pincode")?.toString(),
+    parentName:  formData.get("parentName")?.toString(),
     parentPhone: formData.get("parentPhone")?.toString(),
   }
 
   const validated = StudentSchema.safeParse(rawData)
   if (!validated.success) {
-    return { 
-      error: "Validation Failed", 
-      fieldErrors: validated.error.flatten().fieldErrors 
+    return {
+      error: "Validation Failed",
+      fieldErrors: validated.error.flatten().fieldErrors
     }
   }
 
+  // Photo is a Cloudinary URL uploaded client-side before form submission
+  const photoUrl = formData.get("photo")?.toString() || ""
+
   await connectToDatabase()
-  
+
   const { className } = validated.data
-  
+
   // Auto-assign roll number
   const classStudents = await StudentModel.find({ schoolId: session.schoolId, className }).lean()
   let maxRoll = 0
   for (const stu of classStudents) {
     const r = parseInt(stu.rollNumber, 10)
-    if (!isNaN(r) && r > maxRoll) {
-      maxRoll = r
-    }
+    if (!isNaN(r) && r > maxRoll) maxRoll = r
   }
   const assignedRoll = (maxRoll + 1).toString()
 
@@ -118,17 +122,19 @@ export async function addStudent(formData: FormData) {
   const newStudent = {
     schoolId: session.schoolId,
     ...validated.data,
-    admissionNo: validated.data.admissionNo || `ADM${Date.now().toString().slice(-6)}`,
-    rollNumber: assignedRoll,
-    motherName: getString("motherName"),
-    motherPhone: getString("motherPhone"),
-    emergencyContact: getString("emergencyContact"),
-    admissionDate: getString("admissionDate") || new Date().toISOString().split('T')[0],
-    medicalNotes: getString("medicalNotes"),
-    transportRoute: getString("transportRoute"),
-    hostelRoom: getString("hostelRoom"),
-    previousSchool: getString("previousSchool"),
-    status: getString("status") || "Active",
+    admissionNo:       validated.data.admissionNo || `ADM${Date.now().toString().slice(-6)}`,
+    rollNumber:        assignedRoll,
+    motherName:        getString("motherName"),
+    motherPhone:       getString("motherPhone"),
+    emergencyContact:  getString("emergencyContact"),
+    admissionDate:     getString("admissionDate") || new Date().toISOString().split('T')[0],
+    medicalNotes:      getString("medicalNotes"),
+    transportRoute:    getString("transportRoute"),
+    hostelRoom:        getString("hostelRoom"),
+    previousSchool:    getString("previousSchool"),
+    status:            getString("status") || "Active",
+    photo:             photoUrl,
+    documents: [],
     timeline: [
       {
         title: "Admission Created",
@@ -143,10 +149,10 @@ export async function addStudent(formData: FormData) {
   return { success: true }
 }
 
-export async function deleteStudent(id: string, formData?: FormData) {
+export async function deleteStudent(id: string) {
   const session = await getSession()
-  if (!session || !session.schoolId) return;
-  
+  if (!session || !session.schoolId) return
+
   await connectToDatabase()
   await StudentModel.findByIdAndDelete(id)
   revalidatePath('/dashboard/students')
@@ -154,12 +160,67 @@ export async function deleteStudent(id: string, formData?: FormData) {
 
 export async function addTimelineEvent(studentId: string, title: string, description: string) {
   const session = await getSession()
-  if (!session || !session.schoolId) return;
-  
+  if (!session || !session.schoolId) return
+
   await connectToDatabase()
   await StudentModel.findOneAndUpdate(
     { _id: studentId, schoolId: session.schoolId },
     { $push: { timeline: { title, description, date: new Date() } } }
   )
   revalidatePath(`/dashboard/students/${studentId}`)
+}
+
+// ── Document actions ────────────────────────────────────────────────────────
+
+/**
+ * Save a document record to the student's documents array.
+ * The file has already been uploaded to Cloudinary client-side;
+ * we receive only the returned URL + metadata.
+ */
+export async function uploadStudentDocument(
+  studentId: string,
+  formData: FormData
+) {
+  const session = await getSession()
+  if (!session || !session.schoolId) return { error: "Not authorized" }
+
+  const url      = formData.get("url")?.toString() || ""
+  const docType  = formData.get("type")?.toString() || ""
+  const docName  = formData.get("name")?.toString() || ""
+  const mimeType = formData.get("mimeType")?.toString() || ""
+
+  if (!url)     return { error: "No file URL provided." }
+  if (!docType) return { error: "Please select a document type." }
+
+  await connectToDatabase()
+  await StudentModel.findOneAndUpdate(
+    { _id: studentId, schoolId: session.schoolId },
+    {
+      $push: {
+        documents: {
+          name:       docName || "Document",
+          type:       docType,
+          fileData:   url,   // reuse field name for backward compat; now stores Cloudinary URL
+          mimeType,
+          uploadedAt: new Date()
+        }
+      }
+    }
+  )
+  revalidatePath(`/dashboard/students/${studentId}`)
+  return { success: true }
+}
+
+export async function deleteStudentDocument(studentId: string, docIndex: number) {
+  const session = await getSession()
+  if (!session || !session.schoolId) return { error: "Not authorized" }
+
+  await connectToDatabase()
+  const student = await StudentModel.findOne({ _id: studentId, schoolId: session.schoolId })
+  if (!student) return { error: "Student not found" }
+
+  student.documents.splice(docIndex, 1)
+  await student.save()
+  revalidatePath(`/dashboard/students/${studentId}`)
+  return { success: true }
 }

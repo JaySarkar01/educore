@@ -1,5 +1,13 @@
 import mongoose, { Schema, Document } from "mongoose";
 
+export interface IStudentDocument {
+  name: string;
+  type: string;       // e.g. "Birth Certificate", "Transfer Certificate", etc.
+  fileData: string;   // base64 encoded
+  mimeType: string;
+  uploadedAt: Date;
+}
+
 export interface IStudent extends Document {
   schoolId: string;
   name: string;
@@ -9,11 +17,11 @@ export interface IStudent extends Document {
   rollNumber: string;
   gender: 'Male' | 'Female' | 'Other';
   dateOfBirth: string;
-  
+
   phone: string;
   address: string;
   pincode: string;
-  
+
   parentName: string;
   parentPhone: string;
   motherName: string;
@@ -25,45 +33,57 @@ export interface IStudent extends Document {
   transportRoute: string;
   hostelRoom: string;
   previousSchool: string;
-  photo: string;
-  
+  photo: string;         // base64 data URL
+
+  documents: IStudentDocument[];
+
   status: 'Active' | 'Inactive' | 'Passed' | 'Left';
-  
+
   timeline: { title: string; date: Date; description?: string }[];
 }
 
+const StudentDocumentSchema = new Schema({
+  name:       { type: String, required: true },
+  type:       { type: String, required: true },
+  fileData:   { type: String, required: true },
+  mimeType:   { type: String, required: true },
+  uploadedAt: { type: Date, default: Date.now },
+})
+
 const StudentSchema: Schema = new Schema({
-  schoolId: { type: String, required: true, index: true },
-  name: { type: String, required: true },
+  schoolId:    { type: String, required: true, index: true },
+  name:        { type: String, required: true },
   admissionNo: { type: String, required: true },
-  className: { type: String, required: true },
-  section: { type: String, default: "" },
-  rollNumber: { type: String, required: true },
-  gender: { type: String, enum: ['Male', 'Female', 'Other'], default: 'Other' },
+  className:   { type: String, required: true },
+  section:     { type: String, default: "" },
+  rollNumber:  { type: String, required: true },
+  gender:      { type: String, enum: ['Male', 'Female', 'Other'], default: 'Other' },
   dateOfBirth: { type: String, default: "" },
-  
-  phone: { type: String, default: "" },
+
+  phone:   { type: String, default: "" },
   address: { type: String, default: "" },
   pincode: { type: String, default: "" },
-  
-  parentName: { type: String, required: true },
-  parentPhone: { type: String, required: true },
-  motherName: { type: String, default: "" },
-  motherPhone: { type: String, default: "" },
+
+  parentName:       { type: String, required: true },
+  parentPhone:      { type: String, required: true },
+  motherName:       { type: String, default: "" },
+  motherPhone:      { type: String, default: "" },
   emergencyContact: { type: String, default: "" },
 
-  admissionDate: { type: String, required: true },
-  medicalNotes: { type: String, default: "" },
+  admissionDate:  { type: String, required: true },
+  medicalNotes:   { type: String, default: "" },
   transportRoute: { type: String, default: "" },
-  hostelRoom: { type: String, default: "" },
+  hostelRoom:     { type: String, default: "" },
   previousSchool: { type: String, default: "" },
-  photo: { type: String, default: "" },
+  photo:          { type: String, default: "" },
+
+  documents: [StudentDocumentSchema],
 
   status: { type: String, enum: ['Active', 'Inactive', 'Passed', 'Left'], default: 'Active' },
-  
+
   timeline: [{
-    title: { type: String, required: true },
-    date: { type: Date, default: Date.now },
+    title:       { type: String, required: true },
+    date:        { type: Date, default: Date.now },
     description: String,
   }]
 }, { timestamps: true });
