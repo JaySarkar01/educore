@@ -5,6 +5,7 @@ import { SchoolModel } from "@/lib/models/School"
 import { revalidatePath } from "next/cache"
 import { createSession, deleteSession } from "@/lib/session"
 import { redirect } from "next/navigation"
+import bcrypt from "bcryptjs"
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -62,6 +63,8 @@ export async function registerSchool(formData: FormData) {
     return { error: "An account with this administrator email already exists." }
   }
 
+  const hashedPassword = await bcrypt.hash(data.password, 12)
+
   await SchoolModel.create({
     schoolName:  data.schoolName,
     schoolEmail: data.schoolEmail,
@@ -72,7 +75,7 @@ export async function registerSchool(formData: FormData) {
     zip:         data.zip,
     adminName:   data.adminName,
     adminEmail:  data.adminEmail,
-    password:    data.password,
+    password:    hashedPassword,
     message:     data.message,
     status:      "Pending",
     date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
@@ -120,8 +123,11 @@ export async function authenticate(email: string, pass: string) {
     return { role: "ADMIN" }
   }
   await connectToDatabase()
-  const school = await SchoolModel.findOne({ adminEmail: email, password: pass })
+  const school = await SchoolModel.findOne({ adminEmail: email })
   if (school) {
+    const passwordMatch = await bcrypt.compare(pass, school.password)
+    if (!passwordMatch) return { error: "Invalid credentials." }
+
     if (school.status === "Pending")  return { error: "Your account is still pending approval." }
     if (school.status === "Rejected") return { error: "Your account registration was rejected." }
 
