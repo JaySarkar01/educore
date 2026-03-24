@@ -63,6 +63,7 @@ const schoolNav: NavSection[] = [
           { label: 'All Teachers',       href: '/dashboard/teachers' },
           { label: 'Add Teacher',        href: '/dashboard/teachers/add' },
           { label: 'Manage Teachers',    href: '/dashboard/teachers/manage' },
+          { label: 'Departments',        href: '/dashboard/teachers/departments' },
         ],
       },
     ],

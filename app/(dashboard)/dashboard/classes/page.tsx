@@ -11,10 +11,10 @@ export default async function AcademicsDashboardPage() {
   const totalSections = classes.reduce((sum: number, cls: any) => sum + (cls.sections?.length || 0), 0)
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
+    <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 md:space-y-8 animate-in fade-in duration-500">
       <div>
-        <h1 className="text-3xl font-bold text-fg tracking-tight">Academics Layout</h1>
-        <p className="text-muted-fg mt-1 text-lg">High-level quantitative overview of curricular configurations.</p>
+        <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-fg tracking-tight">Academics Layout</h1>
+        <p className="text-muted-fg mt-1 text-sm md:text-base">High-level quantitative overview of curricular configurations.</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">

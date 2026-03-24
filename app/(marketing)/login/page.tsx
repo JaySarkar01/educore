@@ -100,7 +100,7 @@ export default function LoginPage() {
                 <p className="mb-1 font-semibold">Demo Login Accounts:</p>
                 <ul className="list-disc list-inside space-y-1 ml-1 opacity-80">
                   <li>Super Admin: <code className="bg-white/50 dark:bg-black/20 px-1 py-0.5 rounded">superadmin@educore.com</code> (Pass: <code className="bg-white/50 dark:bg-black/20 px-1 py-0.5 rounded">admin</code>)</li>
-                  <li>School Admin: Use the credentials you set up during registration</li>
+                  <li>School Admin: Credentials of school admin during registration</li>
                 </ul>
               </div>
             </CardContent>

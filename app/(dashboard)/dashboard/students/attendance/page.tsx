@@ -30,23 +30,23 @@ export default async function AttendancePage(
   }
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
+    <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 md:space-y-8 animate-in fade-in duration-500">
       <div>
-        <h1 className="text-3xl font-bold text-fg tracking-tight">Daily Attendance Tracking</h1>
-        <p className="text-muted-fg mt-1 text-lg">Mark and manage bulk student attendance rosters.</p>
+        <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-fg tracking-tight">Daily Attendance Tracking</h1>
+        <p className="text-muted-fg mt-1 text-sm md:text-base">Mark and manage bulk student attendance rosters.</p>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-start sm:justify-between flex-wrap gap-3">
         <div className="flex bg-surface-100 dark:bg-surface-900 p-1 rounded-lg border border-border/50">
           <Link 
             href={`/dashboard/students/attendance?mode=daily&class=${className}&section=${section}&date=${date}`}
-            className={`flex items-center gap-2 px-4 py-1.5 text-sm font-medium rounded-md transition-all ${mode === 'daily' ? 'bg-white dark:bg-surface-800 shadow-sm text-brand-600 dark:text-brand-400' : 'text-muted-fg hover:text-fg'}`}
+            className={`flex items-center gap-2 px-3 md:px-4 py-1.5 text-xs md:text-sm font-medium rounded-md transition-all ${mode === 'daily' ? 'bg-white dark:bg-surface-800 shadow-sm text-brand-600 dark:text-brand-400' : 'text-muted-fg hover:text-fg'}`}
           >
             <LayoutGrid className="w-4 h-4" /> Daily Marking
           </Link>
           <Link 
             href={`/dashboard/students/attendance?mode=monthly&class=${className}&section=${section}&date=${date}`}
-            className={`flex items-center gap-2 px-4 py-1.5 text-sm font-medium rounded-md transition-all ${mode === 'monthly' ? 'bg-white dark:bg-surface-800 shadow-sm text-brand-600 dark:text-brand-400' : 'text-muted-fg hover:text-fg'}`}
+            className={`flex items-center gap-2 px-3 md:px-4 py-1.5 text-xs md:text-sm font-medium rounded-md transition-all ${mode === 'monthly' ? 'bg-white dark:bg-surface-800 shadow-sm text-brand-600 dark:text-brand-400' : 'text-muted-fg hover:text-fg'}`}
           >
             <CalendarIcon className="w-4 h-4" /> Monthly View
           </Link>

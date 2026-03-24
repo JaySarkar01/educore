@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Loader2, ArrowLeft, Save, AlertCircle } from "lucide-react"
 import { addTeacher } from "@/app/actions/teacher"
 import { getSubjects } from "@/app/actions/academic"
+import { getDepartments } from "@/app/actions/department"
 import { CloudinaryUploader } from "@/components/dashboard/cloudinary-uploader"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -14,6 +15,7 @@ export default function AddTeacherPage() {
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
   const [subjects, setSubjects] = useState<any[]>([])
+  const [departments, setDepartments] = useState<any[]>([])
   const [errors, setErrors] = useState<Record<string, string[]>>({})
   const [isDirty, setIsDirty] = useState(false)
   const [photoUrl, setPhotoUrl] = useState("")
@@ -48,6 +50,7 @@ export default function AddTeacherPage() {
 
   useEffect(() => {
     getSubjects().then(setSubjects)
+    getDepartments().then(setDepartments)
   }, [])
 
   useEffect(() => {
@@ -142,7 +145,19 @@ export default function AddTeacherPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="department">Department *</Label>
-                <Input id="department" name="department" required value={formValues.department} onChange={handleChange} placeholder="e.g. Science" className={errors.department ? "border-red-500" : ""} />
+                <select 
+                  id="department" 
+                  name="department" 
+                  required 
+                  value={formValues.department} 
+                  onChange={handleChange} 
+                  className={`flex h-10 w-full rounded-md border border-input bg-surface-50 dark:bg-surface-950 px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500 ${errors.department ? "border-red-500" : ""}`}
+                >
+                  <option value="">Select Department</option>
+                  {departments.map((d: any) => (
+                    <option key={d._id} value={d.name}>{d.name}</option>
+                  ))}
+                </select>
                 <ErrorWarning field="department" />
               </div>
               <div className="space-y-2">

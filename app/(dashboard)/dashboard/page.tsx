@@ -7,12 +7,12 @@ export default async function SchoolDashboard() {
   const stats = await getDashboardStats()
 
   return (
-    <div className="flex-1 p-8 pt-24 bg-surface-50 dark:bg-surface-950 min-h-[calc(100vh-4rem)]">
+    <div className="flex-1 p-4 md:p-6 lg:p-8 pt-6 md:pt-8 lg:pt-10 bg-surface-50 dark:bg-surface-950 min-h-[calc(100vh-4rem)]">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-6 md:mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-fg tracking-tight">System Telemetry Dashboard</h1>
-            <p className="text-muted-fg mt-1 text-lg">Cross-linked master view securely streaming active data across all tables.</p>
+            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-fg tracking-tight">System Telemetry Dashboard</h1>
+            <p className="text-muted-fg mt-1 text-sm md:text-base">Cross-linked master view securely streaming active data across all tables.</p>
           </div>
         </div>
         

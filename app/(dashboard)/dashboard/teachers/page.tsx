@@ -1,6 +1,7 @@
 import { getTeachers } from "@/app/actions/teacher"
 import { Users, UserCheck, BookOpen, UserMinus } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import Link from "next/link"
 
 export default async function TeachersDashboardPage() {
   const teachers = await getTeachers()
@@ -8,10 +9,10 @@ export default async function TeachersDashboardPage() {
   const totalSubjects = new Set(teachers.flatMap((t: any) => t.subjects)).size
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
+    <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 md:space-y-8 animate-in fade-in duration-500">
       <div>
-        <h1 className="text-3xl font-bold text-fg tracking-tight">Faculty Dashboard</h1>
-        <p className="text-muted-fg mt-1 text-lg">Overview of teacher registrations and department metrics.</p>
+        <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-fg tracking-tight">Faculty Dashboard</h1>
+        <p className="text-muted-fg mt-1 text-sm md:text-base">Overview of teacher registrations and department metrics.</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

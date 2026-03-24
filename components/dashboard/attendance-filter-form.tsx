@@ -40,7 +40,7 @@ export function AttendanceFilterForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+    <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
       <div className="space-y-2">
         <label className="text-sm font-medium">Class Selection</label>
         <select 
@@ -91,7 +91,7 @@ export function AttendanceFilterForm({
         </div>
       </div>
 
-      <Button type="submit" className="h-10 bg-brand-600 hover:bg-brand-700 text-white shadow-sm shadow-brand-500/20">
+      <Button type="submit" className="h-10 bg-brand-600 hover:bg-brand-700 text-white shadow-sm shadow-brand-500/20 w-full">
         <Filter className="w-4 h-4 mr-2"/> Load Roster
       </Button>
     </form>

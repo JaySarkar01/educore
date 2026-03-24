@@ -29,30 +29,30 @@ export default async function StudentProfilePage(
   ]
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500">
+    <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-4 md:space-y-6 animate-in fade-in duration-500">
       {/* Header Back Link */}
       <Link href="/dashboard/students" className="inline-flex items-center text-sm font-medium text-muted-fg hover:text-fg transition-colors">
         <ArrowLeft className="w-4 h-4 mr-2" /> Back to Students
       </Link>
 
       {/* Profile Header Card */}
-      <div className="bg-surface-50 dark:bg-surface-950 border border-border/50 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center gap-6">
+      <div className="bg-surface-50 dark:bg-surface-950 border border-border/50 rounded-2xl p-4 md:p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center gap-4 md:gap-6">
         {student.photo ? (
           <img
             src={student.photo}
             alt={student.name}
-            className="w-24 h-24 rounded-full object-cover flex-shrink-0 border-4 border-surface-100 dark:border-surface-900 shadow-md"
+            className="w-16 h-16 md:w-24 md:h-24 rounded-full object-cover flex-shrink-0 border-4 border-surface-100 dark:border-surface-900 shadow-md"
           />
         ) : (
-          <div className="w-24 h-24 rounded-full bg-brand-100 dark:bg-brand-500/20 text-brand-700 dark:text-brand-300 flex items-center justify-center text-3xl font-bold flex-shrink-0 border-4 border-surface-100 dark:border-surface-900">
+          <div className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-brand-100 dark:bg-brand-500/20 text-brand-700 dark:text-brand-300 flex items-center justify-center text-2xl md:text-3xl font-bold flex-shrink-0 border-4 border-surface-100 dark:border-surface-900">
             {student.name.charAt(0)}
           </div>
         )}
-        <div className="flex-1">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-bold text-fg tracking-tight">{student.name}</h1>
-              <p className="text-brand-600 dark:text-brand-400 font-medium">Class {student.className} {student.section && `• Sec ${student.section}`}</p>
+              <h1 className="text-xl md:text-2xl font-bold text-fg tracking-tight">{student.name}</h1>
+              <p className="text-brand-600 dark:text-brand-400 font-medium text-sm md:text-base">Class {student.className} {student.section && `• Sec ${student.section}`}</p>
             </div>
             <div className={`px-3 py-1 rounded-full text-sm font-semibold border w-fit ${
               student.status === 'Active' 
@@ -63,22 +63,22 @@ export default async function StudentProfilePage(
             </div>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
             <div>
               <p className="text-xs text-muted-fg uppercase tracking-wider font-semibold">Adm No</p>
-              <p className="font-medium text-fg">{student.admissionNo}</p>
+              <p className="font-medium text-fg text-sm">{student.admissionNo}</p>
             </div>
             <div>
               <p className="text-xs text-muted-fg uppercase tracking-wider font-semibold">Roll No</p>
-              <p className="font-medium text-fg">{student.rollNumber}</p>
+              <p className="font-medium text-fg text-sm">{student.rollNumber}</p>
             </div>
             <div>
               <p className="text-xs text-muted-fg uppercase tracking-wider font-semibold">DOB</p>
-              <p className="font-medium text-fg">{student.dateOfBirth || 'N/A'}</p>
+              <p className="font-medium text-fg text-sm">{student.dateOfBirth || 'N/A'}</p>
             </div>
             <div>
               <p className="text-xs text-muted-fg uppercase tracking-wider font-semibold">Gender</p>
-              <p className="font-medium text-fg">{student.gender}</p>
+              <p className="font-medium text-fg text-sm">{student.gender}</p>
             </div>
           </div>
         </div>
@@ -93,13 +93,13 @@ export default async function StudentProfilePage(
             <Link 
               key={t.id} 
               href={`/dashboard/students/${student._id}?tab=${t.id}`}
-              className={`flex items-center gap-2 px-6 py-4 border-b-2 font-medium text-sm whitespace-nowrap transition-colors ${
+              className={`flex items-center gap-1.5 px-3 md:px-6 py-3 md:py-4 border-b-2 font-medium text-xs md:text-sm whitespace-nowrap transition-colors ${
                 isActive 
                   ? 'border-brand-500 text-brand-600 dark:text-brand-400 bg-brand-500/5' 
                   : 'border-transparent text-muted-fg hover:text-fg hover:border-border'
               }`}
             >
-              <Icon className="w-4 h-4" /> {t.label}
+              <Icon className="w-3.5 h-3.5 md:w-4 md:h-4" /> {t.label}
             </Link>
           )
         })}

@@ -16,14 +16,14 @@ export default async function StudentsDashboard() {
   const recentInvoices = validInvoices.slice(0, 5)
   
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 md:space-y-8 animate-in fade-in duration-500">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-fg tracking-tight">Students Dashboard</h1>
-          <p className="text-muted-fg mt-1 text-lg">Overview of institutional enrollment metrics.</p>
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-fg tracking-tight">Students Dashboard</h1>
+          <p className="text-muted-fg mt-1 text-sm md:text-base">Overview of institutional enrollment metrics.</p>
         </div>
         <Link href="/dashboard/students/add">
-          <Button className="gap-2 shadow-sm shadow-brand-500/20">
+          <Button className="gap-2 shadow-sm shadow-brand-500/20 w-full sm:w-auto">
             <Plus className="w-4 h-4" /> Enroll Student
           </Button>
         </Link>
