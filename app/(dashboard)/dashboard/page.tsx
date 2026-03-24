@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Users, GraduationCap, DollarSign, Calendar, Layers } from "lucide-react"
+import { Users, GraduationCap, IndianRupee, Calendar, Layers } from "lucide-react"
 import { getDashboardStats } from "@/app/actions/dashboard"
 import Link from "next/link"
 
@@ -42,10 +42,10 @@ export default async function SchoolDashboard() {
           <Card>
             <CardHeader className="pb-2 flex flex-row items-center justify-between">
               <div className="text-sm font-medium text-muted-fg">Aggregate Revenue</div>
-              <DollarSign className="w-5 h-5 text-emerald-500" />
+              <IndianRupee className="w-5 h-5 text-emerald-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-fg">${stats?.revenue.toLocaleString() || '0'}</div>
+              <div className="text-3xl font-bold text-fg">₹{stats?.revenue.toLocaleString() || '0'}</div>
               <div className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">Sourced from secure Invoices DB</div>
             </CardContent>
           </Card>

@@ -123,7 +123,7 @@ export default async function TeacherProfilePage(
               </div>
               <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-4">
                 <div><p className="text-sm text-muted-fg mb-1">Date Joined</p><p className="text-sm font-medium text-fg">{teacher.joiningDate}</p></div>
-                <div><p className="text-sm text-muted-fg mb-1">Base Salary</p><p className="text-sm font-medium text-fg">${teacher.baseSalary.toLocaleString()}</p></div>
+                <div><p className="text-sm text-muted-fg mb-1">Base Salary</p><p className="text-sm font-medium text-fg">₹{teacher.baseSalary.toLocaleString()}</p></div>
                 <div className="md:col-span-2">
                   <p className="text-sm text-muted-fg mb-2">Subject Specializations</p>
                   <div className="flex flex-wrap gap-2">
