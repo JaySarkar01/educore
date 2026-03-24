@@ -1,13 +1,14 @@
 "use client"
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   Building2, LayoutDashboard, Users, UserSquare2, BookOpen,
   Settings, ChevronDown, ChevronRight, GraduationCap,
-  ClipboardCheck, CreditCard, BarChart3, Cog, BookMarked
+  ClipboardCheck, CreditCard, BarChart3, Cog, BookMarked, X
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useMobileSidebar } from './mobile-sidebar-context'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -168,6 +169,7 @@ export function Sidebar({
   const pathname = usePathname()
   const isSuperAdmin = role === 'ADMIN' || pathname.startsWith('/admin')
   const sections = isSuperAdmin ? adminNav : schoolNav
+  const { isOpen: mobileOpen, close: closeMobile } = useMobileSidebar()
 
   // Initialize open menus: auto-open those whose children match the current path
   const initialOpen: Record<string, boolean> = {}
@@ -180,17 +182,20 @@ export function Sidebar({
   )
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>(initialOpen)
 
+  // Close mobile sidebar on route change
+  useEffect(() => { closeMobile() }, [pathname])
+
   const toggle = (key: string) =>
     setOpenMenus(prev => ({ ...prev, [key]: !prev[key] }))
 
-  return (
-    <aside className="w-64 border-r border-border/40 bg-surface-50/50 dark:bg-surface-900/50 hidden md:flex flex-col h-full flex-shrink-0 backdrop-blur-xl">
+  const sidebarContent = (
+    <>
       {/* ── Logo / Brand ──────────────────────────────────────────────────── */}
       <div className="h-16 flex items-center px-5 border-b border-border/40 flex-shrink-0 gap-3">
         <div className="bg-brand-600 text-white p-1.5 rounded-lg shadow-sm shadow-brand-500/20 flex-shrink-0">
           <Building2 className="w-5 h-5" />
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="font-bold text-sm leading-tight text-fg truncate">
             {isSuperAdmin ? 'EduCore' : schoolName}
           </p>
@@ -198,6 +203,14 @@ export function Sidebar({
             {isSuperAdmin ? 'Super Admin' : 'School Admin'}
           </p>
         </div>
+        {/* Close button — mobile only */}
+        <button
+          onClick={closeMobile}
+          className="md:hidden p-1.5 rounded-lg text-muted-fg hover:text-fg hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
+          aria-label="Close sidebar"
+        >
+          <X className="w-4 h-4" />
+        </button>
       </div>
 
       {/* ── Navigation ────────────────────────────────────────────────────── */}
@@ -310,6 +323,34 @@ export function Sidebar({
           </div>
         </div>
       )}
-    </aside>
+    </>
+  )
+
+  return (
+    <>
+      {/* ── Desktop sidebar ───────────────────────────────────────────────── */}
+      <aside className="w-64 border-r border-border/40 bg-surface-50/50 dark:bg-surface-900/50 hidden md:flex flex-col h-full flex-shrink-0 backdrop-blur-xl">
+        {sidebarContent}
+      </aside>
+
+      {/* ── Mobile backdrop ───────────────────────────────────────────────── */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
+          onClick={closeMobile}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* ── Mobile drawer ─────────────────────────────────────────────────── */}
+      <aside
+        className={cn(
+          'fixed inset-y-0 left-0 z-50 w-72 flex flex-col bg-surface-50 dark:bg-surface-900 border-r border-border/40 shadow-xl md:hidden transition-transform duration-300 ease-in-out',
+          mobileOpen ? 'translate-x-0' : '-translate-x-full'
+        )}
+      >
+        {sidebarContent}
+      </aside>
+    </>
   )
 }

@@ -4,14 +4,16 @@ import { Button } from '@/components/ui/button'
 import { logout } from '@/app/actions/school'
 import { ModeToggle } from '@/components/ui/theme-switcher'
 import Link from 'next/link'
+import { useMobileSidebar } from './mobile-sidebar-context'
 
 export function DashboardNavbar({ adminName = 'Admin User', role = 'Administrator' }: { adminName?: string, role?: string }) {
   const initials = adminName.charAt(0).toUpperCase()
+  const { toggle: toggleSidebar } = useMobileSidebar()
   
   return (
     <header className="h-16 flex flex-shrink-0 items-center justify-between px-6 border-b border-border/40 bg-surface-50/50 dark:bg-surface-900/50 backdrop-blur-xl">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="md:hidden text-muted-fg hover:text-fg">
+        <Button variant="ghost" size="icon" className="md:hidden text-muted-fg hover:text-fg" onClick={toggleSidebar}>
           <Menu className="w-5 h-5" />
         </Button>
         <div className="relative hidden sm:flex items-center text-muted-fg">
