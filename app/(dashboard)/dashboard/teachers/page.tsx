@@ -93,9 +93,18 @@ export default async function TeachersDashboardPage() {
                <div className="divide-y divide-border/40">
                   {teachers.slice(0, 5).map((t: any) => (
                     <div key={t.id} className="flex items-center justify-between px-6 py-4 hover:bg-surface-100/30 dark:hover:bg-surface-900/30 transition-colors">
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-fg truncate">{t.name}</p>
-                        <p className="text-xs text-muted-fg truncate">{t.qualification}</p>
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        {t.photo ? (
+                          <img src={t.photo} alt={t.name} className="w-8 h-8 rounded-full border border-border/50 object-cover flex-shrink-0 shadow-sm" />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-500/20 text-brand-700 dark:text-brand-300 flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm">
+                            {t.name.charAt(0)}
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-fg truncate">{t.name}</p>
+                          <p className="text-xs text-muted-fg truncate">{t.qualification}</p>
+                        </div>
                       </div>
                       <div className="text-right ml-4">
                         <p className="text-xs font-mono text-muted-fg">{t.employeeId}</p>

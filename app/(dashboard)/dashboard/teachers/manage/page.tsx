@@ -57,8 +57,19 @@ export default async function ManageTeachersPage({ searchParams }: { searchParam
               ) : teachers.map((t: any) => (
                 <tr key={t._id} className="hover:bg-surface-100/50 dark:hover:bg-surface-900/50 transition-colors">
                   <td className="px-4 md:px-6 py-3 md:py-4">
-                    <div className="font-semibold text-fg">{t.name}</div>
-                    <div className="text-xs text-muted-fg mt-0.5">{t.qualification} • {t.experience} Yrs Exp</div>
+                    <div className="flex items-center gap-3">
+                      {t.photo ? (
+                        <img src={t.photo} alt={t.name} className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-border/50 object-cover flex-shrink-0 shadow-sm" />
+                      ) : (
+                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-brand-100 dark:bg-brand-500/20 text-brand-700 dark:text-brand-300 flex items-center justify-center font-bold text-xs md:text-sm flex-shrink-0 shadow-sm">
+                          {t.name.charAt(0)}
+                        </div>
+                      )}
+                      <div>
+                        <div className="font-semibold text-fg text-sm md:text-base">{t.name}</div>
+                        <div className="text-xs text-muted-fg mt-0.5">{t.qualification} • {t.experience} Yrs Exp</div>
+                      </div>
+                    </div>
                   </td>
                   <td className="px-4 md:px-6 py-3 md:py-4 font-medium text-fg hidden sm:table-cell">{t.employeeId}</td>
                   <td className="px-4 md:px-6 py-3 md:py-4 text-fg hidden md:table-cell">{t.department || 'General'}</td>

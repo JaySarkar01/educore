@@ -31,9 +31,17 @@ export default async function TeacherProfilePage(
 
       {/* Profile Header Card */}
       <div className="bg-surface-50 dark:bg-surface-950 border border-border/50 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center gap-6">
-        <div className="w-24 h-24 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 flex items-center justify-center text-3xl font-bold flex-shrink-0 border-4 border-surface-100 dark:border-surface-900">
-          {teacher.name.charAt(0)}
-        </div>
+        {teacher.photo ? (
+          <img
+            src={teacher.photo}
+            alt={teacher.name}
+            className="w-24 h-24 rounded-full object-cover flex-shrink-0 border-4 border-surface-100 dark:border-surface-900 shadow-md"
+          />
+        ) : (
+          <div className="w-24 h-24 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 flex items-center justify-center text-3xl font-bold flex-shrink-0 border-4 border-surface-100 dark:border-surface-900">
+            {teacher.name.charAt(0)}
+          </div>
+        )}
         <div className="flex-1">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
