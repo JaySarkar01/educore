@@ -88,4 +88,9 @@ const StudentSchema: Schema = new Schema({
   }]
 }, { timestamps: true });
 
+StudentSchema.index({ schoolId: 1, name: 1 });
+StudentSchema.index({ schoolId: 1, admissionNo: 1 });
+StudentSchema.index({ schoolId: 1, rollNumber: 1 });
+StudentSchema.index({ schoolId: 1, parentPhone: 1 });
+
 export const StudentModel = mongoose.models.Student || mongoose.model<IStudent>("Student", StudentSchema);

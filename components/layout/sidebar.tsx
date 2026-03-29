@@ -4,17 +4,50 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   Building2, LayoutDashboard, Users, UserSquare2, BookOpen,
-  Settings, ChevronDown, ChevronRight, GraduationCap,
-  ClipboardCheck, CreditCard, BarChart3, Cog, BookMarked, X
+  ChevronDown, ChevronRight, GraduationCap,
+  ClipboardCheck, CreditCard, BarChart3, Cog, X
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useMobileSidebar } from './mobile-sidebar-context'
+import { hasPermission, ROLE_LABELS, RoleName } from '@/lib/rbac'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type NavSubItem = {
   label: string
   href: string
+  permission?: string
+}
+
+function isRouteAllowedForRole(role: RoleName, href?: string) {
+  if (!href || role === "SUPER_ADMIN" || role === "SCHOOL_ADMIN") return true
+
+  if (role === "ACCOUNTANT") {
+    return href === "/dashboard" || href.startsWith("/dashboard/students/fees")
+  }
+
+  if (role === "STUDENT") {
+    return (
+      href === "/dashboard" ||
+      href === "/dashboard/students" ||
+      href.startsWith("/dashboard/students/attendance") ||
+      href.startsWith("/dashboard/students/fees")
+    )
+  }
+
+  if (role === "TEACHER") {
+    return (
+      href === "/dashboard" ||
+      href === "/dashboard/students" ||
+      href.startsWith("/dashboard/students/attendance") ||
+      href === "/dashboard/teachers" ||
+      href.startsWith("/dashboard/teachers/attendance") ||
+      href.startsWith("/dashboard/teachers/subjects") ||
+      href.startsWith("/dashboard/teachers/reports")
+    )
+  }
+
+  return true
 }
 
 type NavItem = {
@@ -23,16 +56,14 @@ type NavItem = {
   key: string
   href?: string        // flat link (no submenu)
   children?: NavSubItem[]
-  roles?: Role[]       // if omitted, visible to all roles
+  permissionsAny?: string[]
 }
 
 type NavSection = {
   heading?: string     // optional section label
   items: NavItem[]
-  roles?: Role[]       // section-level role gate
+  permissionsAny?: string[]
 }
-
-type Role = 'ADMIN' | 'SCHOOL'
 
 // ─── Nav configuration ────────────────────────────────────────────────────────
 
@@ -49,21 +80,23 @@ const schoolNav: NavSection[] = [
         label: 'Students',
         icon: GraduationCap,
         key: 'students',
+        permissionsAny: ['student.view', 'student.create', 'student.edit'],
         children: [
-          { label: 'All Students',       href: '/dashboard/students' },
-          { label: 'Add Student',        href: '/dashboard/students/add' },
-          { label: 'Manage Students',    href: '/dashboard/students/manage' },
+          { label: 'All Students',       href: '/dashboard/students', permission: 'student.view' },
+          { label: 'Add Student',        href: '/dashboard/students/add', permission: 'student.create' },
+          { label: 'Manage Students',    href: '/dashboard/students/manage', permission: 'student.edit' },
         ],
       },
       {
         label: 'Staff',
         icon: UserSquare2,
         key: 'staff',
+        permissionsAny: ['teacher.view', 'teacher.create', 'teacher.edit'],
         children: [
-          { label: 'All Teachers',       href: '/dashboard/teachers' },
-          { label: 'Add Teacher',        href: '/dashboard/teachers/add' },
-          { label: 'Manage Teachers',    href: '/dashboard/teachers/manage' },
-          { label: 'Departments',        href: '/dashboard/teachers/departments' },
+          { label: 'All Teachers',       href: '/dashboard/teachers', permission: 'teacher.view' },
+          { label: 'Add Teacher',        href: '/dashboard/teachers/add', permission: 'teacher.create' },
+          { label: 'Manage Teachers',    href: '/dashboard/teachers/manage', permission: 'teacher.edit' },
+          { label: 'Departments',        href: '/dashboard/teachers/departments', permission: 'teacher.edit' },
         ],
       },
     ],
@@ -75,10 +108,11 @@ const schoolNav: NavSection[] = [
         label: 'Classes & Subjects',
         icon: BookOpen,
         key: 'academics',
+        permissionsAny: ['class.manage', 'subject.manage'],
         children: [
-          { label: 'Manage Classes',     href: '/dashboard/classes/manage' },
-          { label: 'Manage Subjects',    href: '/dashboard/classes/subjects' },
-          { label: 'Assign Subjects',    href: '/dashboard/teachers/subjects' },
+          { label: 'Manage Classes',     href: '/dashboard/classes/manage', permission: 'class.manage' },
+          { label: 'Manage Subjects',    href: '/dashboard/classes/subjects', permission: 'subject.manage' },
+          { label: 'Assign Subjects',    href: '/dashboard/teachers/subjects', permission: 'teacher.edit' },
         ],
       },
     ],
@@ -90,9 +124,10 @@ const schoolNav: NavSection[] = [
         label: 'Attendance',
         icon: ClipboardCheck,
         key: 'attendance',
+        permissionsAny: ['attendance.view', 'attendance.mark'],
         children: [
-          { label: 'Student Attendance', href: '/dashboard/students/attendance' },
-          { label: 'Staff Attendance',   href: '/dashboard/teachers/attendance' },
+          { label: 'Student Attendance', href: '/dashboard/students/attendance', permission: 'attendance.view' },
+          { label: 'Staff Attendance',   href: '/dashboard/teachers/attendance', permission: 'attendance.view' },
         ],
       },
     ],
@@ -104,8 +139,9 @@ const schoolNav: NavSection[] = [
         label: 'Fees',
         icon: CreditCard,
         key: 'fees',
+        permissionsAny: ['fees.view', 'fees.collect'],
         children: [
-          { label: 'Fee Records',        href: '/dashboard/students/fees' },
+          { label: 'Fee Records',        href: '/dashboard/students/fees', permission: 'fees.view' },
         ],
       },
     ],
@@ -117,8 +153,9 @@ const schoolNav: NavSection[] = [
         label: 'Reports',
         icon: BarChart3,
         key: 'reports',
+        permissionsAny: ['report.view', 'finance.report.view'],
         children: [
-          { label: 'Teacher Reports',    href: '/dashboard/teachers/reports' },
+          { label: 'Teacher Reports',    href: '/dashboard/teachers/reports', permission: 'report.view' },
         ],
       },
     ],
@@ -126,7 +163,8 @@ const schoolNav: NavSection[] = [
   {
     heading: 'SYSTEM',
     items: [
-      { label: 'Settings', href: '/dashboard/settings', icon: Cog, key: 'settings' },
+      { label: 'Users', href: '/dashboard/users', icon: Users, key: 'users', permissionsAny: ['user.manage'] },
+      { label: 'Settings', href: '/dashboard/settings', icon: Cog, key: 'settings', permissionsAny: ['settings.manage'] },
     ],
   },
 ]
@@ -135,13 +173,13 @@ const adminNav: NavSection[] = [
   {
     items: [
       { label: 'Overview',    href: '/admin',          icon: LayoutDashboard, key: 'admin-overview' },
-      { label: 'All Schools', href: '/admin/schools',  icon: Building2,       key: 'admin-schools' },
+      { label: 'All Schools', href: '/admin/schools',  icon: Building2,       key: 'admin-schools', permissionsAny: ['school.view'] },
     ],
   },
   {
     heading: 'SYSTEM',
     items: [
-      { label: 'Settings', href: '/admin/settings', icon: Cog, key: 'admin-settings' },
+      { label: 'Settings', href: '/admin/settings', icon: Cog, key: 'admin-settings', permissionsAny: ['settings.manage'] },
     ],
   },
 ]
@@ -161,14 +199,16 @@ function isItemActive(item: NavItem, pathname: string): boolean {
 export function Sidebar({
   schoolName = 'EduCore',
   studentCount = 0,
-  role = 'SCHOOL',
+  role = 'SCHOOL_ADMIN',
+  permissions = [],
 }: {
   schoolName?: string
   studentCount?: number
-  role?: Role
+  role?: RoleName
+  permissions?: string[]
 }) {
   const pathname = usePathname()
-  const isSuperAdmin = role === 'ADMIN' || pathname.startsWith('/admin')
+  const isSuperAdmin = role === 'SUPER_ADMIN' || pathname.startsWith('/admin')
   const sections = isSuperAdmin ? adminNav : schoolNav
   const { isOpen: mobileOpen, close: closeMobile } = useMobileSidebar()
 
@@ -189,6 +229,40 @@ export function Sidebar({
   const toggle = (key: string) =>
     setOpenMenus(prev => ({ ...prev, [key]: !prev[key] }))
 
+  const visibleSections = sections
+    .map(section => {
+      if (section.permissionsAny?.length && !section.permissionsAny.some(p => hasPermission(permissions, p))) {
+        return null
+      }
+
+      const filteredItems = section.items
+        .map(item => {
+          if (!isRouteAllowedForRole(role, item.href)) {
+            return null
+          }
+
+          if (item.permissionsAny?.length && !item.permissionsAny.some(p => hasPermission(permissions, p))) {
+            return null
+          }
+
+          if (!item.children) return item
+
+          const children = item.children.filter(
+            child =>
+              isRouteAllowedForRole(role, child.href) &&
+              (!child.permission || hasPermission(permissions, child.permission))
+          )
+          if (!children.length) return null
+
+          return { ...item, children }
+        })
+        .filter(Boolean) as NavItem[]
+
+      if (!filteredItems.length) return null
+      return { ...section, items: filteredItems }
+    })
+    .filter(Boolean) as NavSection[]
+
   const sidebarContent = (
     <>
       {/* ── Logo / Brand ──────────────────────────────────────────────────── */}
@@ -201,7 +275,7 @@ export function Sidebar({
             {isSuperAdmin ? 'EduCore' : schoolName}
           </p>
           <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-fg/70 mt-0.5">
-            {isSuperAdmin ? 'Super Admin' : 'School Admin'}
+            {ROLE_LABELS[role]}
           </p>
         </div>
         {/* Close button — mobile only */}
@@ -216,7 +290,7 @@ export function Sidebar({
 
       {/* ── Navigation ────────────────────────────────────────────────────── */}
       <nav className="flex-1 px-3 py-4 overflow-y-auto scrollbar-hide space-y-4">
-        {sections.map((section, si) => (
+        {visibleSections.map((section, si) => (
           <div key={si}>
             {section.heading && (
               <p className="px-3 mb-1.5 text-[10px] font-bold tracking-widest uppercase text-muted-fg/50 select-none">

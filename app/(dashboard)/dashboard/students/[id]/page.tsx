@@ -3,6 +3,7 @@ import { getStudentAttendanceStats } from "@/app/actions/attendance"
 import { getStudentFeeStats } from "@/app/actions/fees"
 import { RecordPaymentForm } from "@/components/dashboard/record-payment-form"
 import { DocumentsTab } from "@/components/dashboard/documents-tab"
+import { getAuthContext } from "@/lib/auth"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, User, LayoutGrid, CalendarDays, Wallet, FileText, Activity, MapPin, Phone, GraduationCap, CheckCircle } from "lucide-react"
@@ -13,6 +14,8 @@ export default async function StudentProfilePage(
   const params = await props.params
   const sp = await props.searchParams
   const tab = sp?.tab || "overview"
+  const auth = await getAuthContext()
+  const isStudentViewer = auth?.roleName === "STUDENT"
   
   const student = await getStudentById(params.id)
   if (!student) return notFound()
@@ -331,7 +334,7 @@ export default async function StudentProfilePage(
                               </span>
                             </td>
                             <td className="px-6 py-4 text-right">
-                              {inv.status !== 'Paid' ? (
+                              {inv.status !== 'Paid' && !isStudentViewer ? (
                                 <RecordPaymentForm invoiceId={inv._id} pendingAmount={pendingAmt} invoiceTitle={inv.title} />
                               ) : (
                                 <span className="inline-flex items-center text-xs font-semibold text-emerald-600 dark:text-emerald-400"><CheckCircle className="w-3.5 h-3.5 mr-1" /> Settled</span>
@@ -354,6 +357,7 @@ export default async function StudentProfilePage(
           <DocumentsTab
             studentId={student._id?.toString() || student.id}
             initialDocs={student.documents || []}
+            readOnly={isStudentViewer}
           />
         )}
       </div>

@@ -2,10 +2,11 @@
 
 import { connectToDatabase } from "@/lib/db"
 import { StudentModel } from "@/lib/models/Student"
-import { cookies } from "next/headers"
-import { decrypt } from "@/lib/session"
+import { AcademicClassModel } from "@/lib/models/AcademicClass"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { authorizePermission } from "@/lib/auth"
+import { logAudit } from "@/lib/audit"
 
 const StudentSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -21,21 +22,35 @@ const StudentSchema = z.object({
   parentPhone: z.string().regex(/^\d{10}$/, "Invalid Parent phone number (exactly 10 digits)"),
 })
 
-async function getSession() {
-  const cookieStore = await cookies()
-  const cookie = cookieStore.get('session')?.value
-  return await decrypt(cookie)
-}
-
 // ── Queries ────────────────────────────────────────────────────────────────
 
 export async function getStudents(querySearch?: string, classFilter?: string) {
-  const session = await getSession()
-  if (!session || !session.schoolId) return []
+  const auth = await authorizePermission("student.view")
+  if (!auth.allowed || !auth.context.schoolId) return []
 
   await connectToDatabase()
 
-  const query: any = { schoolId: session.schoolId }
+  const query: any = { schoolId: auth.context.schoolId }
+
+  if (auth.context.roleName === "STUDENT") {
+    if (!auth.context.linkedStudentId) return []
+    query._id = auth.context.linkedStudentId
+  }
+
+  if (auth.context.roleName === "TEACHER") {
+    if (!auth.context.linkedTeacherId) return []
+    const classRows = await AcademicClassModel.find({
+      schoolId: auth.context.schoolId,
+      classTeacherId: auth.context.linkedTeacherId,
+    })
+      .select("className")
+      .lean()
+
+    const allowedClasses = Array.from(new Set((classRows as any[]).map((c) => c.className).filter(Boolean)))
+    if (!allowedClasses.length) return []
+    query.className = { $in: allowedClasses }
+  }
+
   if (querySearch) {
     query.$or = [
       { name: { $regex: querySearch, $options: 'i' } },
@@ -44,6 +59,9 @@ export async function getStudents(querySearch?: string, classFilter?: string) {
     ]
   }
   if (classFilter) {
+    if (typeof query.className === "object" && query.className.$in) {
+      if (!query.className.$in.includes(classFilter)) return []
+    }
     query.className = classFilter
   }
 
@@ -57,12 +75,32 @@ export async function getStudents(querySearch?: string, classFilter?: string) {
 export async function getStudentById(id: string) {
   if (!id || id === 'undefined' || id.length !== 24) return null
 
-  const session = await getSession()
-  if (!session || !session.schoolId) return null
+  const auth = await authorizePermission("student.view")
+  if (!auth.allowed || !auth.context.schoolId) return null
 
   await connectToDatabase()
   try {
-    const student = await StudentModel.findOne({ _id: id, schoolId: session.schoolId }).lean()
+    const query: any = { _id: id, schoolId: auth.context.schoolId }
+
+    if (auth.context.roleName === "STUDENT") {
+      if (!auth.context.linkedStudentId || auth.context.linkedStudentId !== id) return null
+    }
+
+    if (auth.context.roleName === "TEACHER") {
+      if (!auth.context.linkedTeacherId) return null
+      const classRows = await AcademicClassModel.find({
+        schoolId: auth.context.schoolId,
+        classTeacherId: auth.context.linkedTeacherId,
+      })
+        .select("className")
+        .lean()
+
+      const allowedClasses = Array.from(new Set((classRows as any[]).map((c) => c.className).filter(Boolean)))
+      if (!allowedClasses.length) return null
+      query.className = { $in: allowedClasses }
+    }
+
+    const student = await StudentModel.findOne(query).lean()
     if (!student) return null
     return {
       ...JSON.parse(JSON.stringify(student)),
@@ -76,8 +114,8 @@ export async function getStudentById(id: string) {
 // ── Mutations ──────────────────────────────────────────────────────────────
 
 export async function addStudent(formData: FormData) {
-  const session = await getSession()
-  if (!session || !session.schoolId) return { error: "Not authorized" }
+  const auth = await authorizePermission("student.create")
+  if (!auth.allowed || !auth.context.schoolId) return { error: "Not authorized" }
 
   const rawData = {
     name:        formData.get("name")?.toString(),
@@ -109,7 +147,7 @@ export async function addStudent(formData: FormData) {
   const { className } = validated.data
 
   // Auto-assign roll number
-  const classStudents = await StudentModel.find({ schoolId: session.schoolId, className }).lean()
+  const classStudents = await StudentModel.find({ schoolId: auth.context.schoolId, className }).lean()
   let maxRoll = 0
   for (const stu of classStudents) {
     const r = parseInt(stu.rollNumber, 10)
@@ -120,7 +158,7 @@ export async function addStudent(formData: FormData) {
   const getString = (key: string) => formData.get(key)?.toString() || ""
 
   const newStudent = {
-    schoolId: session.schoolId,
+    schoolId: auth.context.schoolId,
     ...validated.data,
     admissionNo:       validated.data.admissionNo || `ADM${Date.now().toString().slice(-6)}`,
     rollNumber:        assignedRoll,
@@ -145,26 +183,36 @@ export async function addStudent(formData: FormData) {
   }
 
   await StudentModel.create(newStudent)
+  await logAudit(auth.context, {
+    action: "student.create",
+    resource: "Student",
+    details: { studentName: validated.data.name, className },
+  })
   revalidatePath('/dashboard/students')
   return { success: true }
 }
 
 export async function deleteStudent(id: string) {
-  const session = await getSession()
-  if (!session || !session.schoolId) return
+  const auth = await authorizePermission("student.delete")
+  if (!auth.allowed || !auth.context.schoolId) return
 
   await connectToDatabase()
-  await StudentModel.findByIdAndDelete(id)
+  await StudentModel.findOneAndDelete({ _id: id, schoolId: auth.context.schoolId })
+  await logAudit(auth.context, {
+    action: "student.delete",
+    resource: "Student",
+    resourceId: id,
+  })
   revalidatePath('/dashboard/students')
 }
 
 export async function addTimelineEvent(studentId: string, title: string, description: string) {
-  const session = await getSession()
-  if (!session || !session.schoolId) return
+  const auth = await authorizePermission("student.edit")
+  if (!auth.allowed || !auth.context.schoolId) return
 
   await connectToDatabase()
   await StudentModel.findOneAndUpdate(
-    { _id: studentId, schoolId: session.schoolId },
+    { _id: studentId, schoolId: auth.context.schoolId },
     { $push: { timeline: { title, description, date: new Date() } } }
   )
   revalidatePath(`/dashboard/students/${studentId}`)
@@ -181,8 +229,8 @@ export async function uploadStudentDocument(
   studentId: string,
   formData: FormData
 ) {
-  const session = await getSession()
-  if (!session || !session.schoolId) return { error: "Not authorized" }
+  const auth = await authorizePermission("student.edit")
+  if (!auth.allowed || !auth.context.schoolId) return { error: "Not authorized" }
 
   const url      = formData.get("url")?.toString() || ""
   const docType  = formData.get("type")?.toString() || ""
@@ -194,7 +242,7 @@ export async function uploadStudentDocument(
 
   await connectToDatabase()
   await StudentModel.findOneAndUpdate(
-    { _id: studentId, schoolId: session.schoolId },
+    { _id: studentId, schoolId: auth.context.schoolId },
     {
       $push: {
         documents: {
@@ -212,11 +260,11 @@ export async function uploadStudentDocument(
 }
 
 export async function deleteStudentDocument(studentId: string, docIndex: number) {
-  const session = await getSession()
-  if (!session || !session.schoolId) return { error: "Not authorized" }
+  const auth = await authorizePermission("student.edit")
+  if (!auth.allowed || !auth.context.schoolId) return { error: "Not authorized" }
 
   await connectToDatabase()
-  const student = await StudentModel.findOne({ _id: studentId, schoolId: session.schoolId })
+  const student = await StudentModel.findOne({ _id: studentId, schoolId: auth.context.schoolId })
   if (!student) return { error: "Student not found" }
 
   student.documents.splice(docIndex, 1)

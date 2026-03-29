@@ -5,19 +5,15 @@ import { StudentModel } from "@/lib/models/Student"
 import { TeacherModel } from "@/lib/models/Teacher"
 import { FeeInvoiceModel } from "@/lib/models/Fee"
 import { AcademicClassModel } from "@/lib/models/AcademicClass"
-import { cookies } from "next/headers"
-import { decrypt } from "@/lib/session"
+import { authorizePermission } from "@/lib/auth"
 
 export async function getDashboardStats() {
-  const cookieStore = await cookies()
-  const cookie = cookieStore.get('session')?.value
-  const session = await decrypt(cookie)
-  
-  if (!session || !session.schoolId) return null
+  const auth = await authorizePermission("dashboard.view")
+  if (!auth.allowed || !auth.context.schoolId) return null
 
   await connectToDatabase()
 
-  const schoolId = session.schoolId
+  const schoolId = auth.context.schoolId
 
   const studentCount = await StudentModel.countDocuments({ schoolId, status: 'Active' })
   const teacherCount = await TeacherModel.countDocuments({ schoolId, status: 'Active' })

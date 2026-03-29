@@ -3,24 +3,18 @@
 import { connectToDatabase } from "@/lib/db"
 import { StaffAttendanceModel, IStaffAttendanceRecord } from "@/lib/models/StaffAttendance"
 import { TeacherModel } from "@/lib/models/Teacher"
-import { cookies } from "next/headers"
-import { decrypt } from "@/lib/session"
 import { revalidatePath } from "next/cache"
-
-async function getSession() {
-  const cookieStore = await cookies()
-  const cookie = cookieStore.get('session')?.value
-  return await decrypt(cookie)
-}
+import { authorizePermission } from "@/lib/auth"
+import { logAudit } from "@/lib/audit"
 
 export async function getStaffAttendance(date: string) {
-  const session = await getSession()
-  if (!session || !session.schoolId) return null
+  const auth = await authorizePermission("attendance.view")
+  if (!auth.allowed || !auth.context.schoolId) return null
   
   await connectToDatabase()
   
   const attendance = await StaffAttendanceModel.findOne({
-    schoolId: session.schoolId,
+    schoolId: auth.context.schoolId,
     date
   }).lean()
 
@@ -30,7 +24,7 @@ export async function getStaffAttendance(date: string) {
 
   // Generate blank template
   const teachers = await TeacherModel.find({ 
-    schoolId: session.schoolId, 
+    schoolId: auth.context.schoolId, 
     status: { $in: ['Active', 'On Leave'] } // We want to track if an active teacher is suddenly absent or on leave
   }).sort({ department: 1, name: 1 }).lean()
 
@@ -48,13 +42,13 @@ export async function getStaffAttendance(date: string) {
 }
 
 export async function saveStaffAttendance(date: string, records: IStaffAttendanceRecord[]) {
-  const session = await getSession()
-  if (!session || !session.schoolId) return { error: "Not authorized" }
+  const auth = await authorizePermission("attendance.mark")
+  if (!auth.allowed || !auth.context.schoolId) return { error: "Not authorized" }
 
   await connectToDatabase()
 
   await StaffAttendanceModel.findOneAndUpdate(
-    { schoolId: session.schoolId, date },
+    { schoolId: auth.context.schoolId, date },
     { records, updatedAt: new Date() },
     { upsert: true, new: true, setDefaultsOnInsert: true }
   )
@@ -73,17 +67,22 @@ export async function saveStaffAttendance(date: string, records: IStaffAttendanc
   }
 
   revalidatePath('/dashboard/teachers/attendance')
+  await logAudit(auth.context, {
+    action: "attendance.update",
+    resource: "StaffAttendance",
+    details: { date, recordsCount: records.length },
+  })
   return { success: true }
 }
 
 export async function getIndividualStaffAttendanceStats(teacherId: string) {
-  const session = await getSession()
-  if (!session || !session.schoolId) return null
+  const auth = await authorizePermission("attendance.view")
+  if (!auth.allowed || !auth.context.schoolId) return null
 
   await connectToDatabase()
 
   const attendances = await StaffAttendanceModel.find({
-    schoolId: session.schoolId,
+    schoolId: auth.context.schoolId,
     "records.employeeId": teacherId
   }).sort({ date: -1 }).lean()
 

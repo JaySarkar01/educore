@@ -2,10 +2,15 @@
 
 import { connectToDatabase } from "@/lib/db"
 import { SchoolModel } from "@/lib/models/School"
+import { UserModel } from "@/lib/models/User"
+import { RoleModel } from "@/lib/models/Role"
 import { revalidatePath } from "next/cache"
 import { createSession, deleteSession } from "@/lib/session"
 import { redirect } from "next/navigation"
 import bcrypt from "bcryptjs"
+import { ensureRBACSeeded } from "@/lib/rbac-seed"
+import { ROLE_PERMISSIONS, normalizeRoleName, ROLE_LABELS } from "@/lib/rbac"
+import { authorizePermission, getAuthContext } from "@/lib/auth"
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -57,6 +62,7 @@ export async function registerSchool(formData: FormData) {
   if (validationError) return { error: validationError }
 
   await connectToDatabase()
+  await ensureRBACSeeded()
 
   const existingSchool = await SchoolModel.findOne({ adminEmail: data.adminEmail })
   if (existingSchool) {
@@ -65,7 +71,7 @@ export async function registerSchool(formData: FormData) {
 
   const hashedPassword = await bcrypt.hash(data.password, 12)
 
-  await SchoolModel.create({
+  const school = await SchoolModel.create({
     schoolName:  data.schoolName,
     schoolEmail: data.schoolEmail,
     phone:       data.phone,
@@ -81,23 +87,52 @@ export async function registerSchool(formData: FormData) {
     date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
   })
 
+  const schoolAdminRole = await RoleModel.findOne({ name: "SCHOOL_ADMIN" }).lean()
+  if (schoolAdminRole) {
+    await UserModel.updateOne(
+      { email: data.adminEmail },
+      {
+        $set: {
+          schoolId: school._id.toString(),
+          fullName: data.adminName,
+          email: data.adminEmail,
+          password: hashedPassword,
+          roleId: schoolAdminRole._id,
+          roleCode: "SCHOOL_ADMIN",
+          isActive: true,
+          mustChangePassword: false,
+        },
+      },
+      { upsert: true }
+    )
+  }
+
   revalidatePath('/admin')
   return { success: true }
 }
 
 export async function approveSchool(id: string, formData?: FormData) {
+  const auth = await authorizePermission("school.approve")
+  if (!auth.allowed) return
+
   await connectToDatabase()
   await SchoolModel.findByIdAndUpdate(id, { status: "Approved" })
   revalidatePath('/admin')
 }
 
 export async function rejectSchool(id: string, formData?: FormData) {
+  const auth = await authorizePermission("school.approve")
+  if (!auth.allowed) return
+
   await connectToDatabase()
   await SchoolModel.findByIdAndUpdate(id, { status: "Rejected" })
   revalidatePath('/admin')
 }
 
 export async function getSchools() {
+  const auth = await authorizePermission("school.view")
+  if (!auth.allowed) return []
+
   await connectToDatabase()
   const schools = await SchoolModel.find().sort({ _id: -1 }).lean()
   return schools.map((s: any) => ({
@@ -118,11 +153,53 @@ export async function getSchools() {
 }
 
 export async function authenticate(email: string, pass: string) {
+  await ensureRBACSeeded()
+
   if (email === "superadmin@educore.com" && pass === "admin") {
-    await createSession("ADMIN")
-    return { role: "ADMIN" }
+    const roleName = "SUPER_ADMIN"
+    const permissions = ROLE_PERMISSIONS[roleName]
+    await createSession({ role: roleName, permissions, email })
+    return { role: roleName, permissions }
   }
+
   await connectToDatabase()
+
+  const user = await UserModel.findOne({ email }).populate("roleId")
+  if (user) {
+    if (!user.isActive) return { error: "Your account is inactive." }
+
+    const passwordMatch = await bcrypt.compare(pass, user.password)
+    if (!passwordMatch) return { error: "Invalid credentials." }
+
+    const populatedRole = user.roleId as any
+    const rawRoleName = populatedRole?.name || user.roleCode
+    if (rawRoleName === "PARENT") {
+      return { error: "Parent login has been disabled. Please contact school administration." }
+    }
+
+    const roleName = normalizeRoleName(populatedRole?.name || user.roleCode)
+    const permissions = populatedRole?.permissions?.length
+      ? populatedRole.permissions
+      : ROLE_PERMISSIONS[roleName]
+
+    await createSession({
+      role: roleName,
+      schoolId: user.schoolId || undefined,
+      userId: user._id.toString(),
+      roleId: populatedRole?._id?.toString(),
+      permissions,
+      email,
+      mustChangePassword: !!user.mustChangePassword,
+    })
+
+    return {
+      role: roleName,
+      schoolId: user.schoolId || undefined,
+      permissions,
+      mustChangePassword: !!user.mustChangePassword,
+    }
+  }
+
   const school = await SchoolModel.findOne({ adminEmail: email })
   if (school) {
     const passwordMatch = await bcrypt.compare(pass, school.password)
@@ -131,8 +208,20 @@ export async function authenticate(email: string, pass: string) {
     if (school.status === "Pending")  return { error: "Your account is still pending approval." }
     if (school.status === "Rejected") return { error: "Your account registration was rejected." }
 
-    await createSession("SCHOOL", school._id.toString())
-    return { role: "SCHOOL", schoolId: school._id.toString(), schoolName: school.schoolName }
+    const roleName = "SCHOOL_ADMIN"
+    const permissions = ROLE_PERMISSIONS[roleName]
+
+    const schoolAdminRole = await RoleModel.findOne({ name: roleName }).lean()
+
+    await createSession({
+      role: roleName,
+      schoolId: school._id.toString(),
+      roleId: schoolAdminRole?._id?.toString(),
+      permissions,
+      email,
+    })
+
+    return { role: roleName, schoolId: school._id.toString(), schoolName: school.schoolName, permissions }
   }
   return { error: "Invalid credentials." }
 }
@@ -143,21 +232,32 @@ export async function logout() {
 }
 
 export async function getSchoolProfile() {
-  const { cookies } = await import('next/headers')
-  const { decrypt } = await import('@/lib/session')
-  const cookieStore = await cookies()
-  const cookie = cookieStore.get('session')?.value
-  const session = await decrypt(cookie)
+  const context = await getAuthContext()
+  const session = context?.session
 
-  if (!session || !session.schoolId) return null
+  if (!session) return null
+
+  if (!session.schoolId) {
+    return {
+      schoolName: "EduCore",
+      adminName: session.email || "System",
+      role: context?.roleName || "SUPER_ADMIN",
+      roleLabel: ROLE_LABELS[context?.roleName || "SUPER_ADMIN"],
+      permissions: context?.permissions || [],
+    }
+  }
 
   await connectToDatabase()
   const school = await SchoolModel.findById(session.schoolId).lean()
   if (!school) return null
 
+  const role = context?.roleName || normalizeRoleName(session.role)
+
   return {
     schoolName: school.schoolName,
     adminName: school.adminName,
-    role: session.role
+    role,
+    roleLabel: ROLE_LABELS[role],
+    permissions: context?.permissions || ROLE_PERMISSIONS[role],
   }
 }

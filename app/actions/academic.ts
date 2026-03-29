@@ -3,22 +3,15 @@
 import { connectToDatabase } from "@/lib/db"
 import { AcademicClassModel } from "@/lib/models/AcademicClass"
 import { SubjectModel } from "@/lib/models/Subject"
-import { cookies } from "next/headers"
-import { decrypt } from "@/lib/session"
 import { revalidatePath } from "next/cache"
-
-async function getSession() {
-  const cookieStore = await cookies()
-  const cookie = cookieStore.get('session')?.value
-  return await decrypt(cookie)
-}
+import { authorizePermission } from "@/lib/auth"
 
 // ---- CLASSES ----
 export async function getClasses() {
-  const session = await getSession()
-  if (!session || !session.schoolId) return []
+  const auth = await authorizePermission("class.manage")
+  if (!auth.allowed || !auth.context.schoolId) return []
   await connectToDatabase()
-  const classes = await AcademicClassModel.find({ schoolId: session.schoolId }).sort({ className: 1 }).lean()
+  const classes = await AcademicClassModel.find({ schoolId: auth.context.schoolId }).sort({ className: 1 }).lean()
   return classes.map((c: any) => ({
     ...JSON.parse(JSON.stringify(c)),
     id: c._id.toString()
@@ -26,8 +19,8 @@ export async function getClasses() {
 }
 
 export async function addClass(formData: FormData) {
-  const session = await getSession()
-  if (!session || !session.schoolId) return { error: "Not authorized" }
+  const auth = await authorizePermission("class.manage")
+  if (!auth.allowed || !auth.context.schoolId) return { error: "Not authorized" }
   await connectToDatabase()
 
   const className = formData.get("className")?.toString().trim().replace(/^Class\s+/i, "")
@@ -39,7 +32,7 @@ export async function addClass(formData: FormData) {
 
   try {
     await AcademicClassModel.create({
-      schoolId: session.schoolId,
+      schoolId: auth.context.schoolId,
       className,
       sections
     })
@@ -52,20 +45,20 @@ export async function addClass(formData: FormData) {
 }
 
 export async function deleteClass(id: string) {
-  const session = await getSession()
-  if (!session || !session.schoolId) return;
+  const auth = await authorizePermission("class.manage")
+  if (!auth.allowed || !auth.context.schoolId) return;
   if (!id || id.length !== 24) return;
   await connectToDatabase()
-  await AcademicClassModel.findOneAndDelete({ _id: id, schoolId: session.schoolId })
+  await AcademicClassModel.findOneAndDelete({ _id: id, schoolId: auth.context.schoolId })
   revalidatePath('/dashboard/classes/manage')
 }
 
 // ---- SUBJECTS ----
 export async function getSubjects() {
-  const session = await getSession()
-  if (!session || !session.schoolId) return []
+  const auth = await authorizePermission("subject.manage")
+  if (!auth.allowed || !auth.context.schoolId) return []
   await connectToDatabase()
-  const subjects = await SubjectModel.find({ schoolId: session.schoolId }).sort({ subjectName: 1 }).lean()
+  const subjects = await SubjectModel.find({ schoolId: auth.context.schoolId }).sort({ subjectName: 1 }).lean()
   return subjects.map((s: any) => ({
     ...JSON.parse(JSON.stringify(s)),
     id: s._id.toString()
@@ -73,8 +66,8 @@ export async function getSubjects() {
 }
 
 export async function addSubject(formData: FormData) {
-  const session = await getSession()
-  if (!session || !session.schoolId) return { error: "Not authorized" }
+  const auth = await authorizePermission("subject.manage")
+  if (!auth.allowed || !auth.context.schoolId) return { error: "Not authorized" }
   await connectToDatabase()
 
   const subjectName = formData.get("subjectName")?.toString().trim()
@@ -85,7 +78,7 @@ export async function addSubject(formData: FormData) {
 
   try {
     await SubjectModel.create({
-      schoolId: session.schoolId,
+      schoolId: auth.context.schoolId,
       subjectName,
       subjectCode,
       type
@@ -99,10 +92,10 @@ export async function addSubject(formData: FormData) {
 }
 
 export async function deleteSubject(id: string) {
-  const session = await getSession()
-  if (!session || !session.schoolId) return;
+  const auth = await authorizePermission("subject.manage")
+  if (!auth.allowed || !auth.context.schoolId) return;
   if (!id || id.length !== 24) return;
   await connectToDatabase()
-  await SubjectModel.findOneAndDelete({ _id: id, schoolId: session.schoolId })
+  await SubjectModel.findOneAndDelete({ _id: id, schoolId: auth.context.schoolId })
   revalidatePath('/dashboard/classes/subjects')
 }

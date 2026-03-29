@@ -98,6 +98,11 @@ export default function AddTeacherPage() {
       <div>
         <h1 className="text-3xl font-bold text-fg tracking-tight">Register New Teacher</h1>
         <p className="text-muted-fg mt-1 text-lg">Onboard a new faculty member into the system.</p>
+        <p className="text-xs text-muted-fg mt-2">
+          This form creates only the teacher profile. Create login credentials from
+          <Link href="/dashboard/users" className="ml-1 text-brand-600 dark:text-brand-400 hover:underline font-semibold">Users & Role Assignment</Link>
+          to prevent duplicate role/account records.
+        </p>
       </div>
 
       <div className="bg-surface-50 dark:bg-surface-950 border border-border/50 rounded-xl shadow-lg overflow-hidden mt-6">

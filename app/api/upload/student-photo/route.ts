@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server"
 import { uploadToCloudinary } from "@/lib/cloudinary"
+import { authorizeApiRequest } from "@/lib/auth"
 
 const MAX_BYTES = 2 * 1024 * 1024 // 2 MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"]
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await authorizeApiRequest(req, "student.edit")
+    if (!auth.allowed) return auth.response
+
     const formData = await req.formData()
     const file = formData.get("file") as File | null
 

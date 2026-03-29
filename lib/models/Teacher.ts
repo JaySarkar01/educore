@@ -35,7 +35,7 @@ const TeacherSchema = new Schema({
   department: { type: String, default: "" },
   subjects: { type: [String], default: [] },
   baseSalary: { type: Number, default: 0 },
-  photo:      { type: String, default: "" },
+  photo: { type: String, default: "" },
   status: { type: String, enum: ['Active', 'Inactive', 'On Leave', 'Resigned'], default: 'Active' },
   timeline: [{
     title: { type: String, required: true },

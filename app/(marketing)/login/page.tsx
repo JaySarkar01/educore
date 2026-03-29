@@ -8,6 +8,7 @@ import { Building2, KeyRound } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { authenticate } from "@/app/actions/school"
+import { normalizeRoleName } from "@/lib/rbac"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -25,7 +26,13 @@ export default function LoginPage() {
         if (res.error) {
           setErrorMsg(res.error)
         } else {
-          if (res.role === "ADMIN") {
+          if (res.mustChangePassword) {
+            router.push("/dashboard/security/change-password")
+            return
+          }
+
+          const roleName = normalizeRoleName(res.role)
+          if (roleName === "SUPER_ADMIN") {
             router.push("/admin")
           } else {
             router.push("/dashboard")
@@ -82,7 +89,7 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
-                  <Link href="#" className="text-xs text-brand-600 dark:text-brand-400 hover:underline">
+                  <Link href="/forgot-password" className="text-xs text-brand-600 dark:text-brand-400 hover:underline">
                     Forgot password?
                   </Link>
                 </div>

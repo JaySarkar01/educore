@@ -3,19 +3,13 @@
 import { connectToDatabase } from "@/lib/db"
 import { FeeInvoiceModel } from "@/lib/models/Fee"
 import { StudentModel } from "@/lib/models/Student"
-import { cookies } from "next/headers"
-import { decrypt } from "@/lib/session"
 import { revalidatePath } from "next/cache"
-
-async function getSession() {
-  const cookieStore = await cookies()
-  const cookie = cookieStore.get('session')?.value
-  return await decrypt(cookie)
-}
+import { authorizePermission } from "@/lib/auth"
+import { logAudit } from "@/lib/audit"
 
 export async function generateFeeInvoice(formData: FormData) {
-  const session = await getSession()
-  if (!session || !session.schoolId) return { error: "Not authorized" }
+  const auth = await authorizePermission("fees.collect")
+  if (!auth.allowed || !auth.context.schoolId) return { error: "Not authorized" }
 
   await connectToDatabase()
   
@@ -26,11 +20,11 @@ export async function generateFeeInvoice(formData: FormData) {
 
   if (!studentId || amount <= 0) return { error: "Invalid data" }
 
-  const student = await StudentModel.findOne({ _id: studentId, schoolId: session.schoolId })
+  const student = await StudentModel.findOne({ _id: studentId, schoolId: auth.context.schoolId })
   if (!student) return { error: "Student not found" }
 
   const invoice = await FeeInvoiceModel.create({
-    schoolId: session.schoolId,
+    schoolId: auth.context.schoolId,
     studentId,
     studentName: student.name,
     className: student.className,
@@ -55,17 +49,35 @@ export async function generateFeeInvoice(formData: FormData) {
 
   revalidatePath('/dashboard/students/fees')
   revalidatePath(`/dashboard/students/${studentId}`)
+  await logAudit(auth.context, {
+    action: "fees.collect",
+    resource: "FeeInvoice",
+    resourceId: invoice._id.toString(),
+    details: { studentId, amount, title },
+  })
   return { success: true }
 }
 
 export async function recordFeePayment(invoiceId: string, amountToPay: number, method: string, transactionId?: string) {
-  const session = await getSession()
-  if (!session || !session.schoolId) return { error: "Not authorized" }
+  const auth = await authorizePermission("fees.collect")
+  if (!auth.allowed || !auth.context.schoolId) return { error: "Not authorized" }
 
   await connectToDatabase()
 
-  const invoice = await FeeInvoiceModel.findOne({ _id: invoiceId, schoolId: session.schoolId })
+  if (!invoiceId || amountToPay <= 0) return { error: "Invalid payment amount." }
+  if (!["Cash", "Card", "Bank Transfer", "Online"].includes(method)) {
+    return { error: "Invalid payment method." }
+  }
+  if (method !== "Cash" && !String(transactionId || "").trim()) {
+    return { error: "Transaction ID is required for non-cash payments." }
+  }
+
+  const invoice = await FeeInvoiceModel.findOne({ _id: invoiceId, schoolId: auth.context.schoolId })
   if (!invoice) return { error: "Invoice not found" }
+
+  const pendingAmount = invoice.amount - invoice.amountPaid
+  if (pendingAmount <= 0) return { error: "This invoice is already fully paid." }
+  if (amountToPay > pendingAmount) return { error: "Payment amount cannot exceed pending balance." }
 
   const newPaid = invoice.amountPaid + amountToPay
   let newStatus = 'Partial'
@@ -98,24 +110,221 @@ export async function recordFeePayment(invoiceId: string, amountToPay: number, m
 
   revalidatePath('/dashboard/students/fees')
   revalidatePath(`/dashboard/students/${invoice.studentId}`)
+  await logAudit(auth.context, {
+    action: "fees.update",
+    resource: "FeeInvoice",
+    resourceId: invoiceId,
+    details: { amountToPay, method, transactionId, receiptNumber },
+  })
   return { success: true }
 }
 
-export async function getAllInvoices() {
-  const session = await getSession()
-  if (!session || !session.schoolId) return []
+export async function getFeeDashboardSummary() {
+  const auth = await authorizePermission("fees.view")
+  if (!auth.allowed || !auth.context.schoolId) return null
+
   await connectToDatabase()
-  
-  const invoices = await FeeInvoiceModel.find({ schoolId: session.schoolId }).sort({ createdAt: -1 }).lean()
+
+  if (auth.context.roleName === "STUDENT") {
+    if (!auth.context.linkedStudentId) return null
+
+    const studentInvoices = await FeeInvoiceModel.find({
+      schoolId: auth.context.schoolId,
+      studentId: auth.context.linkedStudentId,
+    })
+      .select("amount amountPaid status")
+      .lean()
+
+    const totalBilled = studentInvoices.reduce((sum: number, inv: any) => sum + (inv.amount || 0), 0)
+    const totalCollected = studentInvoices.reduce((sum: number, inv: any) => sum + (inv.amountPaid || 0), 0)
+    const pendingCollection = totalBilled - totalCollected
+    const outstandingInvoices = studentInvoices.filter((inv: any) => inv.status !== "Paid").length
+
+    return { totalBilled, totalCollected, pendingCollection, outstandingInvoices }
+  }
+
+  const grouped = await FeeInvoiceModel.aggregate([
+    { $match: { schoolId: auth.context.schoolId } },
+    {
+      $group: {
+        _id: null,
+        totalBilled: { $sum: "$amount" },
+        totalCollected: { $sum: "$amountPaid" },
+        outstandingInvoices: {
+          $sum: {
+            $cond: [{ $ne: ["$status", "Paid"] }, 1, 0],
+          },
+        },
+      },
+    },
+  ])
+
+  const row = grouped[0] || { totalBilled: 0, totalCollected: 0, outstandingInvoices: 0 }
+  return {
+    totalBilled: row.totalBilled,
+    totalCollected: row.totalCollected,
+    pendingCollection: row.totalBilled - row.totalCollected,
+    outstandingInvoices: row.outstandingInvoices,
+  }
+}
+
+export async function searchStudentsForFeePayment(query: string, limit = 20, classFilter?: string) {
+  const auth = await authorizePermission("fees.collect")
+  if (!auth.allowed || !auth.context.schoolId) return []
+
+  await connectToDatabase()
+
+  const q = String(query || "").trim()
+  if (q.length < 2) return []
+
+  const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+  const regex = new RegExp(escaped, "i")
+
+  const studentQuery: any = {
+    schoolId: auth.context.schoolId,
+    status: "Active",
+    $or: [
+      { name: { $regex: regex } },
+      { admissionNo: { $regex: regex } },
+      { rollNumber: { $regex: regex } },
+      { parentPhone: { $regex: regex } },
+    ],
+  }
+
+  if (classFilter && classFilter !== "ALL") {
+    studentQuery.className = classFilter
+  }
+
+  const students = await StudentModel.find(studentQuery)
+    .select("name admissionNo rollNumber className section")
+    .sort({ name: 1 })
+    .limit(Math.min(Math.max(limit, 1), 50))
+    .lean()
+
+  return students.map((s: any) => ({
+    id: s._id.toString(),
+    name: s.name,
+    admissionNo: s.admissionNo,
+    rollNumber: s.rollNumber,
+    className: s.className,
+    section: s.section,
+  }))
+}
+
+export async function getFeeStudentClassOptions() {
+  const auth = await authorizePermission("fees.collect")
+  if (!auth.allowed || !auth.context.schoolId) return []
+
+  await connectToDatabase()
+
+  const classes = await StudentModel.distinct("className", {
+    schoolId: auth.context.schoolId,
+    status: "Active",
+  })
+
+  return (classes as string[]).filter(Boolean).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+}
+
+export async function getOutstandingInvoicesForStudent(studentId: string) {
+  const auth = await authorizePermission("fees.collect")
+  if (!auth.allowed || !auth.context.schoolId) return []
+
+  await connectToDatabase()
+
+  if (!studentId) return []
+
+  const invoices = await FeeInvoiceModel.find({
+    schoolId: auth.context.schoolId,
+    studentId,
+    status: { $ne: "Paid" },
+  })
+    .sort({ dueDate: 1, createdAt: -1 })
+    .lean()
+
   return JSON.parse(JSON.stringify(invoices))
 }
 
-export async function getStudentFeeStats(studentId: string) {
-  const session = await getSession()
-  if (!session || !session.schoolId) return null
+export async function getAllInvoices() {
+  const auth = await authorizePermission("fees.view")
+  if (!auth.allowed || !auth.context.schoolId) return []
+  await connectToDatabase()
+  
+  if (auth.context.roleName === "STUDENT") {
+    if (!auth.context.linkedStudentId) return []
+    const ownInvoices = await FeeInvoiceModel.find({
+      schoolId: auth.context.schoolId,
+      studentId: auth.context.linkedStudentId,
+    }).sort({ createdAt: -1 }).lean()
+    return JSON.parse(JSON.stringify(ownInvoices))
+  }
+
+  const invoices = await FeeInvoiceModel.find({ schoolId: auth.context.schoolId }).sort({ createdAt: -1 }).lean()
+  return JSON.parse(JSON.stringify(invoices))
+}
+
+export async function getRecentInvoices(limit = 20) {
+  const auth = await authorizePermission("fees.view")
+  if (!auth.allowed || !auth.context.schoolId) return []
+
   await connectToDatabase()
 
-  const invoices = await FeeInvoiceModel.find({ studentId, schoolId: session.schoolId }).sort({ createdAt: -1 }).lean()
+  const invoices = await FeeInvoiceModel.find({ schoolId: auth.context.schoolId })
+    .sort({ createdAt: -1 })
+    .limit(Math.min(Math.max(limit, 1), 100))
+    .lean()
+
+  return JSON.parse(JSON.stringify(invoices))
+}
+
+export async function getStudentsForFeeModule() {
+  const auth = await authorizePermission("fees.view")
+  if (!auth.allowed || !auth.context.schoolId) return []
+
+  await connectToDatabase()
+
+  if (auth.context.roleName === "STUDENT") {
+    if (!auth.context.linkedStudentId) return []
+    const student = await StudentModel.findOne({
+      _id: auth.context.linkedStudentId,
+      schoolId: auth.context.schoolId,
+    })
+      .select("name rollNumber className")
+      .lean()
+
+    if (!student) return []
+    return [
+      {
+        _id: (student as any)._id.toString(),
+        name: (student as any).name,
+        rollNumber: (student as any).rollNumber,
+        className: (student as any).className,
+      },
+    ]
+  }
+
+  const students = await StudentModel.find({ schoolId: auth.context.schoolId, status: "Active" })
+    .select("name rollNumber className")
+    .sort({ name: 1 })
+    .lean()
+
+  return students.map((s: any) => ({
+    _id: s._id.toString(),
+    name: s.name,
+    rollNumber: s.rollNumber,
+    className: s.className,
+  }))
+}
+
+export async function getStudentFeeStats(studentId: string) {
+  const auth = await authorizePermission("fees.view")
+  if (!auth.allowed || !auth.context.schoolId) return null
+  await connectToDatabase()
+
+  if (auth.context.roleName === "STUDENT") {
+    if (!auth.context.linkedStudentId || auth.context.linkedStudentId !== studentId) return null
+  }
+
+  const invoices = await FeeInvoiceModel.find({ studentId, schoolId: auth.context.schoolId }).sort({ createdAt: -1 }).lean()
 
   let totalBilled = 0
   let totalPaid = 0

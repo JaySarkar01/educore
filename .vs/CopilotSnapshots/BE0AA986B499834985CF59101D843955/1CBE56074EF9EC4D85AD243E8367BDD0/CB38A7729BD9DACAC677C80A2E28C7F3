@@ -1,0 +1,116 @@
+﻿"use server"
+
+import { connectToDatabase } from "@/lib/db"
+import { StaffAttendanceModel, IStaffAttendanceRecord } from "@/lib/models/StaffAttendance"
+import { TeacherModel } from "@/lib/models/Teacher"
+import { revalidatePath } from "next/cache"
+import { authorizePermission } from "@/lib/auth"
+import { logAudit } from "@/lib/audit"
+
+export async function getStaffAttendance(date: string) {
+  const auth = await authorizePermission("attendance.view")
+  if (!auth.allowed || !auth.context.schoolId) return null
+  
+  await connectToDatabase()
+  
+  const attendance = await StaffAttendanceModel.findOne({
+    schoolId: session.schoolId,
+    date
+  }).lean()
+
+  if (attendance) {
+    return JSON.parse(JSON.stringify(attendance))
+  }
+
+  // Generate blank template
+  const teachers = await TeacherModel.find({ 
+    schoolId: session.schoolId, 
+    status: { $in: ['Active', 'On Leave'] } // We want to track if an active teacher is suddenly absent or on leave
+  }).sort({ department: 1, name: 1 }).lean()
+
+  if (!teachers.length) return { template: true, records: [] }
+
+  const templateRecords: IStaffAttendanceRecord[] = teachers.map((t: any) => ({
+    employeeId: t._id.toString(),
+    name: t.name,
+    department: t.department || 'General',
+    status: t.status === 'On Leave' ? 'On Leave' : 'Present', // Default
+    remarks: ''
+  }))
+
+  return { template: true, records: templateRecords }
+}
+
+export async function saveStaffAttendance(date: string, records: IStaffAttendanceRecord[]) {
+  const auth = await authorizePermission("attendance.mark")
+  if (!auth.allowed || !auth.context.schoolId) return { error: "Not authorized" }
+
+  await connectToDatabase()
+
+  await StaffAttendanceModel.findOneAndUpdate(
+    { schoolId: auth.context.schoolId, date },
+    { records, updatedAt: new Date() },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  )
+
+  const absentTeachers = records.filter(r => r.status === 'Absent' || r.status === 'On Leave')
+  for (const record of absentTeachers) {
+    await TeacherModel.findByIdAndUpdate(record.employeeId, {
+      $push: {
+        timeline: {
+          title: `Marked ${record.status}`,
+          description: `Faculty was marked ${record.status} on ${date}.`,
+          date: new Date()
+        }
+      }
+    })
+  }
+
+  revalidatePath('/dashboard/teachers/attendance')
+  await logAudit(auth.context, {
+    action: "attendance.update",
+    resource: "StaffAttendance",
+    details: { date, recordsCount: records.length },
+  })
+  return { success: true }
+}
+
+export async function getIndividualStaffAttendanceStats(teacherId: string) {
+  const auth = await authorizePermission("attendance.view")
+  if (!auth.allowed || !auth.context.schoolId) return null
+
+  await connectToDatabase()
+
+  const attendances = await StaffAttendanceModel.find({
+    schoolId: session.schoolId,
+    "records.employeeId": teacherId
+  }).sort({ date: -1 }).lean()
+
+  let totalDays = 0
+  let presentDays = 0
+  const history: any[] = []
+
+  for (const att of attendances) {
+    const record = (att as any).records.find((r: any) => r.employeeId === teacherId)
+    if (record) {
+      totalDays++
+      if (['Present', 'Late', 'Half-Day'].includes(record.status)) {
+        presentDays++
+      }
+      history.push({
+        date: (att as any).date,
+        status: record.status,
+        remarks: record.remarks
+      })
+    }
+  }
+
+  const percentage = totalDays === 0 ? 0 : Math.round((presentDays / totalDays) * 100)
+
+  return JSON.parse(JSON.stringify({
+    totalDays,
+    presentDays,
+    percentage,
+    history
+  }))
+}

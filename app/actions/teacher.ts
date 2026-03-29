@@ -2,10 +2,10 @@
 
 import { connectToDatabase } from "@/lib/db"
 import { TeacherModel } from "@/lib/models/Teacher"
-import { cookies } from "next/headers"
-import { decrypt } from "@/lib/session"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { authorizePermission } from "@/lib/auth"
+import { logAudit } from "@/lib/audit"
 
 const TeacherSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -20,19 +20,19 @@ const TeacherSchema = z.object({
   experience: z.number().min(0, "Experience cannot be negative"),
 })
 
-async function getSession() {
-  const cookieStore = await cookies()
-  const cookie = cookieStore.get('session')?.value
-  return await decrypt(cookie)
-}
-
 export async function getTeachers(querySearch?: string, deptFilter?: string) {
-  const session = await getSession()
-  if (!session || !session.schoolId) return []
+  const auth = await authorizePermission("teacher.view")
+  if (!auth.allowed || !auth.context.schoolId) return []
   
   await connectToDatabase()
   
-  const query: any = { schoolId: session.schoolId }
+  const query: any = { schoolId: auth.context.schoolId }
+
+  if (auth.context.roleName === "TEACHER") {
+    if (!auth.context.linkedTeacherId) return []
+    query._id = auth.context.linkedTeacherId
+  }
+
   if (querySearch) {
     query.$or = [
       { name: { $regex: querySearch, $options: 'i' } },
@@ -54,12 +54,17 @@ export async function getTeachers(querySearch?: string, deptFilter?: string) {
 export async function getTeacherById(id: string) {
   if (!id || id === 'undefined' || id.length !== 24) return null
 
-  const session = await getSession()
-  if (!session || !session.schoolId) return null
+  const auth = await authorizePermission("teacher.view")
+  if (!auth.allowed || !auth.context.schoolId) return null
   
   await connectToDatabase()
   try {
-    const teacher = await TeacherModel.findOne({ _id: id, schoolId: session.schoolId }).lean()
+    const query: any = { _id: id, schoolId: auth.context.schoolId }
+    if (auth.context.roleName === "TEACHER") {
+      if (!auth.context.linkedTeacherId || auth.context.linkedTeacherId !== id) return null
+    }
+
+    const teacher = await TeacherModel.findOne(query).lean()
     if (!teacher) return null
     return {
       ...JSON.parse(JSON.stringify(teacher)),
@@ -71,8 +76,8 @@ export async function getTeacherById(id: string) {
 }
 
 export async function addTeacher(formData: FormData) {
-  const session = await getSession()
-  if (!session || !session.schoolId) return { error: "Not authorized" }
+  const auth = await authorizePermission("teacher.create")
+  if (!auth.allowed || !auth.context.schoolId) return { error: "Not authorized" }
 
   const rawData = {
     name: formData.get("name")?.toString(),
@@ -101,11 +106,11 @@ export async function addTeacher(formData: FormData) {
   const getNum = (key: string) => parseFloat(formData.get(key)?.toString() || "0")
 
   // Auto-generate employee ID
-  const count = await TeacherModel.countDocuments({ schoolId: session.schoolId })
+  const count = await TeacherModel.countDocuments({ schoolId: auth.context.schoolId })
   const employeeId = validated.data.employeeId || `EMP-${1000 + count + 1}`
 
   const newTeacher = {
-    schoolId: session.schoolId,
+    schoolId: auth.context.schoolId,
     ...validated.data,
     employeeId: employeeId,
     address: getString("address"),
@@ -124,13 +129,18 @@ export async function addTeacher(formData: FormData) {
   }
 
   await TeacherModel.create(newTeacher)
+  await logAudit(auth.context, {
+    action: "teacher.create",
+    resource: "Teacher",
+    details: { teacherName: validated.data.name, department: validated.data.department },
+  })
   revalidatePath('/dashboard/teachers')
   return { success: true }
 }
 
 export async function assignSubjects(teacherId: string, subjectsInput: string) {
-  const session = await getSession()
-  if (!session || !session.schoolId) return { error: "Not authorized" }
+  const auth = await authorizePermission("teacher.edit")
+  if (!auth.allowed || !auth.context.schoolId) return { error: "Not authorized" }
   
   await connectToDatabase()
   
@@ -148,14 +158,25 @@ export async function assignSubjects(teacherId: string, subjectsInput: string) {
   })
   
   revalidatePath(`/dashboard/teachers/${teacherId}`)
+  await logAudit(auth.context, {
+    action: "teacher.edit",
+    resource: "Teacher",
+    resourceId: teacherId,
+    details: { subjects: subjectsArray },
+  })
   return { success: true }
 }
 
 export async function deleteTeacher(id: string) {
-  const session = await getSession()
-  if (!session || !session.schoolId) return;
+  const auth = await authorizePermission("teacher.delete")
+  if (!auth.allowed || !auth.context.schoolId) return;
   
   await connectToDatabase()
-  await TeacherModel.findByIdAndDelete(id)
+  await TeacherModel.findOneAndDelete({ _id: id, schoolId: auth.context.schoolId })
+  await logAudit(auth.context, {
+    action: "teacher.delete",
+    resource: "Teacher",
+    resourceId: id,
+  })
   revalidatePath('/dashboard/teachers')
 }

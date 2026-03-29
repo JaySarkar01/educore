@@ -3,26 +3,32 @@
 import { connectToDatabase } from "@/lib/db"
 import { AttendanceModel, IAttendanceRecord } from "@/lib/models/Attendance"
 import { StudentModel } from "@/lib/models/Student"
-import { cookies } from "next/headers"
-import { decrypt } from "@/lib/session"
+import { AcademicClassModel } from "@/lib/models/AcademicClass"
 import { revalidatePath } from "next/cache"
-
-async function getSession() {
-  const cookieStore = await cookies()
-  const cookie = cookieStore.get('session')?.value
-  return await decrypt(cookie)
-}
+import { authorizePermission } from "@/lib/auth"
+import { logAudit } from "@/lib/audit"
 
 // Get the attendance document for a specific class and date
 export async function getClassAttendance(className: string, section: string, date: string) {
-  const session = await getSession()
-  if (!session || !session.schoolId) return null
+  const auth = await authorizePermission("attendance.view")
+  if (!auth.allowed || !auth.context.schoolId) return null
+
+  if (auth.context.roleName === "STUDENT") return null
   
   await connectToDatabase()
+
+  if (auth.context.roleName === "TEACHER") {
+    const assigned = await AcademicClassModel.findOne({
+      schoolId: auth.context.schoolId,
+      className,
+      classTeacherId: auth.context.linkedTeacherId,
+    }).lean()
+    if (!assigned) return null
+  }
   
   // Build student query
   const studentQuery: any = { 
-    schoolId: session.schoolId, 
+    schoolId: auth.context.schoolId, 
     className, 
     status: 'Active' 
   }
@@ -34,7 +40,7 @@ export async function getClassAttendance(className: string, section: string, dat
   const sec = (!section || section === 'All') ? "" : section
   
   const attendance = await AttendanceModel.findOne({
-    schoolId: session.schoolId,
+    schoolId: auth.context.schoolId,
     className,
     section: sec,
     date
@@ -62,15 +68,25 @@ export async function getClassAttendance(className: string, section: string, dat
 
 // Save or Update Attendance
 export async function saveClassAttendance(className: string, section: string, date: string, records: IAttendanceRecord[]) {
-  const session = await getSession()
-  if (!session || !session.schoolId) return { error: "Not authorized" }
+  const auth = await authorizePermission("attendance.mark")
+  if (!auth.allowed || !auth.context.schoolId) return { error: "Not authorized" }
 
   await connectToDatabase()
+
+  if (auth.context.roleName === "TEACHER") {
+    const assigned = await AcademicClassModel.findOne({
+      schoolId: auth.context.schoolId,
+      className,
+      classTeacherId: auth.context.linkedTeacherId,
+    }).lean()
+    if (!assigned) return { error: "Not authorized for this class" }
+  }
+
   const sec = (!section || section === 'All') ? "" : section
 
   // Upsert the attendance document
   await AttendanceModel.findOneAndUpdate(
-    { schoolId: session.schoolId, className, section: sec, date },
+    { schoolId: auth.context.schoolId, className, section: sec, date },
     { records, updatedAt: new Date() },
     { upsert: true, new: true, setDefaultsOnInsert: true }
   )
@@ -103,19 +119,44 @@ export async function saveClassAttendance(className: string, section: string, da
   }
 
   revalidatePath('/dashboard/students/attendance')
+  await logAudit(auth.context, {
+    action: "attendance.mark",
+    resource: "Attendance",
+    details: { className, section: sec, date, recordsCount: records.length },
+  })
   return { success: true }
 }
 
 // Get aggregate stats for a specific student's profile!
 export async function getStudentAttendanceStats(studentId: string) {
-  const session = await getSession()
-  if (!session || !session.schoolId) return null
+  const auth = await authorizePermission("attendance.view")
+  if (!auth.allowed || !auth.context.schoolId) return null
 
   await connectToDatabase()
 
+  if (auth.context.roleName === "STUDENT") {
+    if (!auth.context.linkedStudentId || auth.context.linkedStudentId !== studentId) return null
+  }
+
+  if (auth.context.roleName === "TEACHER") {
+    if (!auth.context.linkedTeacherId) return null
+    const student = await StudentModel.findOne({ _id: studentId, schoolId: auth.context.schoolId })
+      .select("className")
+      .lean()
+    if (!student) return null
+
+    const assigned = await AcademicClassModel.findOne({
+      schoolId: auth.context.schoolId,
+      className: (student as any).className,
+      classTeacherId: auth.context.linkedTeacherId,
+    }).lean()
+
+    if (!assigned) return null
+  }
+
   // Find all attendance docs that contain exactly this student
   const attendances = await AttendanceModel.find({
-    schoolId: session.schoolId,
+    schoolId: auth.context.schoolId,
     "records.studentId": studentId
   }).sort({ date: -1 }).lean()
 
@@ -150,10 +191,22 @@ export async function getStudentAttendanceStats(studentId: string) {
 
 // Get monthly attendance for a whole class (for the Calendar view)
 export async function getMonthlyClassAttendance(className: string, section: string, month: number, year: number) {
-  const session = await getSession()
-  if (!session || !session.schoolId) return []
+  const auth = await authorizePermission("attendance.view")
+  if (!auth.allowed || !auth.context.schoolId) return []
+
+  if (auth.context.roleName === "STUDENT") return []
   
   await connectToDatabase()
+
+  if (auth.context.roleName === "TEACHER") {
+    const assigned = await AcademicClassModel.findOne({
+      schoolId: auth.context.schoolId,
+      className,
+      classTeacherId: auth.context.linkedTeacherId,
+    }).lean()
+    if (!assigned) return []
+  }
+
   const sec = (!section || section === 'All') ? "" : section
 
   // Create regex or range for the month
@@ -162,7 +215,7 @@ export async function getMonthlyClassAttendance(className: string, section: stri
   const prefix = `${year}-${monthStr}`
 
   const attendances = await AttendanceModel.find({
-    schoolId: session.schoolId,
+    schoolId: auth.context.schoolId,
     className,
     section: sec,
     date: { $regex: `^${prefix}` }

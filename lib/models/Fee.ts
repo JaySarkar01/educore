@@ -40,4 +40,8 @@ const FeeInvoiceSchema = new Schema({
   }]
 }, { timestamps: true });
 
+FeeInvoiceSchema.index({ schoolId: 1, studentId: 1, status: 1, dueDate: 1 });
+FeeInvoiceSchema.index({ schoolId: 1, status: 1, createdAt: -1 });
+FeeInvoiceSchema.index({ schoolId: 1, studentName: 1 });
+
 export const FeeInvoiceModel = mongoose.models.FeeInvoice || mongoose.model<IFeeInvoice>("FeeInvoice", FeeInvoiceSchema);

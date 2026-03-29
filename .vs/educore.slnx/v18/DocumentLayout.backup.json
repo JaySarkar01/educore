@@ -1,0 +1,787 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Projects\\Made with AI\\educore\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\actions\\user.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\actions\\user.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\actions\\fees.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\actions\\fees.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\layout.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\layout.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\actions\\password.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\actions\\password.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\lib\\rbac.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:lib\\rbac.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\lib\\audit.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:lib\\audit.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\lib\\models\\User.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:lib\\models\\User.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\lib\\rbac-seed.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:lib\\rbac-seed.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\lib\\models\\Permission.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:lib\\models\\Permission.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\lib\\models\\AuditLog.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:lib\\models\\AuditLog.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\lib\\models\\Role.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:lib\\models\\Role.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\lib\\auth.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:lib\\auth.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\lib\\session.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:lib\\session.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\actions\\school.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\actions\\school.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\proxy.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:proxy.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\(marketing)\\login\\page.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\(marketing)\\login\\page.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\components\\layout\\sidebar.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:components\\layout\\sidebar.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\layout.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\(dashboard)\\layout.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\api\\upload\\student-photo\\route.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\api\\upload\\student-photo\\route.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\api\\upload\\student-document\\route.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\api\\upload\\student-document\\route.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\api\\upload\\teacher-photo\\route.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\api\\upload\\teacher-photo\\route.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\actions\\student.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\actions\\student.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\actions\\teacher.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\actions\\teacher.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\actions\\attendance.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\actions\\attendance.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\actions\\academic.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\actions\\academic.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\actions\\department.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\actions\\department.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\actions\\staff-attendance.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\actions\\staff-attendance.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\actions\\dashboard.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\actions\\dashboard.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\components\\dashboard\\user-management.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:components\\dashboard\\user-management.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\dashboard\\users\\page.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\(dashboard)\\dashboard\\users\\page.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\dashboard\\teachers\\add\\page.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\(dashboard)\\dashboard\\teachers\\add\\page.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\dashboard\\security\\change-password\\page.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\(dashboard)\\dashboard\\security\\change-password\\page.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\(marketing)\\forgot-password\\page.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\(marketing)\\forgot-password\\page.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\(marketing)\\reset-password\\page.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\(marketing)\\reset-password\\page.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\dashboard\\students\\fees\\page.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\(dashboard)\\dashboard\\students\\fees\\page.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\dashboard\\students\\[id]\\page.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\(dashboard)\\dashboard\\students\\[id]\\page.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\components\\dashboard\\documents-tab.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:components\\dashboard\\documents-tab.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\dashboard\\students\\page.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\(dashboard)\\dashboard\\students\\page.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\dashboard\\teachers\\page.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\(dashboard)\\dashboard\\teachers\\page.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\dashboard\\students\\attendance\\page.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\(dashboard)\\dashboard\\students\\attendance\\page.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\lib\\models\\Fee.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:lib\\models\\Fee.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\lib\\models\\Student.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:lib\\models\\Student.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\components\\dashboard\\accountant-fee-workbench.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:components\\dashboard\\accountant-fee-workbench.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\components\\dashboard\\record-payment-form.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:components\\dashboard\\record-payment-form.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\.github\\copilot-instructions.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:.github\\copilot-instructions.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Made with AI\\educore\\components\\dashboard\\generate-invoice-form.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:components\\dashboard\\generate-invoice-form.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 9,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 40,
+              "Title": "Fee.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\lib\\models\\Fee.ts",
+              "RelativeDocumentMoniker": "lib\\models\\Fee.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\lib\\models\\Fee.ts",
+              "RelativeToolTip": "lib\\models\\Fee.ts",
+              "ViewState": "AgIAACsAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-28T16:24:15.591Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 39,
+              "Title": "page.tsx",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\dashboard\\students\\attendance\\page.tsx",
+              "RelativeDocumentMoniker": "app\\(dashboard)\\dashboard\\students\\attendance\\page.tsx",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\dashboard\\students\\attendance\\page.tsx",
+              "RelativeToolTip": "app\\(dashboard)\\dashboard\\students\\attendance\\page.tsx",
+              "ViewState": "AgIAAAcAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-28T16:11:32.427Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 38,
+              "Title": "page.tsx",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\dashboard\\teachers\\page.tsx",
+              "RelativeDocumentMoniker": "app\\(dashboard)\\dashboard\\teachers\\page.tsx",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\dashboard\\teachers\\page.tsx",
+              "RelativeToolTip": "app\\(dashboard)\\dashboard\\teachers\\page.tsx",
+              "ViewState": "AgIAAC0AAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-28T16:11:26.027Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 37,
+              "Title": "page.tsx",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\dashboard\\students\\page.tsx",
+              "RelativeDocumentMoniker": "app\\(dashboard)\\dashboard\\students\\page.tsx",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\dashboard\\students\\page.tsx",
+              "RelativeToolTip": "app\\(dashboard)\\dashboard\\students\\page.tsx",
+              "ViewState": "AgIAAAEAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-28T16:11:10.427Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 36,
+              "Title": "documents-tab.tsx",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\components\\dashboard\\documents-tab.tsx",
+              "RelativeDocumentMoniker": "components\\dashboard\\documents-tab.tsx",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\components\\dashboard\\documents-tab.tsx",
+              "RelativeToolTip": "components\\dashboard\\documents-tab.tsx",
+              "ViewState": "AgIAAB8AAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-28T16:10:55.045Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 35,
+              "Title": "page.tsx",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\dashboard\\students\\[id]\\page.tsx",
+              "RelativeDocumentMoniker": "app\\(dashboard)\\dashboard\\students\\[id]\\page.tsx",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\dashboard\\students\\[id]\\page.tsx",
+              "RelativeToolTip": "app\\(dashboard)\\dashboard\\students\\[id]\\page.tsx",
+              "ViewState": "AgIAAAQAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-28T16:10:45.902Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 34,
+              "Title": "page.tsx",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\dashboard\\students\\fees\\page.tsx",
+              "RelativeDocumentMoniker": "app\\(dashboard)\\dashboard\\students\\fees\\page.tsx",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\dashboard\\students\\fees\\page.tsx",
+              "RelativeToolTip": "app\\(dashboard)\\dashboard\\students\\fees\\page.tsx",
+              "ViewState": "AgIAACAAAAAAAAAAAIBJwAEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-28T16:10:11.305Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "user.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\actions\\user.ts",
+              "RelativeDocumentMoniker": "app\\actions\\user.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\actions\\user.ts",
+              "RelativeToolTip": "app\\actions\\user.ts",
+              "ViewState": "AgIAAOMAAAAAAAAAAAAAwPUAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:29:59.801Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 45,
+              "Title": "generate-invoice-form.tsx",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\components\\dashboard\\generate-invoice-form.tsx",
+              "RelativeDocumentMoniker": "components\\dashboard\\generate-invoice-form.tsx",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\components\\dashboard\\generate-invoice-form.tsx",
+              "RelativeToolTip": "components\\dashboard\\generate-invoice-form.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-28T16:34:47.523Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 44,
+              "Title": "copilot-instructions.md",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\.github\\copilot-instructions.md",
+              "RelativeDocumentMoniker": ".github\\copilot-instructions.md",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\.github\\copilot-instructions.md",
+              "RelativeToolTip": ".github\\copilot-instructions.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAACsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-03-28T16:27:25.96Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 43,
+              "Title": "record-payment-form.tsx",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\components\\dashboard\\record-payment-form.tsx",
+              "RelativeDocumentMoniker": "components\\dashboard\\record-payment-form.tsx",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\components\\dashboard\\record-payment-form.tsx",
+              "RelativeToolTip": "components\\dashboard\\record-payment-form.tsx",
+              "ViewState": "AgIAAAYAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-28T16:25:18.976Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 42,
+              "Title": "accountant-fee-workbench.tsx",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\components\\dashboard\\accountant-fee-workbench.tsx",
+              "RelativeDocumentMoniker": "components\\dashboard\\accountant-fee-workbench.tsx",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\components\\dashboard\\accountant-fee-workbench.tsx",
+              "RelativeToolTip": "components\\dashboard\\accountant-fee-workbench.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAM8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-28T16:24:51.118Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 41,
+              "Title": "Student.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\lib\\models\\Student.ts",
+              "RelativeDocumentMoniker": "lib\\models\\Student.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\lib\\models\\Student.ts",
+              "RelativeToolTip": "lib\\models\\Student.ts",
+              "ViewState": "AgIAAFwAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-28T16:24:23.177Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "fees.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\actions\\fees.ts",
+              "RelativeDocumentMoniker": "app\\actions\\fees.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\actions\\fees.ts",
+              "RelativeToolTip": "app\\actions\\fees.ts",
+              "ViewState": "AgIAAKkAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:22:03.388Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "layout.tsx",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\layout.tsx",
+              "RelativeDocumentMoniker": "app\\layout.tsx",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\layout.tsx",
+              "RelativeToolTip": "app\\layout.tsx",
+              "ViewState": "AgIAAEIAAAAAAAAAAAAAAFEAAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:12:44.76Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "password.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\actions\\password.ts",
+              "RelativeDocumentMoniker": "app\\actions\\password.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\actions\\password.ts",
+              "RelativeToolTip": "app\\actions\\password.ts",
+              "ViewState": "AgIAAGEAAAAAAAAAAAAAAJEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T13:02:59.752Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "auth.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\lib\\auth.ts",
+              "RelativeDocumentMoniker": "lib\\auth.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\lib\\auth.ts",
+              "RelativeToolTip": "lib\\auth.ts",
+              "ViewState": "AgIAAAMAAAAAAAAAAIBJwH4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:18:56.166Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Role.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\lib\\models\\Role.ts",
+              "RelativeDocumentMoniker": "lib\\models\\Role.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\lib\\models\\Role.ts",
+              "RelativeToolTip": "lib\\models\\Role.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:18:56.007Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "AuditLog.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\lib\\models\\AuditLog.ts",
+              "RelativeDocumentMoniker": "lib\\models\\AuditLog.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\lib\\models\\AuditLog.ts",
+              "RelativeToolTip": "lib\\models\\AuditLog.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:18:55.897Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Permission.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\lib\\models\\Permission.ts",
+              "RelativeDocumentMoniker": "lib\\models\\Permission.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\lib\\models\\Permission.ts",
+              "RelativeToolTip": "lib\\models\\Permission.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:18:55.803Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 29,
+              "Title": "page.tsx",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\dashboard\\users\\page.tsx",
+              "RelativeDocumentMoniker": "app\\(dashboard)\\dashboard\\users\\page.tsx",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\dashboard\\users\\page.tsx",
+              "RelativeToolTip": "app\\(dashboard)\\dashboard\\users\\page.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:30:45.742Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "rbac-seed.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\lib\\rbac-seed.ts",
+              "RelativeDocumentMoniker": "lib\\rbac-seed.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\lib\\rbac-seed.ts",
+              "RelativeToolTip": "lib\\rbac-seed.ts",
+              "ViewState": "AgIAADYAAAAAAAAAAIBJwDsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:18:55.697Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 33,
+              "Title": "page.tsx",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\(marketing)\\reset-password\\page.tsx",
+              "RelativeDocumentMoniker": "app\\(marketing)\\reset-password\\page.tsx",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\(marketing)\\reset-password\\page.tsx",
+              "RelativeToolTip": "app\\(marketing)\\reset-password\\page.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T13:03:54.793Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 32,
+              "Title": "page.tsx",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\(marketing)\\forgot-password\\page.tsx",
+              "RelativeDocumentMoniker": "app\\(marketing)\\forgot-password\\page.tsx",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\(marketing)\\forgot-password\\page.tsx",
+              "RelativeToolTip": "app\\(marketing)\\forgot-password\\page.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T13:03:54.654Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 31,
+              "Title": "page.tsx",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\dashboard\\security\\change-password\\page.tsx",
+              "RelativeDocumentMoniker": "app\\(dashboard)\\dashboard\\security\\change-password\\page.tsx",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\dashboard\\security\\change-password\\page.tsx",
+              "RelativeToolTip": "app\\(dashboard)\\dashboard\\security\\change-password\\page.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T13:03:54.471Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 30,
+              "Title": "page.tsx",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\dashboard\\teachers\\add\\page.tsx",
+              "RelativeDocumentMoniker": "app\\(dashboard)\\dashboard\\teachers\\add\\page.tsx",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\dashboard\\teachers\\add\\page.tsx",
+              "RelativeToolTip": "app\\(dashboard)\\dashboard\\teachers\\add\\page.tsx",
+              "ViewState": "AgIAAGcAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:31:00.315Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "user-management.tsx",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\components\\dashboard\\user-management.tsx",
+              "RelativeDocumentMoniker": "components\\dashboard\\user-management.tsx",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\components\\dashboard\\user-management.tsx",
+              "RelativeToolTip": "components\\dashboard\\user-management.tsx",
+              "ViewState": "AgIAACUAAAAAAAAAAIBJwB8BAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:30:37.938Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "User.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\lib\\models\\User.ts",
+              "RelativeDocumentMoniker": "lib\\models\\User.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\lib\\models\\User.ts",
+              "RelativeToolTip": "lib\\models\\User.ts",
+              "ViewState": "AgIAAA4AAAAAAAAAAIBJwCYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:18:55.598Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "dashboard.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\actions\\dashboard.ts",
+              "RelativeDocumentMoniker": "app\\actions\\dashboard.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\actions\\dashboard.ts",
+              "RelativeToolTip": "app\\actions\\dashboard.ts",
+              "ViewState": "AgIAAAYAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:22:49.308Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "staff-attendance.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\actions\\staff-attendance.ts",
+              "RelativeDocumentMoniker": "app\\actions\\staff-attendance.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\actions\\staff-attendance.ts",
+              "RelativeToolTip": "app\\actions\\staff-attendance.ts",
+              "ViewState": "AgIAAA8AAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:22:35.064Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "department.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\actions\\department.ts",
+              "RelativeDocumentMoniker": "app\\actions\\department.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\actions\\department.ts",
+              "RelativeToolTip": "app\\actions\\department.ts",
+              "ViewState": "AgIAAAIAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:22:25.845Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "audit.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\lib\\audit.ts",
+              "RelativeDocumentMoniker": "lib\\audit.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\lib\\audit.ts",
+              "RelativeToolTip": "lib\\audit.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:18:55.496Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "academic.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\actions\\academic.ts",
+              "RelativeDocumentMoniker": "app\\actions\\academic.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\actions\\academic.ts",
+              "RelativeToolTip": "app\\actions\\academic.ts",
+              "ViewState": "AgIAAAMAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:22:16.846Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "attendance.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\actions\\attendance.ts",
+              "RelativeDocumentMoniker": "app\\actions\\attendance.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\actions\\attendance.ts",
+              "RelativeToolTip": "app\\actions\\attendance.ts",
+              "ViewState": "AgIAAAQAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:21:29.942Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "rbac.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\lib\\rbac.ts",
+              "RelativeDocumentMoniker": "lib\\rbac.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\lib\\rbac.ts",
+              "RelativeToolTip": "lib\\rbac.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAABBwHcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:18:54.991Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "teacher.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\actions\\teacher.ts",
+              "RelativeDocumentMoniker": "app\\actions\\teacher.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\actions\\teacher.ts",
+              "RelativeToolTip": "app\\actions\\teacher.ts",
+              "ViewState": "AgIAACEAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:21:17.479Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "student.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\actions\\student.ts",
+              "RelativeDocumentMoniker": "app\\actions\\student.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\actions\\student.ts",
+              "RelativeToolTip": "app\\actions\\student.ts",
+              "ViewState": "AgIAAAMAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:20:51.388Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "route.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\api\\upload\\teacher-photo\\route.ts",
+              "RelativeDocumentMoniker": "app\\api\\upload\\teacher-photo\\route.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\api\\upload\\teacher-photo\\route.ts",
+              "RelativeToolTip": "app\\api\\upload\\teacher-photo\\route.ts",
+              "ViewState": "AgIAAAEAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:20:30.883Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "route.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\api\\upload\\student-document\\route.ts",
+              "RelativeDocumentMoniker": "app\\api\\upload\\student-document\\route.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\api\\upload\\student-document\\route.ts",
+              "RelativeToolTip": "app\\api\\upload\\student-document\\route.ts",
+              "ViewState": "AgIAAAEAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:20:30.71Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "route.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\api\\upload\\student-photo\\route.ts",
+              "RelativeDocumentMoniker": "app\\api\\upload\\student-photo\\route.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\api\\upload\\student-photo\\route.ts",
+              "RelativeToolTip": "app\\api\\upload\\student-photo\\route.ts",
+              "ViewState": "AgIAAAEAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:20:30.508Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "layout.tsx",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\layout.tsx",
+              "RelativeDocumentMoniker": "app\\(dashboard)\\layout.tsx",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\(dashboard)\\layout.tsx",
+              "RelativeToolTip": "app\\(dashboard)\\layout.tsx",
+              "ViewState": "AgIAAAQAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:20:21.958Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "sidebar.tsx",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\components\\layout\\sidebar.tsx",
+              "RelativeDocumentMoniker": "components\\layout\\sidebar.tsx",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\components\\layout\\sidebar.tsx",
+              "RelativeToolTip": "components\\layout\\sidebar.tsx",
+              "ViewState": "AgIAADEAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:20:12.364Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "page.tsx",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\(marketing)\\login\\page.tsx",
+              "RelativeDocumentMoniker": "app\\(marketing)\\login\\page.tsx",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\(marketing)\\login\\page.tsx",
+              "RelativeToolTip": "app\\(marketing)\\login\\page.tsx",
+              "ViewState": "AgIAAB8AAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:19:42.795Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "proxy.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\proxy.ts",
+              "RelativeDocumentMoniker": "proxy.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\proxy.ts",
+              "RelativeToolTip": "proxy.ts",
+              "ViewState": "AgIAAAYAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:19:38.115Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "school.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\app\\actions\\school.ts",
+              "RelativeDocumentMoniker": "app\\actions\\school.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\actions\\school.ts",
+              "RelativeToolTip": "app\\actions\\school.ts",
+              "ViewState": "AgIAALEAAAAAAAAAAIBJwAcBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:19:28.845Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "session.ts",
+              "DocumentMoniker": "D:\\Projects\\Made with AI\\educore\\lib\\session.ts",
+              "RelativeDocumentMoniker": "lib\\session.ts",
+              "ToolTip": "D:\\Projects\\Made with AI\\educore\\lib\\session.ts",
+              "RelativeToolTip": "lib\\session.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAxwFwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-03-25T12:19:09.516Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

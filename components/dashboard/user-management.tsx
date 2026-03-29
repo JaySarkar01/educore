@@ -1,0 +1,287 @@
+"use client"
+
+import { useEffect, useMemo, useState, useTransition } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  createParentStudentUser,
+  createStaffUser,
+  getRoleOptions,
+  getStudentOptions,
+  getTeacherOptions,
+  getUsersForManagement,
+  generateUserResetToken,
+  updateUserStatus,
+} from "@/app/actions/user"
+
+export function UserManagement() {
+  const [isPending, startTransition] = useTransition()
+  const [users, setUsers] = useState<any[]>([])
+  const [roles, setRoles] = useState<any[]>([])
+  const [teachers, setTeachers] = useState<any[]>([])
+  const [students, setStudents] = useState<any[]>([])
+  const [msg, setMsg] = useState("")
+  const [issuedReset, setIssuedReset] = useState<{ email: string; token: string; expiresAt: string } | null>(null)
+
+  const [staffForm, setStaffForm] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    roleCode: "TEACHER",
+    linkedTeacherId: "",
+  })
+
+  const [parentForm, setParentForm] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    roleCode: "STUDENT",
+    linkedStudentId: "",
+  })
+
+  const loadAll = async () => {
+    const [u, r, t, s] = await Promise.all([
+      getUsersForManagement(),
+      getRoleOptions(),
+      getTeacherOptions(),
+      getStudentOptions(),
+    ])
+    setUsers(u)
+    setRoles(r)
+    setTeachers(t)
+    setStudents(s)
+  }
+
+  const issueReset = (id: string, email: string) => {
+    setMsg("")
+    setIssuedReset(null)
+    startTransition(async () => {
+      const res = await generateUserResetToken(id)
+      if ((res as any)?.error) {
+        setMsg((res as any).error)
+        return
+      }
+      setIssuedReset({ email, token: (res as any).resetToken, expiresAt: (res as any).expiresAt })
+      setMsg("Reset token generated. Share it securely with the user.")
+    })
+  }
+
+  useEffect(() => {
+    loadAll()
+  }, [])
+
+  const staffRoles = useMemo(() => roles.filter((r: any) => ["TEACHER", "ACCOUNTANT"].includes(r.name)), [roles])
+  const parentRoles = useMemo(() => roles.filter((r: any) => ["STUDENT"].includes(r.name)), [roles])
+
+  useEffect(() => {
+    if (staffRoles.length > 0 && !staffRoles.some((r: any) => r.name === staffForm.roleCode)) {
+      setStaffForm((p) => ({ ...p, roleCode: staffRoles[0].name, linkedTeacherId: "" }))
+    }
+  }, [staffRoles])
+
+  useEffect(() => {
+    if (parentRoles.length > 0 && !parentRoles.some((r: any) => r.name === parentForm.roleCode)) {
+      setParentForm((p) => ({ ...p, roleCode: parentRoles[0].name }))
+    }
+  }, [parentRoles])
+
+  const submitStaff = (formData: FormData) => {
+    setMsg("")
+    startTransition(async () => {
+      const res = await createStaffUser(formData)
+      if ((res as any)?.error) {
+        setMsg((res as any).error)
+        return
+      }
+      setMsg("Staff account created.")
+      setStaffForm({ fullName: "", email: "", password: "", roleCode: "TEACHER", linkedTeacherId: "" })
+      await loadAll()
+    })
+  }
+
+  const submitParent = (formData: FormData) => {
+    setMsg("")
+    startTransition(async () => {
+      const res = await createParentStudentUser(formData)
+      if ((res as any)?.error) {
+        setMsg((res as any).error)
+        return
+      }
+      setMsg("Student account created.")
+      setParentForm({ fullName: "", email: "", password: "", roleCode: "STUDENT", linkedStudentId: "" })
+      await loadAll()
+    })
+  }
+
+  const toggleStatus = (id: string, active: boolean) => {
+    startTransition(async () => {
+      await updateUserStatus(id, active)
+      await loadAll()
+    })
+  }
+
+  return (
+    <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
+      <div>
+        <h1 className="text-2xl md:text-3xl font-bold text-fg">Users & Role Assignment</h1>
+        <p className="text-muted-fg mt-1">Create login accounts separately from staff/student profile records to avoid role duplication.</p>
+      </div>
+
+      {msg && <div className="text-sm rounded-md border border-border/50 bg-surface-100 dark:bg-surface-900 p-3">{msg}</div>}
+      {issuedReset && (
+        <div className="text-xs rounded-md border border-border/50 bg-surface-100 dark:bg-surface-900 p-3">
+          <p className="font-semibold">Reset token for {issuedReset.email}</p>
+          <p className="font-mono break-all mt-1">{issuedReset.token}</p>
+          <p className="text-muted-fg mt-1">Expires: {new Date(issuedReset.expiresAt).toLocaleString()}</p>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <form action={submitStaff} className="space-y-3 border border-border/50 rounded-xl p-4 bg-surface-50 dark:bg-surface-950">
+          <h3 className="font-semibold text-fg">Create Staff Account</h3>
+          <p className="text-xs text-muted-fg">For Teacher / Accountant login.</p>
+
+          <div className="space-y-1">
+            <Label htmlFor="staff-fullName">Full Name</Label>
+            <Input id="staff-fullName" name="fullName" value={staffForm.fullName} onChange={(e) => setStaffForm((p) => ({ ...p, fullName: e.target.value }))} required />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="staff-email">Email</Label>
+            <Input id="staff-email" name="email" type="email" value={staffForm.email} onChange={(e) => setStaffForm((p) => ({ ...p, email: e.target.value }))} required />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="staff-password">Temporary Password</Label>
+            <Input id="staff-password" name="password" type="password" value={staffForm.password} onChange={(e) => setStaffForm((p) => ({ ...p, password: e.target.value }))} required />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="staff-role">Role</Label>
+            <select
+              id="staff-role"
+              name="roleCode"
+              value={staffForm.roleCode}
+              onChange={(e) => setStaffForm((p) => ({ ...p, roleCode: e.target.value, linkedTeacherId: "" }))}
+              className="flex h-10 w-full rounded-md border border-input bg-surface-50 dark:bg-surface-950 px-3 py-1 text-sm"
+              required
+            >
+              {staffRoles.length === 0 && <option value="">No roles available</option>}
+              {staffRoles.map((r: any) => <option key={r.id} value={r.name}>{r.displayName}</option>)}
+            </select>
+          </div>
+
+          {staffForm.roleCode === "TEACHER" && (
+            <div className="space-y-1">
+              <Label htmlFor="linkedTeacherId">Link Teacher Profile</Label>
+              <select
+                id="linkedTeacherId"
+                name="linkedTeacherId"
+                value={staffForm.linkedTeacherId}
+                onChange={(e) => setStaffForm((p) => ({ ...p, linkedTeacherId: e.target.value }))}
+                className="flex h-10 w-full rounded-md border border-input bg-surface-50 dark:bg-surface-950 px-3 py-1 text-sm"
+                required
+              >
+                <option value="">Select teacher</option>
+                {teachers.map((t: any) => (
+                  <option key={t.id} value={t.id}>{t.name} ({t.employeeId})</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <Button type="submit" disabled={isPending}>Create Staff Account</Button>
+        </form>
+
+        <form action={submitParent} className="space-y-3 border border-border/50 rounded-xl p-4 bg-surface-50 dark:bg-surface-950">
+          <h3 className="font-semibold text-fg">Create Student Account</h3>
+          <p className="text-xs text-muted-fg">Student access is restricted to their own records.</p>
+
+          <div className="space-y-1">
+            <Label htmlFor="parent-fullName">Full Name</Label>
+            <Input id="parent-fullName" name="fullName" value={parentForm.fullName} onChange={(e) => setParentForm((p) => ({ ...p, fullName: e.target.value }))} required />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="parent-email">Email</Label>
+            <Input id="parent-email" name="email" type="email" value={parentForm.email} onChange={(e) => setParentForm((p) => ({ ...p, email: e.target.value }))} required />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="parent-password">Temporary Password</Label>
+            <Input id="parent-password" name="password" type="password" value={parentForm.password} onChange={(e) => setParentForm((p) => ({ ...p, password: e.target.value }))} required />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="parent-role">Role</Label>
+            <select
+              id="parent-role"
+              name="roleCode"
+              value={parentForm.roleCode}
+              onChange={(e) => setParentForm((p) => ({ ...p, roleCode: e.target.value }))}
+              className="flex h-10 w-full rounded-md border border-input bg-surface-50 dark:bg-surface-950 px-3 py-1 text-sm"
+              required
+            >
+              {parentRoles.length === 0 && <option value="">No roles available</option>}
+              {parentRoles.map((r: any) => <option key={r.id} value={r.name}>{r.displayName}</option>)}
+            </select>
+          </div>
+
+          <div className="space-y-1">
+            <Label htmlFor="linkedStudentId">Linked Student</Label>
+            <select
+              id="linkedStudentId"
+              name="linkedStudentId"
+              value={parentForm.linkedStudentId}
+              onChange={(e) => setParentForm((p) => ({ ...p, linkedStudentId: e.target.value }))}
+              className="flex h-10 w-full rounded-md border border-input bg-surface-50 dark:bg-surface-950 px-3 py-1 text-sm"
+              required
+            >
+              <option value="">Select student</option>
+              {students.map((s: any) => (
+                <option key={s.id} value={s.id}>{s.name} - Class {s.className}{s.section ? `-${s.section}` : ""}</option>
+              ))}
+            </select>
+          </div>
+
+          <Button type="submit" disabled={isPending}>Create Account</Button>
+        </form>
+      </div>
+
+      <div className="border border-border/50 rounded-xl p-4 bg-surface-50 dark:bg-surface-950 overflow-x-auto">
+        <h3 className="font-semibold text-fg mb-3">Existing User Accounts</h3>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-muted-fg border-b border-border/50">
+              <th className="py-2 pr-3">Name</th>
+              <th className="py-2 pr-3">Email</th>
+              <th className="py-2 pr-3">Role</th>
+              <th className="py-2 pr-3">Status</th>
+              <th className="py-2">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((u) => (
+              <tr key={u.id} className="border-b border-border/30">
+                <td className="py-2 pr-3">{u.fullName}</td>
+                <td className="py-2 pr-3">{u.email}</td>
+                <td className="py-2 pr-3">{u.roleName}</td>
+                <td className="py-2 pr-3">{u.isActive ? "Active" : "Inactive"}</td>
+                <td className="py-2">
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" variant="ghost" onClick={() => toggleStatus(u.id, !u.isActive)} disabled={isPending}>
+                      {u.isActive ? "Deactivate" : "Activate"}
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => issueReset(u.id, u.email)} disabled={isPending}>
+                      Reset
+                    </Button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {!users.length && (
+              <tr>
+                <td colSpan={5} className="py-6 text-center text-muted-fg">No user accounts created yet.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}

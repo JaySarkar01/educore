@@ -2,9 +2,10 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { decrypt } from '@/lib/session'
 import { cookies } from 'next/headers'
+import { normalizeRoleName } from '@/lib/rbac'
 
 const protectedRoutes = ['/dashboard', '/admin']
-const publicRoutes = ['/login', '/inquiry']
+const publicRoutes = ['/login', '/inquiry', '/forgot-password', '/reset-password']
 
 export default async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname
@@ -14,14 +15,25 @@ export default async function proxy(req: NextRequest) {
   const cookieStore = await cookies()
   const cookie = cookieStore.get('session')?.value
   const session = await decrypt(cookie)
+  const roleName = normalizeRoleName(session?.role)
+  const isSuperAdmin = roleName === 'SUPER_ADMIN'
 
   // 1. Redirection based on user role when hitting root / landing page (per User Instructions)
   if (path === '/' && session) {
-    if (session.role === 'ADMIN') {
+    if (isSuperAdmin) {
       return NextResponse.redirect(new URL('/admin', req.nextUrl))
-    } else if (session.role === 'SCHOOL') {
+    } else {
       return NextResponse.redirect(new URL('/dashboard', req.nextUrl))
     }
+
+  // 3.5 Force first-login password change for regular users
+  if (
+    session?.mustChangePassword &&
+    path.startsWith('/dashboard') &&
+    !path.startsWith('/dashboard/security/change-password')
+  ) {
+    return NextResponse.redirect(new URL('/dashboard/security/change-password', req.nextUrl))
+  }
   }
 
   // 2. Protect explicit routes that require authentication
@@ -31,17 +43,17 @@ export default async function proxy(req: NextRequest) {
 
   // 3. Prevent Admin from accessing School dashboard and vice versa safely
   if (isProtectedRoute && session?.role) {
-    if (path.startsWith('/admin') && session.role !== 'ADMIN') {
+    if (path.startsWith('/admin') && !isSuperAdmin) {
       return NextResponse.redirect(new URL('/dashboard', req.nextUrl))
     }
-    if (path.startsWith('/dashboard') && session.role !== 'SCHOOL') {
+    if (path.startsWith('/dashboard') && isSuperAdmin) {
       return NextResponse.redirect(new URL('/admin', req.nextUrl))
     }
   }
 
   // 4. If User is already logged in but trying to access login page, route them off
   if (path === '/login' && session?.role) {
-    if (session.role === 'ADMIN') {
+    if (isSuperAdmin) {
       return NextResponse.redirect(new URL('/admin', req.nextUrl))
     } else {
       return NextResponse.redirect(new URL('/dashboard', req.nextUrl))

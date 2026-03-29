@@ -30,9 +30,10 @@ interface Doc {
 interface Props {
   studentId: string
   initialDocs: Doc[]
+  readOnly?: boolean
 }
 
-export function DocumentsTab({ studentId, initialDocs }: Props) {
+export function DocumentsTab({ studentId, initialDocs, readOnly = false }: Props) {
   const [docs, setDocs] = useState<Doc[]>(initialDocs || [])
   const [isPending, startTransition] = useTransition()
   const [isDeleting, setIsDeleting] = useState<number | null>(null)
@@ -153,6 +154,7 @@ export function DocumentsTab({ studentId, initialDocs }: Props) {
     <div className="space-y-6 animate-in slide-in-from-right-2 duration-300">
 
       {/* Upload Panel */}
+      {!readOnly && (
       <div className="bg-surface-50 dark:bg-surface-950 border border-border/50 rounded-xl shadow-sm overflow-hidden">
         <div className="p-5 border-b border-border/40 bg-surface-100/50 dark:bg-surface-900/20 flex items-center gap-2">
           <FilePlus className="w-4 h-4 text-brand-500" />
@@ -223,6 +225,7 @@ export function DocumentsTab({ studentId, initialDocs }: Props) {
           </div>
         </div>
       </div>
+      )}
 
       {/* Documents List */}
       <div className="bg-surface-50 dark:bg-surface-950 border border-border/50 rounded-xl shadow-sm overflow-hidden">
@@ -267,9 +270,11 @@ export function DocumentsTab({ studentId, initialDocs }: Props) {
                       <Download className="w-4 h-4" />
                     </Button>
                   </a>
-                  <Button type="button" variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-fg hover:text-red-600 dark:hover:text-red-400" onClick={() => handleDelete(idx)} disabled={isDeleting === idx} title="Delete">
-                    {isDeleting === idx ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                  </Button>
+                  {!readOnly && (
+                    <Button type="button" variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-fg hover:text-red-600 dark:hover:text-red-400" onClick={() => handleDelete(idx)} disabled={isDeleting === idx} title="Delete">
+                      {isDeleting === idx ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}

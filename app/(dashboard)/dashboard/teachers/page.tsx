@@ -2,9 +2,54 @@ import { getTeachers } from "@/app/actions/teacher"
 import { Users, UserCheck, BookOpen, UserMinus } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
+import { getAuthContext } from "@/lib/auth"
+import { getStudents } from "@/app/actions/student"
 
 export default async function TeachersDashboardPage() {
+  const auth = await getAuthContext()
   const teachers = await getTeachers()
+
+  if (auth?.roleName === "TEACHER") {
+    const students = await getStudents()
+    const me = teachers[0]
+
+    return (
+      <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 md:space-y-8">
+        <div>
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-fg tracking-tight">Teacher Dashboard</h1>
+          <p className="text-muted-fg mt-1 text-sm md:text-base">Classroom operations, attendance, marks, reports, and uploads from one dashboard.</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="shadow-sm border-border/50 bg-surface-50 dark:bg-surface-950">
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-fg">Assigned Students</CardTitle></CardHeader>
+            <CardContent><div className="text-2xl font-bold text-fg">{students.length}</div></CardContent>
+          </Card>
+          <Card className="shadow-sm border-border/50 bg-surface-50 dark:bg-surface-950">
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-fg">Assigned Subjects</CardTitle></CardHeader>
+            <CardContent><div className="text-2xl font-bold text-fg">{me?.subjects?.length || 0}</div></CardContent>
+          </Card>
+          <Card className="shadow-sm border-border/50 bg-surface-50 dark:bg-surface-950">
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-fg">Department</CardTitle></CardHeader>
+            <CardContent><div className="text-2xl font-bold text-fg">{me?.department || "-"}</div></CardContent>
+          </Card>
+          <Card className="shadow-sm border-border/50 bg-surface-50 dark:bg-surface-950">
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-fg">Status</CardTitle></CardHeader>
+            <CardContent><div className="text-2xl font-bold text-fg">{me?.status || "Active"}</div></CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Link className="border border-border/50 rounded-xl p-4 bg-surface-50 dark:bg-surface-950 hover:border-brand-400" href="/dashboard/students/attendance">Attendance Entry</Link>
+          <Link className="border border-border/50 rounded-xl p-4 bg-surface-50 dark:bg-surface-950 hover:border-brand-400" href="/dashboard/students">Student List</Link>
+          <Link className="border border-border/50 rounded-xl p-4 bg-surface-50 dark:bg-surface-950 hover:border-brand-400" href="/dashboard/teachers/subjects">Marks / Subject Entry</Link>
+          <Link className="border border-border/50 rounded-xl p-4 bg-surface-50 dark:bg-surface-950 hover:border-brand-400" href="/dashboard/teachers/reports">Reports</Link>
+          <Link className="border border-border/50 rounded-xl p-4 bg-surface-50 dark:bg-surface-950 hover:border-brand-400" href="/dashboard/teachers/attendance">Today's Classes & Attendance</Link>
+        </div>
+      </div>
+    )
+  }
+
   const activeCount = teachers.filter((t: any) => t.status === 'Active').length
   const totalSubjects = new Set(teachers.flatMap((t: any) => t.subjects)).size
 

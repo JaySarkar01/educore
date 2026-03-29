@@ -1,12 +1,61 @@
 import { getStudents } from "@/app/actions/student"
+import { getStudentAttendanceStats } from "@/app/actions/attendance"
+import { getStudentFeeStats } from "@/app/actions/fees"
 import { Users, CheckCircle, UserMinus, Plus } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { getAllInvoices } from "@/app/actions/fees"
+import { getAuthContext } from "@/lib/auth"
 
 export default async function StudentsDashboard() {
+  const auth = await getAuthContext()
   const students = await getStudents()
+
+  if (auth?.roleName === "STUDENT") {
+    const me = students[0]
+    const attendance = me ? await getStudentAttendanceStats(me.id) : null
+    const fees = me ? await getStudentFeeStats(me.id) : null
+
+    return (
+      <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 md:space-y-8">
+        <div>
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-fg tracking-tight">Student Dashboard</h1>
+          <p className="text-muted-fg mt-1 text-sm md:text-base">Your profile, attendance, fees, and learning updates in one place.</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="shadow-sm border-border/50 bg-surface-50 dark:bg-surface-950">
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-fg">Attendance</CardTitle></CardHeader>
+            <CardContent><div className="text-2xl font-bold text-fg">{attendance?.percentage || 0}%</div></CardContent>
+          </Card>
+          <Card className="shadow-sm border-border/50 bg-surface-50 dark:bg-surface-950">
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-fg">Present Days</CardTitle></CardHeader>
+            <CardContent><div className="text-2xl font-bold text-fg">{attendance?.presentDays || 0}</div></CardContent>
+          </Card>
+          <Card className="shadow-sm border-border/50 bg-surface-50 dark:bg-surface-950">
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-fg">Pending Fees</CardTitle></CardHeader>
+            <CardContent><div className="text-2xl font-bold text-fg">₹{fees?.pendingBalance?.toFixed(2) || "0.00"}</div></CardContent>
+          </Card>
+          <Card className="shadow-sm border-border/50 bg-surface-50 dark:bg-surface-950">
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-fg">Documents</CardTitle></CardHeader>
+            <CardContent><div className="text-2xl font-bold text-fg">{me?.documents?.length || 0}</div></CardContent>
+          </Card>
+        </div>
+
+        {me ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Link className="border border-border/50 rounded-xl p-4 bg-surface-50 dark:bg-surface-950 hover:border-brand-400" href={`/dashboard/students/${me.id}?tab=overview`}>Profile Information</Link>
+            <Link className="border border-border/50 rounded-xl p-4 bg-surface-50 dark:bg-surface-950 hover:border-brand-400" href={`/dashboard/students/${me.id}?tab=attendance`}>Attendance Summary</Link>
+            <Link className="border border-border/50 rounded-xl p-4 bg-surface-50 dark:bg-surface-950 hover:border-brand-400" href={`/dashboard/students/${me.id}?tab=fees`}>Fee Status</Link>
+            <Link className="border border-border/50 rounded-xl p-4 bg-surface-50 dark:bg-surface-950 hover:border-brand-400" href={`/dashboard/students/${me.id}?tab=documents`}>Download Documents</Link>
+            <Link className="border border-border/50 rounded-xl p-4 bg-surface-50 dark:bg-surface-950 hover:border-brand-400" href={`/dashboard/students/${me.id}?tab=timeline`}>Announcements & Activity</Link>
+          </div>
+        ) : null}
+      </div>
+    )
+  }
+
   const invoices = await getAllInvoices()
   const activeCount = students.filter((s: any) => s.status === 'Active').length
   const inactiveCount = students.filter((s: any) => s.status === 'Inactive').length

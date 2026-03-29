@@ -1,19 +1,53 @@
-import { getAllInvoices } from "@/app/actions/fees"
-import { getStudents } from "@/app/actions/student"
+import { getAllInvoices, getFeeDashboardSummary, getRecentInvoices, getStudentsForFeeModule } from "@/app/actions/fees"
 import { GenerateInvoiceForm } from "@/components/dashboard/generate-invoice-form"
+import { AccountantFeeWorkbench } from "@/components/dashboard/accountant-fee-workbench"
+import { RecordPaymentForm } from "@/components/dashboard/record-payment-form"
 import { Wallet, AlertCircle, CheckCircle2, Clock } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
+import { getAuthContext } from "@/lib/auth"
+import { redirect } from "next/navigation"
 
 export default async function FeesPage() {
-  const students = await getStudents()
-  const studentIds = new Set(students.map((s: any) => s.id))
+  const auth = await getAuthContext()
+  if (auth?.roleName === "STUDENT" && auth.linkedStudentId) {
+    redirect(`/dashboard/students/${auth.linkedStudentId}?tab=fees`)
+  }
+
+  const summary = await getFeeDashboardSummary()
+
+  const students = await getStudentsForFeeModule()
+  const studentIds = new Set(students.map((s: any) => s._id))
+  const canIssueInvoice = auth?.roleName === "SCHOOL_ADMIN" || auth?.roleName === "ACCOUNTANT"
+  const isAccountant = auth?.roleName === "ACCOUNTANT"
+
+  if (isAccountant) {
+    const recentInvoices = (await getRecentInvoices(10)).filter((inv: any) => studentIds.has(inv.studentId))
+
+    return (
+      <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 md:space-y-8 animate-in fade-in duration-500">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-fg tracking-tight">Fee Collection Workbench</h1>
+            <p className="text-muted-fg mt-1 text-sm md:text-base">Professional accountant workflow for fast student lookup and secure payment posting.</p>
+          </div>
+          {canIssueInvoice ? <GenerateInvoiceForm /> : null}
+        </div>
+
+        <AccountantFeeWorkbench
+          summary={summary || { totalBilled: 0, totalCollected: 0, pendingCollection: 0, outstandingInvoices: 0 }}
+          recentInvoices={recentInvoices}
+        />
+      </div>
+    )
+  }
+
   const invoices = (await getAllInvoices()).filter((inv: any) => studentIds.has(inv.studentId))
   
-  const totalBilled = invoices.reduce((sum: number, inv: any) => sum + inv.amount, 0)
-  const totalCollected = invoices.reduce((sum: number, inv: any) => sum + inv.amountPaid, 0)
-  const pendingCollection = totalBilled - totalCollected
-  const outstandingInvoices = invoices.filter((inv: any) => inv.status !== 'Paid').length
+  const totalBilled = summary?.totalBilled ?? invoices.reduce((sum: number, inv: any) => sum + inv.amount, 0)
+  const totalCollected = summary?.totalCollected ?? invoices.reduce((sum: number, inv: any) => sum + inv.amountPaid, 0)
+  const pendingCollection = summary?.pendingCollection ?? (totalBilled - totalCollected)
+  const outstandingInvoices = summary?.outstandingInvoices ?? invoices.filter((inv: any) => inv.status !== 'Paid').length
 
   return (
     <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 md:space-y-8 animate-in fade-in duration-500">
@@ -22,7 +56,7 @@ export default async function FeesPage() {
           <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-fg tracking-tight">Fee Management</h1>
           <p className="text-muted-fg mt-1 text-sm md:text-base">Manage school-wide invoices, payments, and financial health.</p>
         </div>
-        <GenerateInvoiceForm students={students} />
+        {canIssueInvoice ? <GenerateInvoiceForm /> : null}
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
@@ -105,7 +139,16 @@ export default async function FeesPage() {
                       </span>
                     </td>
                     <td className="px-4 md:px-6 py-3 md:py-4 text-right">
-                      <Link href={`/dashboard/students/${inv.studentId}?tab=fees`} className="text-xs font-semibold text-brand-600 dark:text-brand-400 hover:text-brand-700 hover:underline whitespace-nowrap">View Portal</Link>
+                      <div className="flex items-center justify-end gap-2">
+                        {inv.status !== "Paid" && (
+                          <RecordPaymentForm
+                            invoiceId={inv._id}
+                            pendingAmount={Math.max((inv.amount || 0) - (inv.amountPaid || 0), 0)}
+                            invoiceTitle={inv.title}
+                          />
+                        )}
+                        <Link href={`/dashboard/students/${inv.studentId}?tab=fees`} className="text-xs font-semibold text-brand-600 dark:text-brand-400 hover:text-brand-700 hover:underline whitespace-nowrap">View Portal</Link>
+                      </div>
                     </td>
                   </tr>
                 ))}

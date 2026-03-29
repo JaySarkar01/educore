@@ -1,16 +1,38 @@
 "use client"
-import { useState, useTransition } from "react"
+import { useEffect, useState, useTransition } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { CreditCard, X, Loader2 } from "lucide-react"
 import { recordFeePayment } from "@/app/actions/fees"
+import { useRouter } from "next/navigation"
+import { createPortal } from "react-dom"
 
-export function RecordPaymentForm({ invoiceId, pendingAmount, invoiceTitle }: { invoiceId: string, pendingAmount: number, invoiceTitle: string }) {
+export function RecordPaymentForm({
+  invoiceId,
+  pendingAmount,
+  invoiceTitle,
+  onSuccess,
+}: {
+  invoiceId: string
+  pendingAmount: number
+  invoiceTitle: string
+  onSuccess?: () => void
+}) {
+  const router = useRouter()
+  const [mounted, setMounted] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
+  const [errorMsg, setErrorMsg] = useState("")
+  const [method, setMethod] = useState("Cash")
+
+  useEffect(() => {
+    setMounted(true)
+    return () => setMounted(false)
+  }, [])
 
   const handleAction = (formData: FormData) => {
+    setErrorMsg("")
     startTransition(async () => {
       const amount = parseFloat(formData.get("amount")?.toString() || "0")
       const method = formData.get("method")?.toString() || "Cash"
@@ -18,9 +40,11 @@ export function RecordPaymentForm({ invoiceId, pendingAmount, invoiceTitle }: { 
       
       const res = await recordFeePayment(invoiceId, amount, method, txnId)
       if (res?.error) {
-        alert(res.error)
+        setErrorMsg(res.error)
       } else {
         setIsOpen(false)
+        onSuccess?.()
+        router.refresh()
       }
     })
   }
@@ -38,7 +62,8 @@ export function RecordPaymentForm({ invoiceId, pendingAmount, invoiceTitle }: { 
       <Button onClick={() => setIsOpen(true)} size="sm" className="h-8 text-xs font-semibold gap-2 shadow-sm shadow-brand-500/20">
         <CreditCard className="w-3.5 h-3.5" /> Pay Now
       </Button>
-      <div className="fixed inset-0 bg-black/40 dark:bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 shadow-2xl">
+      {mounted && createPortal(
+      <div className="fixed inset-0 bg-black/40 dark:bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 shadow-2xl">
         <div className="bg-surface-50 dark:bg-surface-950 border border-border/50 rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           <div className="flex items-center justify-between p-5 border-b border-border/40">
             <div>
@@ -50,6 +75,12 @@ export function RecordPaymentForm({ invoiceId, pendingAmount, invoiceTitle }: { 
             </Button>
           </div>
           <form action={handleAction} className="p-6 space-y-5">
+            {errorMsg && (
+              <div className="rounded-md border border-red-200 bg-red-50 text-red-700 dark:bg-red-500/10 dark:border-red-500/20 dark:text-red-400 px-3 py-2 text-sm">
+                {errorMsg}
+              </div>
+            )}
+
             <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-lg p-4 mb-2">
               <p className="text-sm text-amber-800 dark:text-amber-300 font-medium text-center">Pending Balance</p>
               <p className="text-2xl font-bold text-amber-900 dark:text-amber-400 text-center">₹{pendingAmount.toFixed(2)}</p>
@@ -62,7 +93,7 @@ export function RecordPaymentForm({ invoiceId, pendingAmount, invoiceTitle }: { 
 
             <div className="space-y-2">
               <Label htmlFor="method">Payment Method *</Label>
-              <select id="method" name="method" required className="flex h-10 w-full rounded-md border border-border bg-surface-50 dark:bg-surface-950 px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500">
+              <select id="method" name="method" value={method} onChange={(e) => setMethod(e.target.value)} required className="flex h-10 w-full rounded-md border border-border bg-surface-50 dark:bg-surface-950 px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500">
                 <option value="Cash">Cash</option>
                 <option value="Card">Credit / Debit Card</option>
                 <option value="Bank Transfer">Bank Transfer / NEFT</option>
@@ -71,8 +102,8 @@ export function RecordPaymentForm({ invoiceId, pendingAmount, invoiceTitle }: { 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="transactionId">Transaction ID / Cheque No (Optional)</Label>
-              <Input id="transactionId" name="transactionId" placeholder="AX12345678" />
+              <Label htmlFor="transactionId">Transaction ID / Reference {method === "Cash" ? "(Optional)" : "*"}</Label>
+              <Input id="transactionId" name="transactionId" placeholder="AX12345678" required={method !== "Cash"} />
             </div>
 
             <div className="pt-4 flex items-center justify-end gap-3 border-t border-border/40 mt-6">
@@ -83,7 +114,7 @@ export function RecordPaymentForm({ invoiceId, pendingAmount, invoiceTitle }: { 
             </div>
           </form>
         </div>
-      </div>
+      </div>, document.body)}
     </>
   )
 }

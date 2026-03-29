@@ -5,10 +5,17 @@ import { AttendanceCalendar } from "@/components/dashboard/attendance-calendar"
 import { AttendanceFilterForm } from "@/components/dashboard/attendance-filter-form"
 import { CalendarDays, Filter, LayoutGrid, Calendar as CalendarIcon } from "lucide-react"
 import Link from "next/link"
+import { getAuthContext } from "@/lib/auth"
+import { redirect } from "next/navigation"
 
 export default async function AttendancePage(
   props: { searchParams: Promise<{ class?: string, section?: string, date?: string, mode?: string }> }
 ) {
+  const auth = await getAuthContext()
+  if (auth?.roleName === "STUDENT" && auth.linkedStudentId) {
+    redirect(`/dashboard/students/${auth.linkedStudentId}?tab=attendance`)
+  }
+
   const sp = await props.searchParams
   const date = sp?.date || new Date().toISOString().split('T')[0]
   const className = sp?.class || ""
