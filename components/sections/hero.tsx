@@ -27,16 +27,16 @@ export function Hero() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="text-5xl md:text-7xl font-bold tracking-tight mb-8 text-balance mx-auto text-fg"
         >
-          Manage Every School from a <span className="gradient-text">Single Platform</span>
+          <span className="gradient-text">AI-Powered</span> School Management for the Modern Era
         </motion.h1>
-        
+
         <motion.p 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
           className="text-lg md:text-xl text-muted-fg max-w-2xl mx-auto mb-10"
         >
-          A powerful, Multi-Tenant SaaS ERP designed to fully digitize school management, automate administration, and empower educators globally.
+          EduCore is a next-generation, Multi-Tenant SaaS ERP. Automate administration, track finances with AI, and empower your educators with intelligent insights.
         </motion.p>
         
         <motion.div 

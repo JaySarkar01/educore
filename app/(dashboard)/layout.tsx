@@ -4,6 +4,7 @@ import { getSchoolProfile } from "@/app/actions/school";
 import { getDashboardStats } from "@/app/actions/dashboard";
 import { MobileSidebarProvider } from "@/components/layout/mobile-sidebar-context";
 import { normalizeRoleName } from "@/lib/rbac";
+import { FloatingAIChatbot } from "@/components/dashboard/floating-ai-chatbot";
 
 export default async function DashboardLayout({
   children,
@@ -16,7 +17,7 @@ export default async function DashboardLayout({
 
   return (
     <MobileSidebarProvider>
-      <div className="flex h-screen w-full bg-surface-50 dark:bg-surface-950 overflow-hidden">
+      <div className="flex h-screen w-full bg-surface-50 dark:bg-surface-950 overflow-hidden relative">
         <Sidebar
           schoolName={profile?.schoolName}
           studentCount={stats?.studentCount}
@@ -32,6 +33,7 @@ export default async function DashboardLayout({
             {children}
           </main>
         </div>
+        <FloatingAIChatbot />
       </div>
     </MobileSidebarProvider>
   );

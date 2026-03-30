@@ -5,10 +5,10 @@ import { CheckCircle2 } from "lucide-react"
 import Link from "next/link"
 
 const benefits = [
-  "Digitize all school management processes",
-  "Automate daily administrative tasks",
-  "Reduce paperwork by up to 90%",
-  "Improve parent-teacher communication",
+  "AI-powered administrative workflows",
+  "Real-time financial tracking in ₹ (INR)",
+  "Automate daily tasks with AI Assistant",
+  "Reduce overhead costs by up to 60%",
   "Make data-driven decisions instantly",
   "Scale your institution seamlessly"
 ]

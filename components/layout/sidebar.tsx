@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import {
   Building2, LayoutDashboard, Users, UserSquare2, BookOpen,
   ChevronDown, ChevronRight, GraduationCap,
-  ClipboardCheck, CreditCard, BarChart3, Cog, X
+  ClipboardCheck, CreditCard, BarChart3, Cog, X, Sparkles
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useMobileSidebar } from './mobile-sidebar-context'
@@ -181,6 +181,15 @@ const adminNav: NavSection[] = [
     items: [
       { label: 'Settings', href: '/admin/settings', icon: Cog, key: 'admin-settings', permissionsAny: ['settings.manage'] },
     ],
+  },
+]
+
+const GUEST_ITEMS = [
+  {
+    label: 'Dashboard',
+    href: '/dashboard',
+    icon: LayoutDashboard,
+    permission: 'dashboard.view'
   },
 ]
 

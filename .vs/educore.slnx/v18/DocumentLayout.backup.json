@@ -214,8 +214,7 @@
               "RelativeToolTip": "lib\\models\\Fee.ts",
               "ViewState": "AgIAACsAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2026-03-28T16:24:15.591Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-28T16:24:15.591Z"
             },
             {
               "$type": "Document",
@@ -227,8 +226,7 @@
               "RelativeToolTip": "app\\(dashboard)\\dashboard\\students\\attendance\\page.tsx",
               "ViewState": "AgIAAAcAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2026-03-28T16:11:32.427Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-28T16:11:32.427Z"
             },
             {
               "$type": "Document",
@@ -240,8 +238,7 @@
               "RelativeToolTip": "app\\(dashboard)\\dashboard\\teachers\\page.tsx",
               "ViewState": "AgIAAC0AAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2026-03-28T16:11:26.027Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-28T16:11:26.027Z"
             },
             {
               "$type": "Document",
@@ -253,8 +250,7 @@
               "RelativeToolTip": "app\\(dashboard)\\dashboard\\students\\page.tsx",
               "ViewState": "AgIAAAEAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2026-03-28T16:11:10.427Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-28T16:11:10.427Z"
             },
             {
               "$type": "Document",
@@ -266,8 +262,7 @@
               "RelativeToolTip": "components\\dashboard\\documents-tab.tsx",
               "ViewState": "AgIAAB8AAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2026-03-28T16:10:55.045Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-28T16:10:55.045Z"
             },
             {
               "$type": "Document",
@@ -279,8 +274,7 @@
               "RelativeToolTip": "app\\(dashboard)\\dashboard\\students\\[id]\\page.tsx",
               "ViewState": "AgIAAAQAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2026-03-28T16:10:45.902Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-28T16:10:45.902Z"
             },
             {
               "$type": "Document",
@@ -292,8 +286,7 @@
               "RelativeToolTip": "app\\(dashboard)\\dashboard\\students\\fees\\page.tsx",
               "ViewState": "AgIAACAAAAAAAAAAAIBJwAEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2026-03-28T16:10:11.305Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-28T16:10:11.305Z"
             },
             {
               "$type": "Document",
@@ -303,7 +296,7 @@
               "RelativeDocumentMoniker": "app\\actions\\user.ts",
               "ToolTip": "D:\\Projects\\Made with AI\\educore\\app\\actions\\user.ts",
               "RelativeToolTip": "app\\actions\\user.ts",
-              "ViewState": "AgIAAOMAAAAAAAAAAAAAwPUAAAAEAAAAAAAAAA==",
+              "ViewState": "AgIAANoAAAAAAAAAAAAAwO8AAAAeAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
               "WhenOpened": "2026-03-25T12:29:59.801Z",
               "EditorCaption": ""
@@ -318,8 +311,7 @@
               "RelativeToolTip": "components\\dashboard\\generate-invoice-form.tsx",
               "ViewState": "AgIAAAAAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2026-03-28T16:34:47.523Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-28T16:34:47.523Z"
             },
             {
               "$type": "Document",
@@ -331,8 +323,7 @@
               "RelativeToolTip": ".github\\copilot-instructions.md",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAACsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
-              "WhenOpened": "2026-03-28T16:27:25.96Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-28T16:27:25.96Z"
             },
             {
               "$type": "Document",
@@ -342,10 +333,9 @@
               "RelativeDocumentMoniker": "components\\dashboard\\record-payment-form.tsx",
               "ToolTip": "D:\\Projects\\Made with AI\\educore\\components\\dashboard\\record-payment-form.tsx",
               "RelativeToolTip": "components\\dashboard\\record-payment-form.tsx",
-              "ViewState": "AgIAAAYAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAcAAAAAAAAAAIBJwAIAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2026-03-28T16:25:18.976Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-28T16:25:18.976Z"
             },
             {
               "$type": "Document",
@@ -355,10 +345,9 @@
               "RelativeDocumentMoniker": "components\\dashboard\\accountant-fee-workbench.tsx",
               "ToolTip": "D:\\Projects\\Made with AI\\educore\\components\\dashboard\\accountant-fee-workbench.tsx",
               "RelativeToolTip": "components\\dashboard\\accountant-fee-workbench.tsx",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAM8AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAACYAAAAAAAAAAIBJwNoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2026-03-28T16:24:51.118Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-28T16:24:51.118Z"
             },
             {
               "$type": "Document",
@@ -370,8 +359,7 @@
               "RelativeToolTip": "lib\\models\\Student.ts",
               "ViewState": "AgIAAFwAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2026-03-28T16:24:23.177Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-28T16:24:23.177Z"
             },
             {
               "$type": "Document",
@@ -383,8 +371,7 @@
               "RelativeToolTip": "app\\actions\\fees.ts",
               "ViewState": "AgIAAKkAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2026-03-25T12:22:03.388Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-25T12:22:03.388Z"
             },
             {
               "$type": "Document",
@@ -420,8 +407,7 @@
               "RelativeToolTip": "lib\\auth.ts",
               "ViewState": "AgIAAAMAAAAAAAAAAIBJwH4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2026-03-25T12:18:56.166Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-25T12:18:56.166Z"
             },
             {
               "$type": "Document",
@@ -481,8 +467,7 @@
               "RelativeToolTip": "lib\\rbac-seed.ts",
               "ViewState": "AgIAADYAAAAAAAAAAIBJwDsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2026-03-25T12:18:55.697Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-25T12:18:55.697Z"
             },
             {
               "$type": "Document",
@@ -542,8 +527,7 @@
               "RelativeToolTip": "components\\dashboard\\user-management.tsx",
               "ViewState": "AgIAACUAAAAAAAAAAIBJwB8BAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2026-03-25T12:30:37.938Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-25T12:30:37.938Z"
             },
             {
               "$type": "Document",
@@ -627,8 +611,7 @@
               "RelativeToolTip": "app\\actions\\attendance.ts",
               "ViewState": "AgIAAAQAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2026-03-25T12:21:29.942Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-25T12:21:29.942Z"
             },
             {
               "$type": "Document",
@@ -640,8 +623,7 @@
               "RelativeToolTip": "lib\\rbac.ts",
               "ViewState": "AgIAAAAAAAAAAAAAAABBwHcAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2026-03-25T12:18:54.991Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-25T12:18:54.991Z"
             },
             {
               "$type": "Document",
@@ -653,8 +635,7 @@
               "RelativeToolTip": "app\\actions\\teacher.ts",
               "ViewState": "AgIAACEAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2026-03-25T12:21:17.479Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-25T12:21:17.479Z"
             },
             {
               "$type": "Document",
@@ -666,8 +647,7 @@
               "RelativeToolTip": "app\\actions\\student.ts",
               "ViewState": "AgIAAAMAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2026-03-25T12:20:51.388Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-25T12:20:51.388Z"
             },
             {
               "$type": "Document",
@@ -727,8 +707,7 @@
               "RelativeToolTip": "components\\layout\\sidebar.tsx",
               "ViewState": "AgIAADEAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2026-03-25T12:20:12.364Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-25T12:20:12.364Z"
             },
             {
               "$type": "Document",
@@ -764,8 +743,7 @@
               "RelativeToolTip": "app\\actions\\school.ts",
               "ViewState": "AgIAALEAAAAAAAAAAIBJwAcBAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2026-03-25T12:19:28.845Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-25T12:19:28.845Z"
             },
             {
               "$type": "Document",

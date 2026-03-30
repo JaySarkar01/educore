@@ -34,18 +34,21 @@ export function Navbar({ session }: { session: SessionPayload | null }) {
                 </Button>
               </Link>
               <form action={logout}>
-                <Button type="submit" variant="outline" className="gap-2 text-muted-fg">
-                  <LogOut className="w-4 h-4" /> Sign Out
+                <Button type="submit" variant="outline" className="gap-2 text-muted-fg px-3 sm:px-4">
+                  <LogOut className="w-4 h-4" /> <span className="hidden sm:inline">Sign Out</span>
                 </Button>
               </form>
             </>
           ) : (
             <>
               <Link href="/login">
-                <Button variant="ghost" className="hidden sm:inline-flex">Login</Button>
+                <Button variant="ghost">Login</Button>
               </Link>
               <Link href="/inquiry">
-                <Button className="shadow-lg shadow-brand-500/20">Register School</Button>
+                <Button className="shadow-lg shadow-brand-500/20 px-3 sm:px-4">
+                  <span className="hidden sm:inline">Register School</span>
+                  <span className="sm:hidden">Register</span>
+                </Button>
               </Link>
             </>
           )}
