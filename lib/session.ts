@@ -1,4 +1,5 @@
 import 'server-only'
+
 import { SignJWT, jwtVerify } from 'jose'
 import { cookies } from 'next/headers'
 import type { RoleName } from '@/lib/rbac'
@@ -49,14 +50,14 @@ export async function decrypt(session: string | undefined = '') {
 
 type CreateSessionInput =
   | {
-      role: SessionPayload['role']
-      schoolId?: string
-      userId?: string
-      roleId?: string
-      permissions?: string[]
-      email?: string
-      mustChangePassword?: boolean
-    }
+    role: SessionPayload['role']
+    schoolId?: string
+    userId?: string
+    roleId?: string
+    permissions?: string[]
+    email?: string
+    mustChangePassword?: boolean
+  }
   | SessionPayload['role']
 
 export async function createSession(input: CreateSessionInput, schoolId?: string) {
