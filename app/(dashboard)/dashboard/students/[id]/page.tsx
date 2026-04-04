@@ -6,7 +6,15 @@ import { DocumentsTab } from "@/components/dashboard/documents-tab"
 import { getAuthContext } from "@/lib/auth"
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, User, LayoutGrid, CalendarDays, Wallet, FileText, Activity, MapPin, Phone, GraduationCap, CheckCircle } from "lucide-react"
+import { ArrowLeft, User, LayoutGrid, CalendarDays, Wallet, FileText, Activity, MapPin, Phone, GraduationCap, CheckCircle, Search, Award, BookOpen, AlertCircle } from "lucide-react"
+import { getStudentExams } from "@/app/actions/exam"
+import { getStudentHomework } from "@/app/actions/homework"
+import { getStudentBehaviors } from "@/app/actions/behavior"
+import { ExamTab } from "@/components/dashboard/exam-tab"
+import { HomeworkTab } from "@/components/dashboard/homework-tab"
+import { BehaviorTab } from "@/components/dashboard/behavior-tab"
+import { AnalysisTab } from "@/components/dashboard/analysis-tab"
+import { Sparkles } from "lucide-react"
 
 export default async function StudentProfilePage(
   props: { params: Promise<{ id: string }>, searchParams?: Promise<{ tab?: string }> }
@@ -22,10 +30,17 @@ export default async function StudentProfilePage(
   
   const attStats = await getStudentAttendanceStats(params.id)
   const feeStats = await getStudentFeeStats(params.id)
+  const exams = await getStudentExams(params.id)
+  const homework = await getStudentHomework(params.id)
+  const behaviors = await getStudentBehaviors(params.id)
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: LayoutGrid },
     { id: 'attendance', label: 'Attendance', icon: CalendarDays },
+    { id: 'exams', label: 'Exams', icon: Award },
+    { id: 'homework', label: 'Homework', icon: BookOpen },
+    { id: 'behavior', label: 'Behavior', icon: AlertCircle },
+    { id: 'analysis', label: 'AI Analysis', icon: Sparkles },
     { id: 'fees', label: 'Fees History', icon: Wallet },
     { id: 'documents', label: 'Documents', icon: FileText },
     { id: 'timeline', label: 'Activity Log', icon: Activity },
@@ -360,6 +375,11 @@ export default async function StudentProfilePage(
             readOnly={isStudentViewer}
           />
         )}
+
+        {tab === 'exams' && <ExamTab studentId={student._id?.toString() || student.id} initialExams={exams} subjects={[]} readOnly={isStudentViewer} />}
+        {tab === 'homework' && <HomeworkTab studentId={student._id?.toString() || student.id} initialHomework={homework} readOnly={isStudentViewer} />}
+        {tab === 'behavior' && <BehaviorTab studentId={student._id?.toString() || student.id} initialLogs={behaviors} readOnly={isStudentViewer} />}
+        {tab === 'analysis' && <AnalysisTab studentId={student._id?.toString() || student.id} />}
       </div>
 
     </div>
