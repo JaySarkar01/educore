@@ -85,6 +85,7 @@ const schoolNav: NavSection[] = [
           { label: 'All Students',       href: '/dashboard/students', permission: 'student.view' },
           { label: 'Add Student',        href: '/dashboard/students/add', permission: 'student.create' },
           { label: 'Manage Students',    href: '/dashboard/students/manage', permission: 'student.edit' },
+          { label: 'ID Cards',           href: '/dashboard/students/id-cards', permission: 'student.view' },
         ],
       },
       {

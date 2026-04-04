@@ -241,6 +241,9 @@ export async function getSchoolProfile() {
     return {
       schoolName: "EduCore",
       adminName: session.email || "System",
+      phone: "0000000000",
+      address: "System HQ",
+      city: "Cloud",
       role: context?.roleName || "SUPER_ADMIN",
       roleLabel: ROLE_LABELS[context?.roleName || "SUPER_ADMIN"],
       permissions: context?.permissions || [],
@@ -256,6 +259,9 @@ export async function getSchoolProfile() {
   return {
     schoolName: school.schoolName,
     adminName: school.adminName,
+    phone: school.phone,
+    address: school.address,
+    city: school.city,
     role,
     roleLabel: ROLE_LABELS[role],
     permissions: context?.permissions || ROLE_PERMISSIONS[role],
