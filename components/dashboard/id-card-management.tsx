@@ -487,9 +487,9 @@ export default function IDCardManagement({
                     </td>
                     <td className="px-3 py-3">
                       {s.photo ? (
-                        <img src={s.photo} alt={s.name} className="w-9 h-9 rounded-full object-cover ring-2 ring-background shadow-sm" />
+                        <img src={s.photo} alt={s.name} className="w-9 h-9 min-w-[36px] max-w-[36px] min-h-[36px] max-h-[36px] aspect-square rounded-full flex-none shrink-0 object-cover ring-2 ring-background shadow-sm" />
                       ) : (
-                        <div className="w-9 h-9 rounded-full bg-brand-100 dark:bg-brand-500/20 flex items-center justify-center text-brand-700 dark:text-brand-400 font-bold text-sm ring-2 ring-background shadow-sm">
+                        <div className="w-9 h-9 min-w-[36px] max-w-[36px] min-h-[36px] max-h-[36px] aspect-square rounded-full flex-none shrink-0 bg-brand-100 dark:bg-brand-500/20 flex items-center justify-center text-brand-700 dark:text-brand-400 font-bold text-sm ring-2 ring-background shadow-sm">
                           {s.name.charAt(0).toUpperCase()}
                         </div>
                       )}
@@ -590,9 +590,9 @@ export default function IDCardManagement({
               )}
               <div className="p-3 flex items-center gap-2.5">
                 {s.photo ? (
-                  <img src={s.photo} alt={s.name} className="w-11 h-11 rounded-xl object-cover shrink-0" />
+                  <img src={s.photo} alt={s.name} className="w-11 h-11 min-w-[44px] min-h-[44px] max-w-[44px] max-h-[44px] aspect-square rounded-full object-cover shrink-0 flex-none" />
                 ) : (
-                  <div className="w-11 h-11 rounded-xl bg-brand-100 dark:bg-brand-500/20 flex items-center justify-center text-brand-700 dark:text-brand-400 font-bold text-base shrink-0">{s.name.charAt(0)}</div>
+                  <div className="w-11 h-11 min-w-[44px] min-h-[44px] max-w-[44px] max-h-[44px] aspect-square rounded-full flex-none shrink-0 bg-brand-100 dark:bg-brand-500/20 flex items-center justify-center text-brand-700 dark:text-brand-400 font-bold text-base">{s.name.charAt(0)}</div>
                 )}
                 <div className="min-w-0">
                   <p className="font-bold text-foreground text-sm truncate">{s.name}</p>
