@@ -13,7 +13,10 @@ import {
   Phone, 
   MapPin, 
   CheckCircle2, 
-  AlertCircle 
+  AlertCircle,
+  SlidersHorizontal,
+  X,
+  Calendar
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -27,140 +30,61 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
-interface Student {
-  id: string;
-  name: string;
-  admissionNo: string;
-  className: string;
-  section: string;
-  rollNumber: string;
-  photo: string;
-  parentPhone: string;
-  address: string;
-  bloodGroup?: string;
-  dateOfBirth?: string;
-}
+import { IDCard, StudentIDData, SchoolIDData } from "./id-card";
 
-interface School {
-  schoolName: string;
-  address: string;
-  phone: string;
-  city: string;
-}
 
-const IDCard = ({ student, school }: { student: Student; school: School }) => {
-  const [qrCode, setQrCode] = useState<string>("");
-
-  useEffect(() => {
-    const key = student.admissionNo || student.id || ""
-    if (!key) return
-    QRCode.toDataURL(key)
-      .then((dataUrl) => setQrCode(dataUrl))
-      .catch(() => setQrCode(""))
-  }, [student.admissionNo, student.id])
-
-  return (
-    <div className="id-card-wrapper p-4 bg-white border border-slate-200 rounded-xl shadow-sm w-[320px] h-[480px] relative overflow-hidden flex flex-col text-slate-800 break-inside-avoid">
-      {/* Design Header */}
-      <div className="absolute top-0 left-0 right-0 h-24 bg-brand-600 -skew-y-3 origin-top-left -z-0" />
-      
-      {/* School Header */}
-      <div className="relative z-10 text-center text-white mb-6 pt-2">
-        <h3 className="font-bold text-lg leading-tight uppercase tracking-wider">{school.schoolName}</h3>
-        <p className="text-[10px] opacity-90">{school.city}</p>
-      </div>
-
-      {/* Profile Section */}
-      <div className="relative z-10 flex flex-col items-center flex-1 px-4 text-center">
-        <div className="w-28 h-28 rounded-2xl overflow-hidden border-4 border-white shadow-xl bg-slate-100 mb-4 transition-transform hover:scale-105 duration-300">
-          {student.photo ? (
-            <img src={student.photo} alt={student.name} className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-slate-200">
-              <User className="w-12 h-12 text-slate-400" />
-            </div>
-          )}
-        </div>
-
-        <h2 className="text-xl font-black text-slate-900 mb-1 leading-tight">{student.name}</h2>
-        <div className="bg-brand-50 text-brand-700 px-3 py-0.5 rounded-full text-xs font-bold mb-4 border border-brand-100 uppercase tracking-tighter">
-          Student ID Card
-        </div>
-
-        {/* Details Grid */}
-        <div className="w-full space-y-2 text-left text-xs bg-slate-50/80 p-3 rounded-xl border border-slate-100">
-          <div className="flex justify-between border-b border-slate-200 pb-1">
-            <span className="text-slate-500 font-semibold uppercase tracking-widest text-[9px]">Admission No</span>
-            <span className="font-bold text-slate-800">{student.admissionNo}</span>
-          </div>
-          <div className="flex justify-between border-b border-slate-200 pb-1">
-            <span className="text-slate-500 font-semibold uppercase tracking-widest text-[9px]">Class & Sec</span>
-            <span className="font-bold text-slate-800">Class {student.className} {student.section && `- ${student.section}`}</span>
-          </div>
-          <div className="flex justify-between border-b border-slate-200 pb-1">
-            <span className="text-slate-500 font-semibold uppercase tracking-widest text-[9px]">Roll Number</span>
-            <span className="font-bold text-slate-800">{student.rollNumber}</span>
-          </div>
-          <div className="flex justify-between pt-1">
-            <span className="text-slate-500 font-semibold uppercase tracking-widest text-[9px]">Parent Contact</span>
-            <span className="font-bold text-slate-800">{student.parentPhone}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer / QR Section */}
-      <div className="relative z-10 bg-slate-900 mt-auto p-4 flex items-center justify-between text-white rounded-b-xl -mx-4 -mb-4">
-        <div className="flex flex-col gap-1 max-w-[180px]">
-          <div className="flex items-center gap-1.5 opacity-80">
-            <Phone className="w-2.5 h-2.5" />
-            <span className="text-[10px] leading-none font-medium">{school.phone}</span>
-          </div>
-          <div className="flex items-center gap-1.5 opacity-80">
-            <MapPin className="w-2.5 h-2.5 overflow-visible shrink-0" />
-            <span className="text-[10px] leading-tight font-medium truncate">{school.address}</span>
-          </div>
-        </div>
-        <div className="bg-white p-1 rounded-lg shrink-0 shadow-inner">
-          {qrCode && <img src={qrCode} alt="QR Code" className="w-14 h-14" />}
-        </div>
-      </div>
-
-      {/* Decorative Elements */}
-      <div className="absolute -bottom-10 -right-10 w-24 h-24 bg-brand-500/10 rounded-full blur-2xl" />
-      <div className="absolute top-1/2 -left-10 w-20 h-20 bg-brand-500/5 rounded-full blur-xl" />
-    </div>
-  );
-};
 
 export default function StudentIDGenerator({ 
   students: initialStudents, 
   classes, 
   school 
 }: { 
-  students: Student[]; 
+  students: StudentIDData[]; 
   classes: any[];
-  school: School;
+  school: SchoolIDData;
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [classFilter, setClassFilter] = useState("All");
+  const [batchFilter, setBatchFilter] = useState("All");
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  
   const componentRef = useRef<HTMLDivElement>(null);
+  const filterRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        setIsFiltersOpen(false);
+      }
+    }
+    if (isFiltersOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isFiltersOpen]);
+
 
   const filteredStudents = initialStudents.filter(s => {
     const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           s.admissionNo.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesClass = classFilter === "All" || s.className === classFilter;
-    return matchesSearch && matchesClass;
+    // mock batch filter: if admission starts with/contains batch year, or just mock it.
+    const matchesBatch = batchFilter === "All" || s.admissionNo.includes(batchFilter);
+    return matchesSearch && matchesClass && matchesBatch;
   });
+
+  const batches = ["2023", "2024", "2025", "2026"];
+
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
+          <h1 className="text-4xl font-black tracking-tight text-slate-900 flex items-center gap-3">
             <CreditCard className="w-10 h-10 text-brand-600" />
             ID Card Generator
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
+          <p className="text-slate-500 font-medium mt-1">
             Generate and print professional student identity cards in bulk
           </p>
         </div>
@@ -199,40 +123,111 @@ export default function StudentIDGenerator({
         </Button>
       </div>
 
-      <Card className="border-none shadow-2xl shadow-slate-200/50 dark:shadow-none bg-white/80 dark:bg-slate-900/50 backdrop-blur-xl rounded-3xl overflow-hidden">
-        <CardHeader className="border-b border-slate-100 dark:border-slate-800/50 pb-8 pt-10">
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="flex-1 relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-500 transition-colors" />
+      <Card className="border-none shadow-2xl shadow-slate-200/50 bg-white/80 backdrop-blur-xl rounded-3xl overflow-hidden">
+        <div className="p-4 md:p-6 lg:p-8 border-b border-slate-100 bg-slate-50/30">
+          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center relative z-40">
+            {/* Quick Search */}
+            <div className="flex-1 relative w-full group">
+              <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-slate-400 group-focus-within:text-brand-500 transition-colors" />
+              </div>
               <Input
-                placeholder="Search students by name or admission number..."
-                className="pl-12 h-14 bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 rounded-2xl focus-visible:ring-brand-500 transition-all font-medium"
+                placeholder="Quick search by name or admission number..."
+                className="w-full pl-14 h-14 bg-white border border-slate-200 rounded-2xl focus-visible:ring-2 focus-visible:ring-brand-500/20 focus-visible:border-brand-500 shadow-sm text-base font-medium placeholder:text-slate-400 transition-all"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="w-full md:w-64">
-              <Select value={classFilter} onValueChange={setClassFilter}>
-                <SelectTrigger className="h-14 bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 rounded-2xl font-semibold focus:ring-brand-500">
-                  <div className="flex items-center gap-2">
-                    <Filter className="w-4 h-4 text-slate-500" />
-                    <SelectValue placeholder="All Classes" />
+
+            {/* Filter Toggle Button */}
+            <div className="relative" ref={filterRef}>
+              <Button
+                variant="outline"
+                onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+                className={cn(
+                  "h-14 px-6 rounded-2xl border-slate-200 bg-white font-semibold flex items-center gap-2 shadow-sm transition-all hover:bg-slate-50 hover:border-slate-300",
+                  isFiltersOpen && "border-brand-500 ring-2 ring-brand-500/20 bg-brand-50/50"
+                )}
+              >
+                <SlidersHorizontal className="w-5 h-5 text-brand-600" />
+                Advanced Filters
+                {(classFilter !== "All" || batchFilter !== "All") && (
+                  <span className="absolute -top-2 -right-2 bg-brand-600 text-white text-[10px] flex items-center justify-center w-6 h-6 rounded-full font-bold border-2 border-white shadow-sm">
+                    {(classFilter !== "All" ? 1 : 0) + (batchFilter !== "All" ? 1 : 0)}
+                  </span>
+                )}
+              </Button>
+
+              {/* Dropdown Overlay */}
+              {isFiltersOpen && (
+                <div className="absolute top-full right-0 mt-3 w-[320px] md:w-[360px] bg-white rounded-3xl shadow-2xl border border-slate-100 p-5 z-50 animate-in fade-in slide-in-from-top-2 duration-200 origin-top-right">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                       <Filter className="w-4 h-4 text-brand-500" />
+                       Filter Options
+                    </h3>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-slate-100" onClick={() => setIsFiltersOpen(false)}>
+                      <X className="w-4 h-4 text-slate-500" />
+                    </Button>
                   </div>
-                </SelectTrigger>
-                <SelectContent className="rounded-2xl shadow-2xl border-slate-200">
-                  <SelectItem value="All" className="font-semibold">All Classes</SelectItem>
-                  {classes.map(c => (
-                    <SelectItem key={c.id} value={c.className} className="font-medium focus:bg-brand-50 focus:text-brand-700">
-                      Class {c.className}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+
+                  <div className="space-y-5">
+                    {/* Class Filter */}
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Class</label>
+                      <Select value={classFilter} onValueChange={setClassFilter}>
+                        <SelectTrigger className="h-12 bg-slate-50 border-slate-200 rounded-xl font-medium focus:ring-brand-500 shadow-none">
+                          <SelectValue placeholder="All Classes" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl shadow-xl border-slate-100">
+                          <SelectItem value="All" className="font-semibold cursor-pointer">All Classes</SelectItem>
+                          {classes.map(c => (
+                            <SelectItem key={c.id} value={c.className} className="cursor-pointer">
+                              Class {c.className}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Batch/Year Filter */}
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5" /> Batch Year
+                      </label>
+                      <Select value={batchFilter} onValueChange={setBatchFilter}>
+                        <SelectTrigger className="h-12 bg-slate-50 border-slate-200 rounded-xl font-medium focus:ring-brand-500 shadow-none">
+                          <SelectValue placeholder="All Batches" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl shadow-xl border-slate-100">
+                          <SelectItem value="All" className="font-semibold cursor-pointer">All Batches</SelectItem>
+                          {batches.map(b => (
+                            <SelectItem key={b} value={b} className="cursor-pointer">
+                              Batch {b}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    {/* Clear Filters */}
+                    <div className="pt-2">
+                      <Button 
+                        variant="secondary" 
+                        onClick={() => { setClassFilter("All"); setBatchFilter("All"); setIsFiltersOpen(false); }}
+                        className="w-full rounded-xl font-bold bg-slate-100 hover:bg-slate-200 text-slate-700"
+                      >
+                        Reset All Filters
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-        </CardHeader>
+        </div>
 
-        <CardContent className="p-10 bg-slate-50/30 dark:bg-transparent min-h-[400px]">
+        <CardContent className="p-10 bg-slate-50/30 min-h-[400px]">
           {filteredStudents.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
               {filteredStudents.map(student => (
@@ -246,10 +241,10 @@ export default function StudentIDGenerator({
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="p-6 bg-brand-50 dark:bg-brand-500/10 rounded-full mb-6">
+              <div className="p-6 bg-brand-50 rounded-full mb-6">
                 <Search className="w-12 h-12 text-brand-500" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">No students found</h3>
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">No students found</h3>
               <p className="text-slate-500 max-w-xs mx-auto font-medium">Try adjusting your filters or search keywords to find the student you're looking for.</p>
             </div>
           )}

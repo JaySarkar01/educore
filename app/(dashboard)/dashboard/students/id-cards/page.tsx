@@ -1,29 +1,46 @@
-import { getStudents } from "@/app/actions/student";
+import { getIDCardManagementData } from "@/app/actions/id-card";
 import { getClasses } from "@/app/actions/academic";
 import { getSchoolProfile } from "@/app/actions/school";
-import StudentIDGenerator from "@/components/dashboard/student-id-generator";
+import { getAuthContext } from "@/lib/auth";
+import IDCardManagement from "@/components/dashboard/id-card-management";
+import { redirect } from "next/navigation";
 
-export default async function StudentIDPage() {
-  const [students, classes, school] = await Promise.all([
-    getStudents(),
+export const metadata = {
+  title: "Student ID Cards | EduCore ERP",
+  description: "Generate and manage student ID cards",
+};
+
+export default async function StudentIDCardsPage() {
+  const auth = await getAuthContext();
+
+  // Students should use the portal tab on their own profile
+  if (auth?.roleName === "STUDENT") {
+    const studentId = auth.linkedStudentId;
+    if (studentId) redirect(`/dashboard/students/${studentId}?tab=id-card`);
+    redirect("/dashboard");
+  }
+
+  const [{ students, template }, classes, school] = await Promise.all([
+    getIDCardManagementData(),
     getClasses(),
     getSchoolProfile(),
   ]);
 
-  // Simple school default if null
   const schoolData = {
     schoolName: school?.schoolName || "EduCore",
-    address: school?.address || "School Office Address",
-    phone: school?.phone || "Phone Number",
-    city: school?.city || "City"
+    address: school?.address || "",
+    phone: school?.phone || "",
+    city: school?.city || "",
+    schoolLogo: (template as any)?.schoolLogo || "",
   };
 
   return (
-    <div className="p-6 md:p-10 min-h-screen bg-slate-50 dark:bg-slate-950/20">
-      <StudentIDGenerator 
-        students={students as any} 
-        classes={classes} 
-        school={schoolData} 
+    <div className="p-4 md:p-6 lg:p-8 min-h-screen bg-slate-50/50">
+      <IDCardManagement
+        students={students as any}
+        classes={classes}
+        school={schoolData}
+        template={template as any}
       />
     </div>
   );

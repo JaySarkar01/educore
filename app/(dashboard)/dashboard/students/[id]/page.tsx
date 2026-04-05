@@ -6,7 +6,7 @@ import { DocumentsTab } from "@/components/dashboard/documents-tab"
 import { getAuthContext } from "@/lib/auth"
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, User, LayoutGrid, CalendarDays, Wallet, FileText, Activity, MapPin, Phone, GraduationCap, CheckCircle, Search, Award, BookOpen, AlertCircle } from "lucide-react"
+import { ArrowLeft, User, LayoutGrid, CalendarDays, Wallet, FileText, Activity, MapPin, Phone, GraduationCap, CheckCircle, Search, Award, BookOpen, AlertCircle, CreditCard } from "lucide-react"
 import { getStudentExams } from "@/app/actions/exam"
 import { getStudentHomework } from "@/app/actions/homework"
 import { getStudentBehaviors } from "@/app/actions/behavior"
@@ -15,6 +15,9 @@ import { HomeworkTab } from "@/components/dashboard/homework-tab"
 import { BehaviorTab } from "@/components/dashboard/behavior-tab"
 import { AnalysisTab } from "@/components/dashboard/analysis-tab"
 import { Sparkles } from "lucide-react"
+import { getSchoolProfile } from "@/app/actions/school"
+import { StudentIDTab } from "@/components/dashboard/student-id-tab"
+import { getStudentIDCard } from "@/app/actions/id-card"
 
 export default async function StudentProfilePage(
   props: { params: Promise<{ id: string }>, searchParams?: Promise<{ tab?: string }> }
@@ -33,6 +36,8 @@ export default async function StudentProfilePage(
   const exams = await getStudentExams(params.id)
   const homework = await getStudentHomework(params.id)
   const behaviors = await getStudentBehaviors(params.id)
+  const schoolProfile = await getSchoolProfile()
+  const idCardData = await getStudentIDCard(params.id)
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: LayoutGrid },
@@ -40,6 +45,7 @@ export default async function StudentProfilePage(
     { id: 'exams', label: 'Exams', icon: Award },
     { id: 'homework', label: 'Homework', icon: BookOpen },
     { id: 'behavior', label: 'Behavior', icon: AlertCircle },
+    { id: 'id-card', label: 'ID Card', icon: CreditCard },
     { id: 'analysis', label: 'AI Analysis', icon: Sparkles },
     { id: 'fees', label: 'Fees History', icon: Wallet },
     { id: 'documents', label: 'Documents', icon: FileText },
@@ -379,6 +385,25 @@ export default async function StudentProfilePage(
         {tab === 'exams' && <ExamTab studentId={student._id?.toString() || student.id} initialExams={exams} subjects={[]} readOnly={isStudentViewer} />}
         {tab === 'homework' && <HomeworkTab studentId={student._id?.toString() || student.id} initialHomework={homework} readOnly={isStudentViewer} />}
         {tab === 'behavior' && <BehaviorTab studentId={student._id?.toString() || student.id} initialLogs={behaviors} readOnly={isStudentViewer} />}
+        {tab === 'id-card' && (
+          <StudentIDTab
+            student={student as any}
+            school={{
+              schoolName: schoolProfile?.schoolName || "EduCore",
+              address: schoolProfile?.address || "",
+              phone: schoolProfile?.phone || "",
+              city: schoolProfile?.city || "",
+              schoolLogo: (idCardData?.template as any)?.schoolLogo || "",
+            }}
+            template={idCardData?.template as any || undefined}
+            cardRecord={idCardData?.card ? {
+              idCardNumber: (idCardData.card as any).idCardNumber || "",
+              validUntil: (idCardData.card as any).validUntil || "",
+              status: (idCardData.card as any).status || "Not Generated",
+              academicYear: (idCardData.card as any).academicYear || "",
+            } : null}
+          />
+        )}
         {tab === 'analysis' && <AnalysisTab studentId={student._id?.toString() || student.id} />}
       </div>
 

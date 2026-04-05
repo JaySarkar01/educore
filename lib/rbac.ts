@@ -41,6 +41,8 @@ export const PERMISSIONS = [
   "report.view",
   "report.generate",
   "admitcard.download",
+  "idcard.manage",
+  "idcard.download",
   "school.view",
   "school.approve",
 ] as const
@@ -99,6 +101,7 @@ export const ROLE_PERMISSIONS: Record<RoleName, PermissionKey[]> = {
     "fees.view",
     "fees.receipt.download",
     "admitcard.download",
+    "idcard.download",
   ],
 }
 
