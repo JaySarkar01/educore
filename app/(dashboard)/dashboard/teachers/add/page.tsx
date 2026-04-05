@@ -24,13 +24,14 @@ export default function AddTeacherPage() {
     employeeId: "",
     department: "",
     joiningDate: new Date().toISOString().split('T')[0],
-    baseSalary: "",
     name: "",
     gender: "Female",
     dateOfBirth: "",
     phone: "",
     email: "",
     address: "",
+    bloodGroup: "",
+    alternatePhone: "",
     qualification: "",
     experience: ""
   })
@@ -185,10 +186,6 @@ export default function AddTeacherPage() {
                   ))}
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="baseSalary">Base Salary (₹)</Label>
-                <Input id="baseSalary" name="baseSalary" type="number" value={formValues.baseSalary} onChange={handleChange} placeholder="50000" />
-              </div>
             </div>
           </div>
 
@@ -223,6 +220,20 @@ export default function AddTeacherPage() {
                 <Label htmlFor="email">Email Address</Label>
                 <Input id="email" name="email" type="email" value={formValues.email} onChange={handleChange} placeholder="jane@school.edu" className={errors.email ? "border-red-500" : ""} />
                 <ErrorWarning field="email" />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="alternatePhone">Alternative Mobile No.</Label>
+                <Input id="alternatePhone" name="alternatePhone" value={formValues.alternatePhone} onInput={handlePhoneInput} placeholder="Optional" maxLength={10} className={errors.alternatePhone ? "border-red-500" : ""} />
+                <ErrorWarning field="alternatePhone" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="bloodGroup">Blood Group</Label>
+                <select id="bloodGroup" name="bloodGroup" value={formValues.bloodGroup} onChange={handleChange} className="flex h-10 w-full rounded-md border border-border bg-surface-50 dark:bg-surface-950 px-3 py-1 text-sm shadow-sm">
+                  <option value="">Select (Optional)</option>
+                  <option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option>
+                </select>
               </div>
             </div>
             <div className="space-y-2">

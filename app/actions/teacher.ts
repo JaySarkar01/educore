@@ -15,7 +15,9 @@ const TeacherSchema = z.object({
   gender: z.enum(["Male", "Female", "Other"]),
   dateOfBirth: z.string().min(1, "Date of birth is required"),
   phone: z.string().regex(/^\d{10}$/, "Invalid phone (exactly 10 digits)"),
-  email: z.string().email("Invalid email address"),
+  email: z.string().email("Invalid email address").optional().or(z.literal("")),
+  alternatePhone: z.string().regex(/^\d{10}$/, "Invalid alternate phone").optional().or(z.literal("")),
+  bloodGroup: z.string().optional(),
   qualification: z.string().min(2, "Qualification is required"),
   experience: z.number().min(0, "Experience cannot be negative"),
 })
@@ -88,6 +90,8 @@ export async function addTeacher(formData: FormData) {
     dateOfBirth: formData.get("dateOfBirth")?.toString(),
     phone: formData.get("phone")?.toString(),
     email: formData.get("email")?.toString(),
+    alternatePhone: formData.get("alternatePhone")?.toString(),
+    bloodGroup: formData.get("bloodGroup")?.toString(),
     qualification: formData.get("qualification")?.toString(),
     experience: parseFloat(formData.get("experience")?.toString() || "0"),
   }
@@ -116,7 +120,8 @@ export async function addTeacher(formData: FormData) {
     address: getString("address"),
     department: validated.data.department,
     subjects: getString("subjects").split(',').map(s => s.trim()).filter(Boolean),
-    baseSalary: getNum("baseSalary"),
+    bloodGroup: validated.data.bloodGroup || "",
+    alternatePhone: validated.data.alternatePhone || "",
     status: getString("status") || "Active",
     photo: getString("photo"),
     timeline: [

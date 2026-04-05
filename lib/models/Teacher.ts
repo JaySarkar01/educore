@@ -14,8 +14,9 @@ export interface ITeacher extends Document {
   joiningDate: string;
   department: string;
   subjects: string[];
-  baseSalary: number;
   photo: string;
+  bloodGroup: string;
+  alternatePhone: string;
   status: 'Active' | 'Inactive' | 'On Leave' | 'Resigned';
   timeline: { title: string; date: Date; description?: string }[];
 }
@@ -34,8 +35,9 @@ const TeacherSchema = new Schema({
   joiningDate: { type: String, required: true },
   department: { type: String, default: "" },
   subjects: { type: [String], default: [] },
-  baseSalary: { type: Number, default: 0 },
   photo: { type: String, default: "" },
+  bloodGroup: { type: String, default: "" },
+  alternatePhone: { type: String, default: "" },
   status: { type: String, enum: ['Active', 'Inactive', 'On Leave', 'Resigned'], default: 'Active' },
   timeline: [{
     title: { type: String, required: true },

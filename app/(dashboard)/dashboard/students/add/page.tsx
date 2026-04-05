@@ -28,7 +28,7 @@ export default function AddStudentPage() {
     name: "",
     gender: "Male",
     dateOfBirth: "",
-    phone: "",
+    bloodGroup: "",
     pincode: "",
     address: "",
     parentName: "",
@@ -49,6 +49,13 @@ export default function AddStudentPage() {
   const handlePhoneInput = (e: React.FormEvent<HTMLInputElement>) => {
     const target = e.target as HTMLInputElement
     target.value = target.value.replace(/\D/g, '').slice(0, 10)
+    setFormValues(prev => ({ ...prev, [target.name]: target.value }))
+    setIsDirty(true)
+  }
+
+  const handlePincodeInput = (e: React.FormEvent<HTMLInputElement>) => {
+    const target = e.target as HTMLInputElement
+    target.value = target.value.replace(/\D/g, '').slice(0, 6)
     setFormValues(prev => ({ ...prev, [target.name]: target.value }))
     setIsDirty(true)
   }
@@ -223,13 +230,15 @@ export default function AddStudentPage() {
                 <ErrorWarning field="dateOfBirth" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone">Student Phone</Label>
-                <Input id="phone" name="phone" value={formValues.phone} onInput={handlePhoneInput} placeholder="9876543210" maxLength={10} className={errors.phone ? "border-red-500" : ""} />
-                <ErrorWarning field="phone" />
+                <Label htmlFor="bloodGroup">Blood Group</Label>
+                <select id="bloodGroup" name="bloodGroup" value={formValues.bloodGroup} onChange={handleChange} className="flex h-10 w-full rounded-md border border-border bg-surface-50 dark:bg-surface-950 px-3 py-1 text-sm shadow-sm">
+                  <option value="">Select (Optional)</option>
+                  <option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option>
+                </select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="pincode">Pincode / Zip</Label>
-                <Input id="pincode" name="pincode" value={formValues.pincode} onChange={handleChange} placeholder="10001" className={errors.pincode ? "border-red-500" : ""} />
+                <Input id="pincode" name="pincode" value={formValues.pincode} onInput={handlePincodeInput} placeholder="110001" maxLength={6} className={errors.pincode ? "border-red-500" : ""} />
                 <ErrorWarning field="pincode" />
               </div>
             </div>
