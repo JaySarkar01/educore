@@ -212,6 +212,8 @@ export async function saveIDCardTemplate(formData: FormData) {
         validityMonths:     Number(formData.get("validityMonths")) || 12,
         footerInstructions: formData.get("footerInstructions")?.toString() || "If found, please return to the school.",
         signatureLabel:     formData.get("signatureLabel")?.toString() || "Principal",
+        principalSignature: formData.get("principalSignature")?.toString() || "",
+        schoolStamp:        formData.get("schoolStamp")?.toString() || "",
       }
     },
     { upsert: true }

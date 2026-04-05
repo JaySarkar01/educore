@@ -41,6 +41,8 @@ export interface TemplateSettings {
   showAddress?: boolean;
   signatureLabel?: string;
   footerInstructions?: string;
+  principalSignature?: string;
+  schoolStamp?: string;          // URL of uploaded school stamp/seal image
 }
 
 const DEFAULT_TEMPLATE: TemplateSettings = {
@@ -52,6 +54,8 @@ const DEFAULT_TEMPLATE: TemplateSettings = {
   showAddress: true,
   signatureLabel: "Principal",
   footerInstructions: "If found, please return to the school. Thank you.",
+  principalSignature: "",
+  schoolStamp: "",
 };
 
 // ── Front Card ────────────────────────────────────────────────────────────────
@@ -308,13 +312,30 @@ function IDCardBack({
           <div style={{ color: "#64748b", fontSize: 8, fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase" }}>Student Sign</div>
         </div>
         <div style={{ textAlign: "right" }}>
-          {/* Stamp circle */}
-          <div style={{ width: 42, height: 42, borderRadius: "50%", border: "1.5px solid #94a3b8", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 2 }}>
-            <span style={{ color: "#94a3b8", fontSize: 7, textAlign: "center", lineHeight: 1.2, fontWeight: 700, textTransform: "uppercase", padding: 2 }}>School Stamp</span>
-          </div>
+          {/* School Stamp — image if uploaded, otherwise circle placeholder */}
+          {template.schoolStamp ? (
+            <img
+              src={template.schoolStamp}
+              alt="School Stamp"
+              style={{ width: 48, height: 48, objectFit: "contain", marginBottom: 2, display: "inline-block" }}
+            />
+          ) : (
+            <div style={{ width: 46, height: 46, borderRadius: "50%", border: "1.5px dashed #94a3b8", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 2 }}>
+              <span style={{ color: "#94a3b8", fontSize: 6.5, textAlign: "center", lineHeight: 1.2, fontWeight: 700, textTransform: "uppercase", padding: 2 }}>School{"\n"}Stamp</span>
+            </div>
+          )}
         </div>
-        <div style={{ textAlign: "right" }}>
-          <div style={{ width: 80, height: 1, backgroundColor: "#94a3b8", marginBottom: 3 }} />
+        <div style={{ textAlign: "center" }}>
+          {/* Principal signature image or blank line */}
+          {template.principalSignature ? (
+            <img
+              src={template.principalSignature}
+              alt="Principal Signature"
+              style={{ height: 36, maxWidth: 100, objectFit: "contain", marginBottom: 3, display: "block" }}
+            />
+          ) : (
+            <div style={{ width: 90, height: 1, backgroundColor: "#94a3b8", marginBottom: 3 }} />
+          )}
           <div style={{ color: "#64748b", fontSize: 8, fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase" }}>{template.signatureLabel || "Principal"}</div>
         </div>
       </div>

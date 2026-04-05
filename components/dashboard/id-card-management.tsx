@@ -1,16 +1,13 @@
 "use client";
 
-import { useState, useRef, useTransition, useMemo, useCallback } from "react";
+import { useState, useRef, useTransition, useMemo, useEffect } from "react";
 import { generateIDCards } from "@/app/actions/id-card";
 import { IDCard, StudentIDData, SchoolIDData, TemplateSettings } from "./id-card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
   Search, SlidersHorizontal, X, Printer, Download, RefreshCw,
   Eye, CreditCard, CheckCircle2, AlertCircle, Users, LayoutList, Grid3X3,
-  Filter, Calendar, ChevronUp, ChevronDown, ArrowUpDown,
+  ChevronUp, ChevronDown, ArrowUpDown, Settings, ChevronDown as ChevronDownIcon,
 } from "lucide-react";
 
 interface StudentRow {
@@ -39,6 +36,31 @@ interface StudentRow {
 type SortKey = "name" | "admissionNo" | "className" | "idCardStatus" | "academicYear";
 type ViewMode = "table" | "grid";
 
+// ── Mini component: themed select ────────────────────────────────────────────
+function ThemedSelect({
+  value, onChange, options, placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: { val: string; label: string }[];
+  placeholder?: string;
+}) {
+  return (
+    <div className="relative">
+      <select
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        className="w-full appearance-none h-10 pl-3 pr-8 rounded-xl text-sm font-medium border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 cursor-pointer"
+      >
+        {options.map(o => (
+          <option key={o.val} value={o.val}>{o.label}</option>
+        ))}
+      </select>
+      <ChevronDownIcon className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-fg pointer-events-none" />
+    </div>
+  );
+}
+
 export default function IDCardManagement({
   students: initialStudents,
   classes,
@@ -50,7 +72,7 @@ export default function IDCardManagement({
   school: SchoolIDData;
   template: TemplateSettings | null;
 }) {
-  const [students, setStudents] = useState<StudentRow[]>(initialStudents);
+  const [localStudents, setLocalStudents] = useState<StudentRow[]>(initialStudents);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState("");
   const [classFilter, setClassFilter] = useState("All");
@@ -65,23 +87,35 @@ export default function IDCardManagement({
   const [previewStudent, setPreviewStudent] = useState<StudentRow | null>(null);
   const [isPending, startTransition] = useTransition();
   const [toast, setToast] = useState<{ type: "success" | "error"; msg: string } | null>(null);
-  const printRef = useRef<HTMLDivElement>(null);
-  const filterRef = useRef<HTMLDivElement>(null);
+  const filterBtnRef = useRef<HTMLButtonElement>(null);
+  const filterPanelRef = useRef<HTMLDivElement>(null);
+
+  // Close filter on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (
+        filterPanelRef.current && !filterPanelRef.current.contains(e.target as Node) &&
+        filterBtnRef.current && !filterBtnRef.current.contains(e.target as Node)
+      ) {
+        setIsFiltersOpen(false);
+      }
+    }
+    if (isFiltersOpen) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [isFiltersOpen]);
 
   const showToast = (type: "success" | "error", msg: string) => {
     setToast({ type, msg });
     setTimeout(() => setToast(null), 3500);
   };
 
-  // Derived filter data
-  const sections = useMemo(() => ["All", ...Array.from(new Set(initialStudents.map(s => s.section).filter(Boolean))).sort()], [initialStudents]);
-  const years = useMemo(() => ["All", ...Array.from(new Set(initialStudents.map(s => s.academicYear).filter(Boolean))).sort().reverse()], [initialStudents]);
-  const routes = useMemo(() => ["All", ...Array.from(new Set(initialStudents.map(s => s.transportRoute).filter(Boolean))).sort()], [initialStudents]);
-
+  const sections = useMemo(() => ["All", ...Array.from(new Set(localStudents.map(s => s.section).filter(Boolean))).sort()], [localStudents]);
+  const years = useMemo(() => ["All", ...Array.from(new Set(localStudents.map(s => s.academicYear).filter(Boolean))).sort().reverse()], [localStudents]);
+  const routes = useMemo(() => ["All", ...Array.from(new Set(localStudents.map(s => s.transportRoute).filter(Boolean))).sort()], [localStudents]);
   const activeFilterCount = [classFilter, sectionFilter, yearFilter, statusFilter, transportFilter].filter(v => v !== "All").length;
 
   const filteredStudents = useMemo(() => {
-    let list = initialStudents.filter(s => {
+    let list = localStudents.filter(s => {
       if (searchTerm) {
         const q = searchTerm.toLowerCase();
         if (!s.name.toLowerCase().includes(q) && !s.admissionNo.toLowerCase().includes(q) && !s.rollNumber.toLowerCase().includes(q)) return false;
@@ -93,31 +127,31 @@ export default function IDCardManagement({
       if (transportFilter !== "All" && s.transportRoute !== transportFilter) return false;
       return true;
     });
-
-    list = [...list].sort((a, b) => {
+    return [...list].sort((a, b) => {
       const av = (a[sortKey as keyof StudentRow] as string) || "";
       const bv = (b[sortKey as keyof StudentRow] as string) || "";
       return sortDir === "asc" ? av.localeCompare(bv) : bv.localeCompare(av);
     });
-    return list;
-  }, [initialStudents, searchTerm, classFilter, sectionFilter, yearFilter, statusFilter, transportFilter, sortKey, sortDir]);
+  }, [localStudents, searchTerm, classFilter, sectionFilter, yearFilter, statusFilter, transportFilter, sortKey, sortDir]);
 
   const stats = useMemo(() => ({
-    total: initialStudents.length,
-    generated: initialStudents.filter(s => s.idCardStatus === "Generated").length,
-    notGenerated: initialStudents.filter(s => s.idCardStatus === "Not Generated").length,
-  }), [initialStudents]);
+    total: localStudents.length,
+    generated: localStudents.filter(s => s.idCardStatus === "Generated").length,
+    notGenerated: localStudents.filter(s => s.idCardStatus === "Not Generated").length,
+  }), [localStudents]);
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) setSortDir(d => d === "asc" ? "desc" : "asc");
     else { setSortKey(key); setSortDir("asc"); }
   };
 
-  const SortIcon = ({ k }: { k: SortKey }) =>
-    sortKey === k ? (sortDir === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />) : <ArrowUpDown className="w-3 h-3 opacity-40" />;
+  function SortIcon({ k }: { k: SortKey }) {
+    if (sortKey !== k) return <ArrowUpDown className="w-3 h-3 opacity-30" />;
+    return sortDir === "asc" ? <ChevronUp className="w-3 h-3 text-brand-500" /> : <ChevronDown className="w-3 h-3 text-brand-500" />;
+  }
 
   const toggleSelect = (id: string) => setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
-  const selectAll = () => setSelected(new Set(filteredStudents.map(s => s.id)));
+  const selectAllFiltered = () => setSelected(new Set(filteredStudents.map(s => s.id)));
   const clearSelection = () => setSelected(new Set());
   const allSelected = filteredStudents.length > 0 && filteredStudents.every(s => selected.has(s.id));
 
@@ -126,271 +160,323 @@ export default function IDCardManagement({
     if (!ids.length) return;
     startTransition(async () => {
       const res = await generateIDCards(ids);
-      if (res.success) {
-        showToast("success", `✅ ${res.count} ID card(s) generated successfully!`);
+      if ((res as any).success) {
+        showToast("success", `✅ ${(res as any).count} ID card(s) generated!`);
         clearSelection();
-        // Refresh data by updating local state status
-        setStudents(prev => prev.map(s => ids.includes(s.id) ? { ...s, idCardStatus: "Generated" } : s));
+        setLocalStudents(prev => prev.map(s => ids.includes(s.id) ? { ...s, idCardStatus: "Generated" as const } : s));
       } else {
-        showToast("error", res.error || "Generation failed.");
+        showToast("error", (res as any).error || "Generation failed.");
       }
     });
   };
 
-  const handlePrintSelected = () => {
-    const ids = Array.from(selected);
-    if (!ids.length) return;
-    const printStudents = filteredStudents.filter(s => ids.includes(s.id));
-    openPrintWindow(printStudents);
-  };
-
-  const openPrintWindow = (printStudents: StudentRow[]) => {
-    const printWindow = window.open("", "PRINT_ID_CARDS", "width=1000,height=800");
-    if (!printWindow) return;
-
+  const openPrintWindow = (printList: StudentRow[]) => {
+    const win = window.open("", "PRINT_ID_CARDS", "width=1000,height=800");
+    if (!win) return;
     const bg = template?.bgColor || "#1e40af";
     const accent = template?.accentColor || "#3b82f6";
-
-    const cards = printStudents.map(s => `
-      <div class="card-sheet" style="display:inline-block; margin: 10px; vertical-align: top;">
-        <div style="width:320px; height:480px; border-radius:14px; border:1px solid #e2e8f0; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.08); font-family:Segoe UI,system-ui,sans-serif; display:flex; flex-direction:column; page-break-inside:avoid;">
-          <div style="background:linear-gradient(135deg,${bg},${accent}); padding:14px 16px 10px; flex-shrink:0;">
-            <div style="color:#fff; font-weight:800; font-size:13px; text-transform:uppercase; letter-spacing:0.3px;">${school.schoolName}</div>
-            <div style="color:rgba(255,255,255,0.7); font-size:9px; margin-top:2px; letter-spacing:1.5px; text-transform:uppercase;">Student Identity Card</div>
+    const cards = printList.map(s => `
+      <div style="display:inline-block;margin:8px;vertical-align:top;page-break-inside:avoid;">
+        <div style="width:320px;height:480px;border-radius:14px;border:1px solid #e2e8f0;overflow:hidden;font-family:Segoe UI,system-ui,sans-serif;display:flex;flex-direction:column;background:#fff;">
+          <div style="background:linear-gradient(135deg,${bg},${accent});padding:14px 16px;flex-shrink:0;">
+            <div style="color:#fff;font-weight:800;font-size:13px;text-transform:uppercase;">${school.schoolName}</div>
+            <div style="color:rgba(255,255,255,0.75);font-size:9px;margin-top:2px;letter-spacing:1.5px;text-transform:uppercase;">Student Identity Card</div>
           </div>
-          <div style="display:flex; flex-direction:column; align-items:center; padding:14px 16px 10px; background:#f8fafc; border-bottom:1px solid #e2e8f0; flex-shrink:0;">
-            <div style="width:80px; height:80px; border-radius:50%; overflow:hidden; border:3px solid ${bg}; background:#e2e8f0;">
-              ${s.photo ? `<img src="${s.photo}" style="width:100%;height:100%;object-fit:cover;" />` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#64748b;">${s.name.charAt(0)}</div>`}
+          <div style="display:flex;flex-direction:column;align-items:center;padding:14px 16px 10px;background:#f8fafc;border-bottom:1px solid #e2e8f0;flex-shrink:0;">
+            <div style="width:80px;height:80px;border-radius:50%;overflow:hidden;border:3px solid ${bg};background:#e2e8f0;">
+              ${s.photo ? `<img src="${s.photo}" style="width:100%;height:100%;object-fit:cover;">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#64748b;">${s.name.charAt(0)}</div>`}
             </div>
-            <div style="margin-top:10px; text-align:center; font-weight:800; font-size:14px; text-transform:uppercase; color:#0f172a;">${s.name}</div>
-            <div style="margin-top:4px; background:${bg}18; color:${bg}; border:1px solid ${bg}30; padding:2px 10px; border-radius:4px; font-size:10px; font-weight:700;">Class ${s.className}${s.section ? ` - ${s.section}` : ""}</div>
+            <div style="margin-top:10px;font-weight:800;font-size:14px;text-transform:uppercase;color:#0f172a;text-align:center;">${s.name}</div>
+            <div style="margin-top:4px;padding:2px 10px;border-radius:4px;font-size:10px;font-weight:700;background:${bg}20;color:${bg};">Class ${s.className}${s.section ? ` - ${s.section}` : ""}</div>
           </div>
-          <div style="flex:1; padding:10px 16px; display:flex; flex-direction:column; gap:6px;">
-            ${[["Admission No.", s.admissionNo], ["Roll Number", s.rollNumber], ["ID Card No.", s.idCardNumber || "—"]].map(([l, v]) => `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #f1f5f9;padding-bottom:5px;"><span style="color:#64748b;font-size:10px;font-weight:600;">${l}</span><span style="color:#1e293b;font-size:10px;font-weight:700;">${v}</span></div>`).join("")}
+          <div style="flex:1;padding:10px 16px;display:flex;flex-direction:column;gap:6px;">
+            ${[["Admission No.", s.admissionNo], ["Roll Number", s.rollNumber], ["ID Card No.", s.idCardNumber || "—"], ["Valid Till", "—"]].map(([l, v]) =>
+              `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #f1f5f9;padding-bottom:5px;"><span style="color:#64748b;font-size:10px;font-weight:600;">${l}</span><span style="color:#1e293b;font-size:10px;font-weight:700;">${v}</span></div>`
+            ).join("")}
           </div>
-          <div style="background:#0f172a; padding:8px 12px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
-            <div><div style="color:#fff;font-size:9px;font-weight:600;">${school.phone}</div><div style="color:rgba(255,255,255,0.5);font-size:8px;margin-top:1px;">${school.address}, ${school.city}</div></div>
+          <div style="background:#0f172a;padding:8px 12px;flex-shrink:0;">
+            <div style="color:#fff;font-size:9px;">${school.phone}</div>
+            <div style="color:rgba(255,255,255,0.5);font-size:8px;">${school.address}, ${school.city}</div>
           </div>
         </div>
-      </div>
-    `).join("");
-
-    printWindow.document.write(`
-      <html><head><title>Student ID Cards</title>
-      <style>
-        @page { margin: 10mm; size: A4; }
-        body { margin: 0; padding: 10px; background: white; }
-        @media print { .card-sheet { page-break-inside: avoid; } -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      </style></head>
-      <body>${cards}</body></html>
-    `);
-    printWindow.document.close();
-    printWindow.focus();
-    setTimeout(() => printWindow.print(), 800);
+      </div>`).join("");
+    win.document.write(`<html><head><title>ID Cards</title><style>@page{margin:10mm;size:A4;}body{margin:0;padding:8px;background:#fff;}-webkit-print-color-adjust:exact;print-color-adjust:exact;</style></head><body>${cards}</body></html>`);
+    win.document.close();
+    win.focus();
+    setTimeout(() => win.print(), 800);
   };
 
-  const t = { ...{ bgColor: "#1e40af", accentColor: "#3b82f6" }, ...template };
-
   return (
-    <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500">
+    <div className="w-full space-y-5">
 
       {/* Toast */}
       {toast && (
         <div className={cn(
-          "fixed bottom-6 right-6 z-[100] px-5 py-3 rounded-2xl text-white text-sm font-semibold shadow-2xl animate-in slide-in-from-bottom-4 duration-300",
+          "fixed bottom-6 right-6 z-[999] px-5 py-3 rounded-2xl text-white text-sm font-semibold shadow-2xl animate-in slide-in-from-bottom-4 duration-300 flex items-center gap-2",
           toast.type === "success" ? "bg-emerald-600" : "bg-red-600"
         )}>
           {toast.msg}
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* ── Header ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-fg flex items-center gap-3">
-            <CreditCard className="w-8 h-8 text-brand-600" /> Student ID Cards
+          <h1 className="text-2xl lg:text-3xl font-black tracking-tight text-fg flex items-center gap-3">
+            <CreditCard className="w-7 h-7 text-brand-600 shrink-0" />
+            Student ID Cards
           </h1>
-          <p className="text-muted-fg font-medium mt-1 text-sm">Generate, manage, and download student identity cards</p>
+          <p className="text-muted-fg text-sm mt-1">Generate, manage, and download student identity cards</p>
         </div>
-        <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" className="rounded-xl gap-2 font-semibold" onClick={() => setViewMode(v => v === "table" ? "grid" : "table")}>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => setViewMode(v => v === "table" ? "grid" : "table")}
+            className="inline-flex items-center gap-2 h-9 px-4 rounded-xl border border-border bg-background text-foreground text-sm font-semibold hover:bg-muted transition-colors"
+          >
             {viewMode === "table" ? <Grid3X3 className="w-4 h-4" /> : <LayoutList className="w-4 h-4" />}
-            {viewMode === "table" ? "Grid View" : "Table View"}
-          </Button>
-          <Button asChild variant="outline" size="sm" className="rounded-xl gap-2 font-semibold">
-            <a href="/dashboard/students/id-cards/template">⚙ Template Settings</a>
-          </Button>
+            <span className="hidden sm:inline">{viewMode === "table" ? "Grid" : "Table"}</span>
+          </button>
+          <a
+            href="/dashboard/students/id-cards/template"
+            className="inline-flex items-center gap-2 h-9 px-4 rounded-xl border border-border bg-background text-foreground text-sm font-semibold hover:bg-muted transition-colors"
+          >
+            <Settings className="w-4 h-4" />
+            <span className="hidden sm:inline">Template</span>
+          </a>
         </div>
       </div>
 
-      {/* Stats row */}
-      <div className="grid grid-cols-3 gap-4">
+      {/* ── Stats ── */}
+      <div className="grid grid-cols-3 gap-3">
         {[
-          { label: "Total Students", value: stats.total, icon: Users, color: "text-brand-600", bg: "bg-brand-50 border-brand-100" },
-          { label: "Generated", value: stats.generated, icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50 border-emerald-100" },
-          { label: "Not Generated", value: stats.notGenerated, icon: AlertCircle, color: "text-amber-600", bg: "bg-amber-50 border-amber-100" },
-        ].map(({ label, value, icon: Icon, color, bg }) => (
-          <div key={label} className={cn("rounded-2xl border p-4 flex items-center gap-4", bg)}>
-            <div className={cn("p-2.5 rounded-xl bg-white shadow-sm", color)}><Icon className="w-5 h-5" /></div>
-            <div>
-              <div className={cn("text-2xl font-black", color)}>{value}</div>
-              <div className="text-xs font-semibold text-muted-fg">{label}</div>
+          { label: "Total Students", value: stats.total, icon: Users, textColor: "text-brand-600 dark:text-brand-400", bg: "bg-brand-50 dark:bg-brand-500/10 border-brand-200 dark:border-brand-500/20" },
+          { label: "Generated", value: stats.generated, icon: CheckCircle2, textColor: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20" },
+          { label: "Not Generated", value: stats.notGenerated, icon: AlertCircle, textColor: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20" },
+        ].map(({ label, value, icon: Icon, textColor, bg }) => (
+          <div key={label} className={cn("rounded-2xl border p-3 sm:p-4 flex items-center gap-3", bg)}>
+            <div className={cn("p-2 rounded-xl bg-background/70 shadow-sm shrink-0", textColor)}>
+              <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
+            </div>
+            <div className="min-w-0">
+              <div className={cn("text-xl sm:text-2xl font-black", textColor)}>{value}</div>
+              <div className="text-xs font-semibold text-muted-fg truncate">{label}</div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Search + Filter Bar */}
-      <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
+      {/* ── Search & Filter Row ── */}
+      <div className="flex gap-2 relative z-30">
+        {/* Search */}
         <div className="flex-1 relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-brand-500 transition-colors" />
-          <Input
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-fg group-focus-within:text-brand-500 transition-colors" />
+          <input
+            type="text"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             placeholder="Search by name, admission number, or roll..."
-            className="pl-11 h-12 rounded-xl bg-white border-slate-200 shadow-sm focus-visible:ring-brand-500 font-medium text-sm"
+            className="w-full pl-10 pr-10 h-11 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-fg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition-all"
           />
           {searchTerm && (
-            <button onClick={() => setSearchTerm("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+            <button onClick={() => setSearchTerm("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-fg hover:text-foreground transition-colors">
               <X className="w-4 h-4" />
             </button>
           )}
         </div>
 
-        {/* Filter Dropdown */}
-        <div className="relative" ref={filterRef}>
-          <Button
-            variant="outline"
-            onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-            className={cn("h-12 px-5 rounded-xl border-slate-200 bg-white font-semibold gap-2 relative shadow-sm", isFiltersOpen && "border-brand-500 ring-2 ring-brand-500/20")}
+        {/* Filters Button */}
+        <div className="relative">
+          <button
+            ref={filterBtnRef}
+            onClick={() => setIsFiltersOpen(v => !v)}
+            className={cn(
+              "relative inline-flex items-center gap-2 h-11 px-4 rounded-xl border text-sm font-semibold transition-all",
+              isFiltersOpen
+                ? "bg-brand-600 border-brand-600 text-white shadow-lg shadow-brand-500/25"
+                : "bg-background border-border text-foreground hover:border-brand-400 hover:text-brand-600"
+            )}
           >
-            <SlidersHorizontal className="w-4 h-4 text-brand-600" />
-            Filters
+            <SlidersHorizontal className="w-4 h-4" />
+            <span className="hidden sm:inline">Filters</span>
             {activeFilterCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-brand-600 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold border-2 border-white">
+              <span className={cn(
+                "absolute -top-2 -right-2 w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center border-2",
+                isFiltersOpen ? "bg-white text-brand-700 border-brand-600" : "bg-brand-600 text-white border-background"
+              )}>
                 {activeFilterCount}
               </span>
             )}
-          </Button>
+          </button>
 
+          {/* Floating Filter Panel */}
           {isFiltersOpen && (
-            <div className="absolute top-full right-0 mt-2 w-[340px] bg-white rounded-2xl shadow-2xl border border-slate-100 p-5 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-slate-800 flex items-center gap-2"><Filter className="w-4 h-4 text-brand-500" /> Filter Options</h3>
-                <button onClick={() => setIsFiltersOpen(false)} className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500"><X className="w-4 h-4" /></button>
+            <div
+              ref={filterPanelRef}
+              className="absolute top-[calc(100%+8px)] right-0 w-72 sm:w-80 bg-background border border-border rounded-2xl shadow-2xl z-[200] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
+              style={{ filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.15))" }}
+            >
+              {/* Panel Header */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
+                <span className="font-bold text-sm text-foreground flex items-center gap-2">
+                  <SlidersHorizontal className="w-4 h-4 text-brand-500" /> Filter Options
+                </span>
+                <button onClick={() => setIsFiltersOpen(false)} className="p-1 rounded-lg hover:bg-muted transition-colors text-muted-fg hover:text-foreground">
+                  <X className="w-4 h-4" />
+                </button>
               </div>
-              <div className="space-y-4">
+
+              {/* Filter body */}
+              <div className="p-4 space-y-3 max-h-[60vh] overflow-y-auto">
                 {[
-                  { label: "Class", value: classFilter, onChange: setClassFilter, options: [{ val: "All", label: "All Classes" }, ...classes.map(c => ({ val: c.className, label: `Class ${c.className}` }))] },
-                  { label: "Section", value: sectionFilter, onChange: setSectionFilter, options: sections.map(s => ({ val: s, label: s === "All" ? "All Sections" : `Section ${s}` })) },
-                  { label: "Academic Year", value: yearFilter, onChange: setYearFilter, options: years.map(y => ({ val: y, label: y === "All" ? "All Years" : y })) },
-                  { label: "ID Card Status", value: statusFilter, onChange: setStatusFilter, options: [{ val: "All", label: "All Statuses" }, { val: "Generated", label: "Generated" }, { val: "Not Generated", label: "Not Generated" }] },
-                  { label: "Transport Route", value: transportFilter, onChange: setTransportFilter, options: routes.map(r => ({ val: r, label: r === "All" ? "All Routes" : r })) },
+                  {
+                    label: "Class",
+                    value: classFilter,
+                    onChange: setClassFilter,
+                    options: [{ val: "All", label: "All Classes" }, ...classes.map(c => ({ val: c.className, label: `Class ${c.className}` }))]
+                  },
+                  {
+                    label: "Section",
+                    value: sectionFilter,
+                    onChange: setSectionFilter,
+                    options: sections.map(s => ({ val: s, label: s === "All" ? "All Sections" : `Section ${s}` }))
+                  },
+                  {
+                    label: "Academic Year",
+                    value: yearFilter,
+                    onChange: setYearFilter,
+                    options: years.map(y => ({ val: y, label: y === "All" ? "All Years" : y }))
+                  },
+                  {
+                    label: "ID Card Status",
+                    value: statusFilter,
+                    onChange: setStatusFilter,
+                    options: [
+                      { val: "All", label: "All Statuses" },
+                      { val: "Generated", label: "✅ Generated" },
+                      { val: "Not Generated", label: "⚠️ Not Generated" }
+                    ]
+                  },
+                  {
+                    label: "Transport Route",
+                    value: transportFilter,
+                    onChange: setTransportFilter,
+                    options: routes.map(r => ({ val: r, label: r === "All" ? "All Routes" : r }))
+                  },
                 ].map(({ label, value, onChange, options }) => (
                   <div key={label} className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{label}</label>
-                    <Select value={value} onValueChange={onChange}>
-                      <SelectTrigger className="h-10 bg-slate-50 border-slate-200 rounded-xl text-sm font-medium shadow-none">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-xl shadow-xl border-slate-100">
-                        {options.map(o => (
-                          <SelectItem key={o.val} value={o.val} className="text-sm cursor-pointer">{o.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <label className="block text-[10px] font-bold text-muted-fg uppercase tracking-widest">{label}</label>
+                    <ThemedSelect value={value} onChange={onChange} options={options} />
                   </div>
                 ))}
               </div>
-              <div className="pt-4 mt-4 border-t border-slate-100">
-                <Button variant="secondary" className="w-full rounded-xl text-sm font-bold bg-slate-100 hover:bg-slate-200"
-                  onClick={() => { setClassFilter("All"); setSectionFilter("All"); setYearFilter("All"); setStatusFilter("All"); setTransportFilter("All"); setIsFiltersOpen(false); }}>
+
+              {/* Reset */}
+              <div className="px-4 pb-4">
+                <button
+                  onClick={() => { setClassFilter("All"); setSectionFilter("All"); setYearFilter("All"); setStatusFilter("All"); setTransportFilter("All"); }}
+                  className="w-full h-9 rounded-xl border border-border bg-muted text-foreground text-sm font-bold hover:bg-muted/70 transition-colors"
+                >
                   Reset All Filters
-                </Button>
+                </button>
               </div>
             </div>
           )}
         </div>
       </div>
 
-      {/* Bulk action bar */}
+      {/* ── Bulk Action Bar ── */}
       {selected.size > 0 && (
-        <div className="bg-brand-600 text-white rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xl shadow-brand-500/30 animate-in slide-in-from-bottom-2 duration-200">
+        <div className="bg-brand-600 text-white rounded-2xl px-4 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xl shadow-brand-500/25 animate-in slide-in-from-top-1 duration-200">
           <div className="flex items-center gap-3">
-            <span className="bg-white/20 rounded-lg px-3 py-1 font-bold text-sm">{selected.size} selected</span>
-            <span className="text-brand-100 text-sm">Ready for bulk action</span>
+            <span className="bg-white/20 rounded-lg px-2.5 py-1 font-bold text-sm">{selected.size} selected</span>
+            <span className="text-brand-100 text-sm hidden sm:block">Ready for bulk action</span>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button size="sm" onClick={handleGenerate} disabled={isPending}
-              className="bg-white text-brand-700 hover:bg-brand-50 rounded-xl font-bold h-9 gap-2 shadow-sm">
-              {isPending ? <RefreshCw className="w-4 h-4 animate-spin" /> : <CreditCard className="w-4 h-4" />}
-              {isPending ? "Generating..." : "Generate ID Cards"}
-            </Button>
-            <Button size="sm" onClick={handlePrintSelected}
-              className="bg-white/20 hover:bg-white/30 rounded-xl font-bold h-9 gap-2 border border-white/30">
-              <Printer className="w-4 h-4" />Print / Download PDF
-            </Button>
-            <Button size="sm" variant="ghost" onClick={clearSelection}
-              className="text-white hover:bg-white/20 rounded-xl font-bold h-9">
+            <button
+              onClick={handleGenerate}
+              disabled={isPending}
+              className="inline-flex items-center gap-2 h-8 px-4 rounded-xl bg-white text-brand-700 hover:bg-brand-50 text-sm font-bold transition-colors disabled:opacity-60"
+            >
+              {isPending ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <CreditCard className="w-3.5 h-3.5" />}
+              {isPending ? "Generating..." : "Generate"}
+            </button>
+            <button
+              onClick={() => openPrintWindow(filteredStudents.filter(s => selected.has(s.id)))}
+              className="inline-flex items-center gap-2 h-8 px-4 rounded-xl bg-white/15 hover:bg-white/25 border border-white/25 text-sm font-bold transition-colors"
+            >
+              <Printer className="w-3.5 h-3.5" /> Print PDF
+            </button>
+            <button onClick={clearSelection} className="h-8 w-8 rounded-xl hover:bg-white/15 transition-colors flex items-center justify-center">
               <X className="w-4 h-4" />
-            </Button>
+            </button>
           </div>
         </div>
       )}
 
-      {/* Table View */}
-      {viewMode === "table" ? (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          {/* Table Header */}
-          <div className="flex items-center justify-between p-4 border-b border-slate-100 bg-slate-50/50">
+      {/* ── TABLE VIEW ── */}
+      {viewMode === "table" && (
+        <div className="bg-background border border-border rounded-2xl shadow-sm overflow-hidden">
+          {/* Table toolbar */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/20">
             <div className="flex items-center gap-3">
               <input
                 type="checkbox"
                 checked={allSelected}
-                onChange={allSelected ? clearSelection : selectAll}
+                onChange={() => allSelected ? clearSelection() : selectAllFiltered()}
                 className="w-4 h-4 rounded accent-brand-600 cursor-pointer"
               />
-              <span className="text-sm font-semibold text-slate-600">{filteredStudents.length} students</span>
+              <span className="text-sm font-semibold text-muted-fg">
+                {filteredStudents.length} student{filteredStudents.length !== 1 ? "s" : ""}
+                {selected.size > 0 && <span className="ml-2 text-brand-600 dark:text-brand-400">· {selected.size} selected</span>}
+              </span>
             </div>
             {selected.size > 0 && (
-              <button onClick={clearSelection} className="text-xs text-slate-500 hover:text-slate-800 font-semibold">Deselect all</button>
+              <button onClick={clearSelection} className="text-xs font-semibold text-muted-fg hover:text-foreground transition-colors">
+                Clear selection
+              </button>
             )}
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[700px]">
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/30">
-                  <th className="px-4 py-3 text-left w-8"></th>
-                  <th className="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Photo</th>
-                  <th className="px-4 py-3 text-left">
-                    <button onClick={() => toggleSort("name")} className="flex items-center gap-1 text-xs font-bold text-slate-500 uppercase tracking-wider hover:text-slate-700">
-                      Student Name <SortIcon k="name" />
+                <tr className="border-b border-border/60">
+                  <th className="px-4 py-3 text-left w-10"></th>
+                  <th className="px-3 py-3 text-left text-xs font-bold text-muted-fg uppercase tracking-wider">Photo</th>
+                  <th className="px-3 py-3 text-left">
+                    <button onClick={() => toggleSort("name")} className="flex items-center gap-1.5 text-xs font-bold text-muted-fg uppercase tracking-wider hover:text-foreground transition-colors">
+                      Name <SortIcon k="name" />
                     </button>
                   </th>
-                  <th className="px-4 py-3 text-left">
-                    <button onClick={() => toggleSort("admissionNo")} className="flex items-center gap-1 text-xs font-bold text-slate-500 uppercase tracking-wider hover:text-slate-700">
-                      Admission No <SortIcon k="admissionNo" />
+                  <th className="px-3 py-3 text-left">
+                    <button onClick={() => toggleSort("admissionNo")} className="flex items-center gap-1.5 text-xs font-bold text-muted-fg uppercase tracking-wider hover:text-foreground transition-colors">
+                      Admission No. <SortIcon k="admissionNo" />
                     </button>
                   </th>
-                  <th className="px-4 py-3 text-left">
-                    <button onClick={() => toggleSort("className")} className="flex items-center gap-1 text-xs font-bold text-slate-500 uppercase tracking-wider hover:text-slate-700">
+                  <th className="px-3 py-3 text-left">
+                    <button onClick={() => toggleSort("className")} className="flex items-center gap-1.5 text-xs font-bold text-muted-fg uppercase tracking-wider hover:text-foreground transition-colors">
                       Class <SortIcon k="className" />
                     </button>
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Roll No</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">ID Card No.</th>
-                  <th className="px-4 py-3 text-left">
-                    <button onClick={() => toggleSort("idCardStatus")} className="flex items-center gap-1 text-xs font-bold text-slate-500 uppercase tracking-wider hover:text-slate-700">
+                  <th className="px-3 py-3 text-left text-xs font-bold text-muted-fg uppercase tracking-wider hidden lg:table-cell">Roll</th>
+                  <th className="px-3 py-3 text-left text-xs font-bold text-muted-fg uppercase tracking-wider hidden xl:table-cell">ID Card No.</th>
+                  <th className="px-3 py-3 text-left">
+                    <button onClick={() => toggleSort("idCardStatus")} className="flex items-center gap-1.5 text-xs font-bold text-muted-fg uppercase tracking-wider hover:text-foreground transition-colors">
                       Status <SortIcon k="idCardStatus" />
                     </button>
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-3 py-3 text-right text-xs font-bold text-muted-fg uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="divide-y divide-border/40">
                 {filteredStudents.length > 0 ? filteredStudents.map(s => (
-                  <tr key={s.id} className={cn("hover:bg-slate-50/60 transition-colors group", selected.has(s.id) && "bg-brand-50/30")}>
+                  <tr
+                    key={s.id}
+                    className={cn(
+                      "group transition-colors",
+                      selected.has(s.id) ? "bg-brand-50/40 dark:bg-brand-500/5" : "hover:bg-muted/30"
+                    )}
+                  >
                     <td className="px-4 py-3">
                       <input
                         type="checkbox"
@@ -399,58 +485,71 @@ export default function IDCardManagement({
                         className="w-4 h-4 rounded accent-brand-600 cursor-pointer"
                       />
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-3">
                       {s.photo ? (
-                        <img src={s.photo} alt={s.name} className="w-9 h-9 rounded-full object-cover border-2 border-white shadow-sm" />
+                        <img src={s.photo} alt={s.name} className="w-9 h-9 rounded-full object-cover ring-2 ring-background shadow-sm" />
                       ) : (
-                        <div className="w-9 h-9 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 font-bold text-sm border-2 border-white shadow-sm">
+                        <div className="w-9 h-9 rounded-full bg-brand-100 dark:bg-brand-500/20 flex items-center justify-center text-brand-700 dark:text-brand-400 font-bold text-sm ring-2 ring-background shadow-sm">
                           {s.name.charAt(0).toUpperCase()}
                         </div>
                       )}
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="font-semibold text-slate-800">{s.name}</div>
-                      <div className="text-xs text-slate-400">{s.academicYear}</div>
+                    <td className="px-3 py-3 max-w-[180px]">
+                      <div className="font-semibold text-foreground truncate">{s.name}</div>
+                      <div className="text-xs text-muted-fg">{s.academicYear}</div>
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs text-slate-600 font-semibold">{s.admissionNo}</td>
-                    <td className="px-4 py-3">
-                      <span className="px-2 py-0.5 bg-slate-100 rounded-md text-xs font-semibold text-slate-700">
+                    <td className="px-3 py-3 font-mono text-xs font-semibold text-muted-fg">{s.admissionNo}</td>
+                    <td className="px-3 py-3">
+                      <span className="px-2 py-0.5 rounded-lg bg-muted border border-border text-xs font-semibold text-foreground">
                         {s.className}{s.section && ` - ${s.section}`}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-slate-600 font-semibold text-xs">{s.rollNumber}</td>
-                    <td className="px-4 py-3 font-mono text-xs text-slate-500">{s.idCardNumber || "—"}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-3 text-muted-fg font-semibold text-xs hidden lg:table-cell">{s.rollNumber}</td>
+                    <td className="px-3 py-3 font-mono text-xs text-muted-fg hidden xl:table-cell">{s.idCardNumber || "—"}</td>
+                    <td className="px-3 py-3">
                       <span className={cn(
-                        "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border",
+                        "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border whitespace-nowrap",
                         s.idCardStatus === "Generated"
-                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                          : "bg-amber-50 text-amber-700 border-amber-200"
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20"
+                          : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20"
                       )}>
-                        {s.idCardStatus === "Generated" ? <CheckCircle2 className="w-2.5 h-2.5" /> : <AlertCircle className="w-2.5 h-2.5" />}
+                        {s.idCardStatus === "Generated"
+                          ? <CheckCircle2 className="w-2.5 h-2.5 shrink-0" />
+                          : <AlertCircle className="w-2.5 h-2.5 shrink-0" />}
                         {s.idCardStatus}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <td className="px-3 py-3">
+                      <div className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => setPreviewStudent(s)}
-                          className="p-1.5 rounded-lg hover:bg-brand-50 text-brand-600 hover:text-brand-700 transition-colors"
-                          title="Preview"
+                          className="p-1.5 rounded-lg text-muted-fg hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-500/10 transition-colors"
+                          title="Preview ID Card"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => openPrintWindow([s])}
-                          className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition-colors"
+                          className="p-1.5 rounded-lg text-muted-fg hover:text-foreground hover:bg-muted transition-colors"
                           title="Download PDF"
                         >
                           <Download className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => { setSelected(new Set([s.id])); }}
-                          className="p-1.5 rounded-lg hover:bg-emerald-50 text-emerald-600 hover:text-emerald-700 transition-colors"
-                          title="Generate / Regenerate"
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            startTransition(async () => {
+                              const res = await generateIDCards([s.id]);
+                              if ((res as any).success) {
+                                showToast("success", `✅ ID card generated for ${s.name}`);
+                                setLocalStudents(prev => prev.map(st => st.id === s.id ? { ...st, idCardStatus: "Generated" as const } : st));
+                              } else {
+                                showToast("error", (res as any).error || "Generation failed.");
+                              }
+                            });
+                          }}
+                          className="p-1.5 rounded-lg text-muted-fg hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors"
+                          title="Regenerate"
                         >
                           <RefreshCw className="w-4 h-4" />
                         </button>
@@ -461,9 +560,9 @@ export default function IDCardManagement({
                   <tr>
                     <td colSpan={9} className="py-20 text-center">
                       <div className="flex flex-col items-center gap-3">
-                        <div className="p-4 rounded-full bg-slate-100"><Search className="w-8 h-8 text-slate-400" /></div>
-                        <p className="font-semibold text-slate-500">No students found</p>
-                        <p className="text-sm text-slate-400">Try adjusting your search or filter criteria</p>
+                        <div className="p-4 rounded-full bg-muted"><Search className="w-8 h-8 text-muted-fg" /></div>
+                        <p className="font-semibold text-foreground">No students found</p>
+                        <p className="text-sm text-muted-fg">Try adjusting your search or filters</p>
                       </div>
                     </td>
                   </tr>
@@ -472,70 +571,97 @@ export default function IDCardManagement({
             </table>
           </div>
         </div>
-      ) : (
-        /* Grid View */
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      )}
+
+      {/* ── GRID VIEW ── */}
+      {viewMode === "grid" && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
           {filteredStudents.map(s => (
             <div
               key={s.id}
               onClick={() => toggleSelect(s.id)}
               className={cn(
-                "relative bg-white rounded-2xl border-2 shadow-sm cursor-pointer transition-all hover:-translate-y-1 hover:shadow-lg group",
-                selected.has(s.id) ? "border-brand-500 shadow-brand-500/20" : "border-slate-200"
+                "relative bg-background border-2 rounded-2xl cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg group",
+                selected.has(s.id) ? "border-brand-500 shadow-brand-500/20 shadow-md" : "border-border hover:border-brand-300"
               )}
             >
               {selected.has(s.id) && (
                 <div className="absolute -top-2 -right-2 z-10 bg-brand-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shadow-sm">✓</div>
               )}
-              <div className="p-4 flex items-center gap-3">
+              <div className="p-3 flex items-center gap-2.5">
                 {s.photo ? (
-                  <img src={s.photo} alt={s.name} className="w-12 h-12 rounded-xl object-cover flex-shrink-0" />
+                  <img src={s.photo} alt={s.name} className="w-11 h-11 rounded-xl object-cover shrink-0" />
                 ) : (
-                  <div className="w-12 h-12 rounded-xl bg-brand-100 flex items-center justify-center text-brand-700 font-bold text-lg flex-shrink-0">{s.name.charAt(0)}</div>
+                  <div className="w-11 h-11 rounded-xl bg-brand-100 dark:bg-brand-500/20 flex items-center justify-center text-brand-700 dark:text-brand-400 font-bold text-base shrink-0">{s.name.charAt(0)}</div>
                 )}
                 <div className="min-w-0">
-                  <p className="font-bold text-slate-800 text-sm truncate">{s.name}</p>
-                  <p className="text-xs text-slate-500">Class {s.className}{s.section && ` - ${s.section}`}</p>
-                  <p className="text-xs text-slate-400 font-mono">{s.admissionNo}</p>
+                  <p className="font-bold text-foreground text-sm truncate">{s.name}</p>
+                  <p className="text-xs text-muted-fg truncate">Class {s.className}{s.section && ` - ${s.section}`}</p>
                 </div>
               </div>
-              <div className="px-4 pb-3 flex items-center justify-between">
+              <div className="px-3 pb-3 flex items-center justify-between gap-2">
                 <span className={cn(
-                  "px-2 py-0.5 rounded-full text-[10px] font-bold border",
-                  s.idCardStatus === "Generated" ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200"
+                  "px-2 py-0.5 rounded-full text-[9px] font-bold border truncate",
+                  s.idCardStatus === "Generated"
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20"
+                    : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20"
                 )}>
                   {s.idCardStatus}
                 </span>
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={e => { e.stopPropagation(); setPreviewStudent(s); }} className="p-1.5 rounded-lg hover:bg-brand-50 text-brand-600"><Eye className="w-3.5 h-3.5" /></button>
-                  <button onClick={e => { e.stopPropagation(); openPrintWindow([s]); }} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500"><Download className="w-3.5 h-3.5" /></button>
+                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                  <button
+                    onClick={e => { e.stopPropagation(); setPreviewStudent(s); }}
+                    className="p-1 rounded-lg hover:bg-brand-50 dark:hover:bg-brand-500/10 text-brand-600 transition-colors"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={e => { e.stopPropagation(); openPrintWindow([s]); }}
+                    className="p-1 rounded-lg hover:bg-muted text-muted-fg transition-colors"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
             </div>
           ))}
+          {filteredStudents.length === 0 && (
+            <div className="col-span-full py-20 text-center">
+              <div className="flex flex-col items-center gap-3">
+                <div className="p-4 rounded-full bg-muted"><Search className="w-8 h-8 text-muted-fg" /></div>
+                <p className="font-semibold text-foreground">No students found</p>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Preview Modal */}
+      {/* ── Preview Modal ── */}
       {previewStudent && (
         <div
-          className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
+          className="fixed inset-0 z-[500] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
           onClick={() => setPreviewStudent(null)}
         >
           <div
-            className="bg-white rounded-3xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-auto"
+            className="bg-background border border-border rounded-3xl shadow-2xl w-full max-w-[420px] max-h-[92vh] overflow-y-auto"
             onClick={e => e.stopPropagation()}
           >
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+            {/* Modal header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border sticky top-0 bg-background z-10 rounded-t-3xl">
               <div>
-                <h2 className="font-bold text-slate-800">ID Card Preview</h2>
-                <p className="text-sm text-slate-500">{previewStudent.name}</p>
+                <h2 className="font-bold text-foreground">ID Card Preview</h2>
+                <p className="text-xs text-muted-fg">{previewStudent.name} · {previewStudent.admissionNo}</p>
               </div>
-              <button onClick={() => setPreviewStudent(null)} className="p-2 hover:bg-slate-100 rounded-xl transition-colors">
-                <X className="w-5 h-5 text-slate-500" />
+              <button
+                onClick={() => setPreviewStudent(null)}
+                className="p-2 rounded-xl hover:bg-muted transition-colors text-muted-fg hover:text-foreground"
+              >
+                <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-6 flex flex-col items-center gap-6">
+
+            {/* Card */}
+            <div className="p-5 flex flex-col items-center gap-5">
               <IDCard
                 student={{
                   ...previewStudent,
@@ -545,20 +671,21 @@ export default function IDCardManagement({
                 school={school}
                 template={template || undefined}
               />
+
+              {/* Action buttons */}
               <div className="flex gap-3 w-full">
-                <Button
+                <button
                   onClick={() => openPrintWindow([previewStudent])}
-                  className="flex-1 rounded-xl gap-2 font-bold"
+                  className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold shadow-lg shadow-brand-500/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <Printer className="w-4 h-4" /> Print / Download PDF
-                </Button>
-                <Button
-                  variant="outline"
+                </button>
+                <button
                   onClick={() => setPreviewStudent(null)}
-                  className="rounded-xl font-semibold"
+                  className="h-11 px-5 rounded-2xl border border-border bg-background text-foreground text-sm font-semibold hover:bg-muted transition-colors"
                 >
                   Close
-                </Button>
+                </button>
               </div>
             </div>
           </div>

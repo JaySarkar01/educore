@@ -12,7 +12,9 @@ export interface IIDCardTemplate extends Document {
   showAddress:        boolean;
   validityMonths:     number;   // how many months validity from generation
   footerInstructions: string;
-  signatureLabel:     string;
+  signatureLabel: string;
+  principalSignature: string;
+  schoolStamp: string;          // Cloudinary URL of the school stamp/seal image
 }
 
 const IDCardTemplateSchema: Schema = new Schema({
@@ -28,6 +30,15 @@ const IDCardTemplateSchema: Schema = new Schema({
   validityMonths:     { type: Number, default: 12 },
   footerInstructions: { type: String, default: "If found, please return to the school. Thank you." },
   signatureLabel:     { type: String, default: "Principal" },
+  principalSignature: { type: String, default: "" },
+  schoolStamp:        { type: String, default: "" },
 }, { timestamps: true });
 
-export const IDCardTemplateModel = mongoose.models.IDCardTemplate || mongoose.model<IIDCardTemplate>("IDCardTemplate", IDCardTemplateSchema);
+// In Next.js dev mode, hot-reload re-evaluates modules but mongoose.models persists in
+// memory across reloads (because the DB connection is global). We must delete the stale
+// cached model so schema additions are always reflected without a server restart.
+if (mongoose.models["IDCardTemplate"]) {
+  delete (mongoose.models as any)["IDCardTemplate"];
+}
+
+export const IDCardTemplateModel = mongoose.model<IIDCardTemplate>("IDCardTemplate", IDCardTemplateSchema);
