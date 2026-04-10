@@ -7,7 +7,8 @@ import Link from 'next/link'
 import { useMobileSidebar } from './mobile-sidebar-context'
 
 export function DashboardNavbar({ adminName = 'Admin User', role = 'Administrator' }: { adminName?: string, role?: string }) {
-  const initials = adminName.charAt(0).toUpperCase()
+  // compute initials from display name (fallback to 'U')
+  const initials = (adminName || 'User').split(' ').map(s => s.charAt(0)).join('').slice(0,2).toUpperCase() || 'U'
   const { toggle: toggleSidebar } = useMobileSidebar()
   
   return (
@@ -41,7 +42,7 @@ export function DashboardNavbar({ adminName = 'Admin User', role = 'Administrato
         
         <div className="flex items-center gap-3">
           <div className="text-right hidden md:block">
-            <p className="text-sm font-medium leading-none text-fg uppercase tracking-tight">{adminName}</p>
+            <p className="text-sm font-medium leading-none text-fg capitalize tracking-tight">{adminName}</p>
             <p className="text-[10px] text-muted-fg mt-1 font-semibold opacity-70 uppercase tracking-widest">{role}</p>
           </div>
           <div className="w-9 h-9 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-sm border-2 border-brand-500/20 shadow-sm shadow-brand-500/10">

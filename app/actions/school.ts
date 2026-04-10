@@ -256,9 +256,20 @@ export async function getSchoolProfile() {
 
   const role = context?.roleName || normalizeRoleName(session.role)
 
+  // Determine a friendly display name for the current user (prefer fullName from UserModel)
+  let displayName = session.email || school.adminName || "User"
+  try {
+    if (session.userId) {
+      const user = await UserModel.findById(session.userId).select("fullName").lean()
+      if (user && (user as any).fullName) displayName = (user as any).fullName
+    }
+  } catch (e) {
+    // ignore lookup errors and fallback to existing values
+  }
+
   return {
     schoolName: school.schoolName,
-    adminName: school.adminName,
+    adminName: displayName,
     phone: school.phone,
     address: school.address,
     city: school.city,

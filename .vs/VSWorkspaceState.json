@@ -1,6 +1,12 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\app",
+    "\\app\\(dashboard)",
+    "\\app\\(marketing)",
+    "\\components",
+    "\\components\\sections"
   ],
+  "SelectedNode": "\\components\\sections\\about.tsx",
   "PreviewInSolutionExplorer": false
 }

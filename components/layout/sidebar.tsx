@@ -219,7 +219,26 @@ export function Sidebar({
 }) {
   const pathname = usePathname()
   const isSuperAdmin = role === 'SUPER_ADMIN' || pathname.startsWith('/admin')
-  const sections = isSuperAdmin ? adminNav : schoolNav
+  // Use a simplified nav for students and teachers to avoid exposing admin actions
+  const isStudent = role === 'STUDENT'
+  const isTeacher = role === 'TEACHER'
+  let sections: NavSection[]
+  if (isSuperAdmin) sections = adminNav
+  else if (isStudent) {
+    // minimal student-focused navigation
+    sections = [
+      { items: [ { label: 'Overview', href: '/dashboard', icon: LayoutDashboard, key: 'overview' } ] },
+      { heading: 'MY', items: [ { label: 'My Profile', href: '/dashboard/students', icon: GraduationCap, key: 'my-profile' }, { label: 'Attendance', href: '/dashboard/students/attendance', icon: ClipboardCheck, key: 'my-attendance' }, { label: 'Fees', href: '/dashboard/students/fees', icon: CreditCard, key: 'my-fees' } ] }
+    ]
+  } else if (isTeacher) {
+    // teacher-focused navigation
+    sections = [
+      { items: [ { label: 'Overview', href: '/dashboard', icon: LayoutDashboard, key: 'overview' } ] },
+      { heading: 'CLASS', items: [ { label: 'My Students', href: '/dashboard/students', icon: GraduationCap, key: 'students' }, { label: 'Attendance', href: '/dashboard/teachers/attendance', icon: ClipboardCheck, key: 'attendance' }, { label: 'Subjects', href: '/dashboard/teachers/subjects', icon: BookOpen, key: 'subjects' } ] }
+    ]
+  } else {
+    sections = schoolNav
+  }
   const { isOpen: mobileOpen, close: closeMobile } = useMobileSidebar()
 
   // Initialize open menus: auto-open those whose children match the current path

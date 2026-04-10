@@ -2,9 +2,92 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Users, GraduationCap, IndianRupee, Calendar, Layers } from "lucide-react"
 import { getDashboardStats } from "@/app/actions/dashboard"
 import Link from "next/link"
+import { getAuthContext } from "@/lib/auth"
+import { getStudents } from "@/app/actions/student"
+import { getStudentAttendanceStats } from "@/app/actions/attendance"
+import { getStudentFeeStats } from "@/app/actions/fees"
 
 export default async function SchoolDashboard() {
   const stats = await getDashboardStats()
+  const auth = await getAuthContext()
+
+  // If logged in as a student, show a focused student dashboard instead of school telemetry
+  if (auth?.roleName === "STUDENT") {
+    const students = await getStudents()
+    const me = students[0]
+    const attendance = me ? await getStudentAttendanceStats(me.id) : null
+    const fees = me ? await getStudentFeeStats(me.id) : null
+
+    return (
+      <div className="flex-1 p-4 md:p-6 lg:p-8 pt-6 md:pt-8 lg:pt-10 bg-surface-50 dark:bg-surface-950 min-h-[calc(100vh-4rem)]">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-6 md:mb-8">
+            <div>
+              <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-fg tracking-tight">My Student Dashboard</h1>
+              <p className="text-muted-fg mt-1 text-sm md:text-base">Personal overview: attendance, pending fees and documents.</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <Card>
+              <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                <div className="text-sm font-medium text-muted-fg">Attendance</div>
+                <Calendar className="w-5 h-5 text-muted-fg" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-fg">{attendance?.percentage || 0}%</div>
+                <div className="text-xs text-muted-fg mt-1">This term attendance</div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                <div className="text-sm font-medium text-muted-fg">Present Days</div>
+                <Users className="w-5 h-5 text-muted-fg" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-fg">{attendance?.presentDays || 0}</div>
+                <div className="text-xs text-muted-fg mt-1">Days present</div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                <div className="text-sm font-medium text-muted-fg">Pending Fees</div>
+                <IndianRupee className="w-5 h-5 text-emerald-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-fg">₹{fees?.pendingBalance?.toFixed(2) || '0.00'}</div>
+                <div className="text-xs text-muted-fg mt-1">Amount due</div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                <div className="text-sm font-medium text-muted-fg">Documents</div>
+                <GraduationCap className="w-5 h-5 text-muted-fg" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-fg">{me?.documents?.length || 0}</div>
+                <div className="text-xs text-muted-fg mt-1">Uploaded documents</div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <h3 className="font-semibold text-lg text-fg">Recent Activity</h3>
+              </CardHeader>
+              <CardContent>
+                <div className="text-muted-fg">Personal events and announcements will appear here.</div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex-1 p-4 md:p-6 lg:p-8 pt-6 md:pt-8 lg:pt-10 bg-surface-50 dark:bg-surface-950 min-h-[calc(100vh-4rem)]">
