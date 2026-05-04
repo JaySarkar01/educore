@@ -45,6 +45,12 @@ export default async function TeachersDashboardPage() {
           <Link className="border border-border/50 rounded-xl p-4 bg-surface-50 dark:bg-surface-950 hover:border-brand-400" href="/dashboard/teachers/subjects">Marks / Subject Entry</Link>
           <Link className="border border-border/50 rounded-xl p-4 bg-surface-50 dark:bg-surface-950 hover:border-brand-400" href="/dashboard/teachers/reports">Reports</Link>
           <Link className="border border-border/50 rounded-xl p-4 bg-surface-50 dark:bg-surface-950 hover:border-brand-400" href="/dashboard/teachers/attendance">Today's Classes & Attendance</Link>
+          <Link className="border border-brand-400/60 rounded-xl p-4 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 hover:border-brand-500 hover:shadow-md transition-all duration-200" href="/dashboard/teachers/homework-generator">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">✨</span>
+              <span className="font-semibold text-blue-900 dark:text-blue-100">AI Homework Generator</span>
+            </div>
+          </Link>
         </div>
       </div>
     )

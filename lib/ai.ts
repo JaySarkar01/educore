@@ -24,8 +24,8 @@ export async function efficientGenerate(args: {
       system_instruction: systemInstruction,
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       config: {
-        maxOutputTokens: 1024,
-        temperature: 0.2, // Lower temperature for more consistent, efficient results
+        maxOutputTokens: 4096,
+        temperature: 0.3,
       },
     });
 

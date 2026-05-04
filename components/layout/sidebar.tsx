@@ -43,7 +43,8 @@ function isRouteAllowedForRole(role: RoleName, href?: string) {
       href === "/dashboard/teachers" ||
       href.startsWith("/dashboard/teachers/attendance") ||
       href.startsWith("/dashboard/teachers/subjects") ||
-      href.startsWith("/dashboard/teachers/reports")
+      href.startsWith("/dashboard/teachers/reports") ||
+      href.startsWith("/dashboard/teachers/homework-generator")
     )
   }
 
@@ -234,7 +235,8 @@ export function Sidebar({
     // teacher-focused navigation
     sections = [
       { items: [ { label: 'Overview', href: '/dashboard', icon: LayoutDashboard, key: 'overview' } ] },
-      { heading: 'CLASS', items: [ { label: 'My Students', href: '/dashboard/students', icon: GraduationCap, key: 'students' }, { label: 'Attendance', href: '/dashboard/teachers/attendance', icon: ClipboardCheck, key: 'attendance' }, { label: 'Subjects', href: '/dashboard/teachers/subjects', icon: BookOpen, key: 'subjects' } ] }
+      { heading: 'CLASS', items: [ { label: 'My Students', href: '/dashboard/students', icon: GraduationCap, key: 'students' }, { label: 'Attendance', href: '/dashboard/teachers/attendance', icon: ClipboardCheck, key: 'attendance' }, { label: 'Subjects', href: '/dashboard/teachers/subjects', icon: BookOpen, key: 'subjects' } ] },
+      { heading: 'AI TOOLS', items: [ { label: 'Homework Generator', href: '/dashboard/teachers/homework-generator', icon: Sparkles, key: 'homework-generator' } ] }
     ]
   } else {
     sections = schoolNav
