@@ -1,7 +1,28 @@
 import Link from "next/link"
 import { Building2 } from "lucide-react"
+import { connectToDatabase } from "@/lib/db"
+import { SystemSettingsModel } from "@/lib/models/SystemSettings"
 
-export function Footer() {
+async function getSettings() {
+  try {
+    await connectToDatabase()
+    const settings = await SystemSettingsModel.findOne({}).lean()
+    // Explicitly serialize to avoid Mongoose document serialization issues
+    return settings ? JSON.parse(JSON.stringify(settings)) : null
+  } catch (error) {
+    return null
+  }
+}
+
+export async function Footer() {
+  const rawSettings = await getSettings()
+  const settings = rawSettings || {
+    appName: 'EduCore',
+    appVersion: '1.0.0',
+    appLogo: '',
+    supportEmail: 'support@educore.com'
+  }
+
   return (
     <footer className="border-t border-border/40 bg-surface-50 dark:bg-surface-950 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -11,7 +32,7 @@ export function Footer() {
               <div className="bg-brand-600 text-white p-1 rounded-md">
                 <Building2 className="w-5 h-5" />
               </div>
-              <span className="font-bold text-xl tracking-tight text-fg">EduCore</span>
+              <span className="font-bold text-xl tracking-tight text-fg">{settings.appName}</span>
             </Link>
             <p className="text-muted-fg max-w-sm text-base">
               Next-generation Multi-Tenant School ERP SaaS. Digitize management, automate tasks, and empower educators globally.
@@ -32,11 +53,12 @@ export function Footer() {
               <li><Link href="/privacy-policy" className="hover:text-fg transition-colors">Privacy Policy</Link></li>
               <li><Link href="/terms-of-service" className="hover:text-fg transition-colors">Terms of Service</Link></li>
               <li><Link href="/contact-us" className="hover:text-fg transition-colors">Contact Us</Link></li>
+              <li><a href={`mailto:${settings.supportEmail}`} className="hover:text-fg transition-colors">{settings.supportEmail}</a></li>
             </ul>
           </div>
         </div>
         <div className="border-t border-border/40 mt-12 pt-8 text-muted-fg text-center sm:text-left">
-          <p>© {new Date().getFullYear()} EduCore Inc. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} {settings.appName} Inc. All rights reserved.</p>
         </div>
       </div>
     </footer>

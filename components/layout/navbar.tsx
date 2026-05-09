@@ -7,7 +7,12 @@ import { SessionPayload } from "@/lib/session"
 import { logout } from "@/app/actions/school"
 import { ModeToggle } from "@/components/ui/theme-switcher"
 
-export function Navbar({ session }: { session: SessionPayload | null }) {
+interface NavbarProps {
+  session: SessionPayload | null
+  appName?: string
+}
+
+export function Navbar({ session, appName = 'EduCore' }: NavbarProps) {
   return (
     <nav className="fixed top-0 w-full z-50 glass-effect border-b border-border/40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -15,7 +20,7 @@ export function Navbar({ session }: { session: SessionPayload | null }) {
           <div className="bg-brand-600 text-white p-1.5 rounded-lg group-hover:bg-brand-500 transition-colors">
             <Building2 className="w-5 h-5" />
           </div>
-          <span className="font-bold text-xl tracking-tight text-fg">EduCore</span>
+          <span className="font-bold text-xl tracking-tight text-fg">{appName}</span>
         </Link>
         
         <div className="hidden md:flex items-center space-x-8 text-sm font-medium text-muted-fg">

@@ -3,7 +3,6 @@ import { Bell, Search, Menu, LogOut, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { logout } from '@/app/actions/school'
 import { ModeToggle } from '@/components/ui/theme-switcher'
-import Link from 'next/link'
 import { useMobileSidebar } from './mobile-sidebar-context'
 
 export function DashboardNavbar({ adminName = 'Admin User', role = 'Administrator' }: { adminName?: string, role?: string }) {
@@ -17,26 +16,12 @@ export function DashboardNavbar({ adminName = 'Admin User', role = 'Administrato
         <Button variant="ghost" size="icon" className="md:hidden text-muted-fg hover:text-fg" onClick={toggleSidebar}>
           <Menu className="w-5 h-5" />
         </Button>
-        <div className="relative hidden sm:flex items-center text-muted-fg">
-          <Search className="absolute left-3 w-4 h-4" />
-          <input 
-            type="text" 
-            placeholder="Search students, staff, classes..." 
-            className="h-10 w-72 rounded-lg border border-border bg-surface-100 dark:bg-surface-900/50 pl-10 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 transition-all placeholder:text-muted-fg/70"
-          />
-        </div>
+        
       </div>
       <div className="flex items-center gap-4">
-        <Link href="/">
-          <Button variant="ghost" size="sm" className="hidden sm:inline-flex gap-2 text-muted-fg hover:text-fg">
-            <ExternalLink className="w-4 h-4" /> View Site
-          </Button>
-        </Link>
+        
         <ModeToggle />
-        <Button variant="ghost" size="icon" className="relative text-muted-fg hover:text-fg">
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-brand-500 rounded-full border border-surface-50 dark:border-surface-950"></span>
-        </Button>
+       
         
         <div className="h-6 w-px bg-border/50 mx-2"></div>
         

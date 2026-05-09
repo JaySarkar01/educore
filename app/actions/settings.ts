@@ -20,34 +20,38 @@ export async function getSystemSettings() {
     settings = newSettings.toObject()
   }
   
+  // Explicitly serialize to plain object to avoid serialization issues
+  const plainSettings = JSON.parse(JSON.stringify(settings))
+  
   return {
-    id: settings._id.toString(),
-    appName: settings.appName,
-    appVersion: settings.appVersion,
-    appLogo: settings.appLogo,
-    emailProvider: settings.emailProvider,
-    emailFrom: settings.emailFrom,
-    emailHost: settings.emailHost,
-    emailPort: settings.emailPort,
-    emailUser: settings.emailUser,
-    emailPassword: settings.emailPassword,
-    smsProvider: settings.smsProvider,
-    smsApiKey: settings.smsApiKey,
-    smsAccountId: settings.smsAccountId,
-    maintenanceMode: settings.maintenanceMode,
-    maintenanceMessage: settings.maintenanceMessage,
-    enableStudentRegistration: settings.enableStudentRegistration,
-    enableSchoolRegistration: settings.enableSchoolRegistration,
-    enablePayments: settings.enablePayments,
-    enableEmailNotifications: settings.enableEmailNotifications,
-    enableSmsNotifications: settings.enableSmsNotifications,
-    maxUploadSize: settings.maxUploadSize,
-    backupEnabled: settings.backupEnabled,
-    backupFrequency: settings.backupFrequency,
-    defaultCurrency: settings.defaultCurrency,
-    timezone: settings.timezone,
-    apiRateLimit: settings.apiRateLimit,
-    sessionTimeout: settings.sessionTimeout,
+    id: plainSettings._id.toString(),
+    appName: plainSettings.appName,
+    appVersion: plainSettings.appVersion,
+    appLogo: plainSettings.appLogo,
+    supportEmail: plainSettings.supportEmail,
+    emailProvider: plainSettings.emailProvider,
+    emailFrom: plainSettings.emailFrom,
+    emailHost: plainSettings.emailHost,
+    emailPort: plainSettings.emailPort,
+    emailUser: plainSettings.emailUser,
+    emailPassword: plainSettings.emailPassword,
+    smsProvider: plainSettings.smsProvider,
+    smsApiKey: plainSettings.smsApiKey,
+    smsAccountId: plainSettings.smsAccountId,
+    maintenanceMode: plainSettings.maintenanceMode,
+    maintenanceMessage: plainSettings.maintenanceMessage,
+    enableStudentRegistration: plainSettings.enableStudentRegistration,
+    enableSchoolRegistration: plainSettings.enableSchoolRegistration,
+    enablePayments: plainSettings.enablePayments,
+    enableEmailNotifications: plainSettings.enableEmailNotifications,
+    enableSmsNotifications: plainSettings.enableSmsNotifications,
+    maxUploadSize: plainSettings.maxUploadSize,
+    backupEnabled: plainSettings.backupEnabled,
+    backupFrequency: plainSettings.backupFrequency,
+    defaultCurrency: plainSettings.defaultCurrency,
+    timezone: plainSettings.timezone,
+    apiRateLimit: plainSettings.apiRateLimit,
+    sessionTimeout: plainSettings.sessionTimeout,
   }
 }
 
@@ -81,6 +85,7 @@ export async function updateSystemSettings(data: Record<string, any>) {
         appName: data.appName || "EduCore",
         appVersion: data.appVersion || "1.0.0",
         appLogo: data.appLogo || "",
+        supportEmail: data.supportEmail || "support@educore.com",
         emailProvider: data.emailProvider || "smtp",
         emailFrom: data.emailFrom || "noreply@educore.com",
         emailHost: data.emailHost || "",
@@ -108,8 +113,13 @@ export async function updateSystemSettings(data: Record<string, any>) {
       { upsert: true, new: true, lean: true }
     )
 
+    // Serialize the settings to plain object
+    const plainSettings = settings ? JSON.parse(JSON.stringify(settings)) : null
+
+    // Revalidate all paths to ensure updated settings are reflected everywhere
+    revalidatePath("/")
     revalidatePath("/admin/settings")
-    return { success: true, settings }
+    return { success: true, settings: plainSettings }
   } catch (error) {
     return { error: "Failed to update settings" }
   }

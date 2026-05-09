@@ -13,6 +13,7 @@ interface SettingsData {
   appName: string
   appVersion: string
   appLogo: string
+  supportEmail: string
   emailProvider: 'smtp' | 'sendgrid' | 'mailgun'
   emailFrom: string
   emailHost: string
@@ -224,6 +225,16 @@ export default function SettingsPage() {
                         value={settings.appVersion}
                         onChange={(e) => updateField('appVersion', e.target.value)}
                         placeholder="1.0.0"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="supportEmail">Support Email</Label>
+                      <Input
+                        id="supportEmail"
+                        type="email"
+                        value={settings.supportEmail}
+                        onChange={(e) => updateField('supportEmail', e.target.value)}
+                        placeholder="support@educore.com"
                       />
                     </div>
                     <div>

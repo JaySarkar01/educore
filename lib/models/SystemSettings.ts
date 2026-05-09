@@ -4,6 +4,7 @@ export interface ISystemSettings extends Document {
   appName: string
   appVersion: string
   appLogo: string
+  supportEmail: string
   
   emailProvider: 'smtp' | 'sendgrid' | 'mailgun'
   emailFrom: string
@@ -44,6 +45,7 @@ const SystemSettingsSchema = new Schema<ISystemSettings>(
     appName: { type: String, default: 'EduCore', required: true },
     appVersion: { type: String, default: '1.0.0', required: true },
     appLogo: { type: String, default: '', required: false },
+    supportEmail: { type: String, default: 'support@educore.com', required: true },
     
     emailProvider: { type: String, enum: ['smtp', 'sendgrid', 'mailgun'], default: 'smtp' },
     emailFrom: { type: String, default: 'noreply@educore.com', required: true },
