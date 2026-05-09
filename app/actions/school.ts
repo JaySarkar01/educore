@@ -4,6 +4,7 @@ import { connectToDatabase } from "@/lib/db"
 import { SchoolModel } from "@/lib/models/School"
 import { UserModel } from "@/lib/models/User"
 import { RoleModel } from "@/lib/models/Role"
+import { StudentModel } from "@/lib/models/Student"
 import { revalidatePath } from "next/cache"
 import { createSession, deleteSession } from "@/lib/session"
 import { redirect } from "next/navigation"
@@ -127,6 +128,117 @@ export async function rejectSchool(id: string, formData?: FormData) {
   await connectToDatabase()
   await SchoolModel.findByIdAndUpdate(id, { status: "Rejected" })
   revalidatePath('/admin')
+}
+
+export async function updateSchool(id: string, data: Record<string, any>) {
+  const auth = await authorizePermission("school.approve")
+  if (!auth.allowed) return { error: "Unauthorized" }
+
+  const validationError = validateSchoolData(data)
+  if (validationError) return { error: validationError }
+
+  await connectToDatabase()
+  
+  // Check if email is being changed and if it's unique
+  if (data.adminEmail) {
+    const existing = await SchoolModel.findOne({ adminEmail: data.adminEmail, _id: { $ne: id } })
+    if (existing) return { error: "This email is already in use by another school." }
+  }
+
+  const updatedSchool = await SchoolModel.findByIdAndUpdate(id, data, { new: true }).lean()
+  revalidatePath('/admin/schools')
+  return { success: true, school: updatedSchool }
+}
+
+export async function deleteSchool(id: string) {
+  const auth = await authorizePermission("school.approve")
+  if (!auth.allowed) return { error: "Unauthorized" }
+
+  await connectToDatabase()
+  
+  // Delete associated user
+  await UserModel.deleteOne({ email: { $in: await SchoolModel.findById(id).select("adminEmail") } })
+  
+  // Delete school
+  await SchoolModel.findByIdAndDelete(id)
+  revalidatePath('/admin/schools')
+  return { success: true }
+}
+
+export async function createSchool(data: Record<string, any>) {
+  const auth = await authorizePermission("school.approve")
+  if (!auth.allowed) return { error: "Unauthorized" }
+
+  const validationError = validateSchoolData(data)
+  if (validationError) return { error: validationError }
+
+  await connectToDatabase()
+  await ensureRBACSeeded()
+
+  const existingSchool = await SchoolModel.findOne({ adminEmail: data.adminEmail })
+  if (existingSchool) {
+    return { error: "An account with this administrator email already exists." }
+  }
+
+  const hashedPassword = await bcrypt.hash(data.password, 12)
+
+  const school = await SchoolModel.create({
+    schoolName: data.schoolName,
+    schoolEmail: data.schoolEmail,
+    phone: data.phone,
+    address: data.address || "",
+    city: data.city,
+    state: data.state || "",
+    zip: data.zip || "",
+    adminName: data.adminName,
+    adminEmail: data.adminEmail,
+    password: hashedPassword,
+    message: data.message || "",
+    status: data.status || "Pending",
+    date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+  })
+
+  const schoolAdminRole = await RoleModel.findOne({ name: "SCHOOL_ADMIN" }).lean()
+  if (schoolAdminRole) {
+    await UserModel.updateOne(
+      { email: data.adminEmail },
+      {
+        $set: {
+          schoolId: school._id.toString(),
+          fullName: data.adminName,
+          email: data.adminEmail,
+          password: hashedPassword,
+          roleId: schoolAdminRole._id,
+          roleCode: "SCHOOL_ADMIN",
+          isActive: true,
+          mustChangePassword: false,
+        },
+      },
+      { upsert: true }
+    )
+  }
+
+  revalidatePath('/admin/schools')
+  const plainSchool = JSON.parse(JSON.stringify(school.toObject()))
+  return { success: true, school: plainSchool }
+}
+
+function validateSchoolData(data: Record<string, any>) {
+  if (!data.schoolName?.trim())
+    return "School name is required."
+  if (!data.schoolEmail?.trim() || !isValidEmail(data.schoolEmail))
+    return "A valid school email is required."
+  if (!data.phone || !/^\d{10}$/.test(data.phone))
+    return "Phone number must be exactly 10 digits (numbers only)."
+  if (!data.city?.trim())
+    return "City is required."
+  if (data.zip && !/^\d{6}$/.test(data.zip))
+    return "ZIP code must be exactly 6 digits."
+  if (!data.adminName?.trim())
+    return "Administrator full name is required."
+  if (!data.adminEmail?.trim() || !isValidEmail(data.adminEmail))
+    return "A valid administrator email is required."
+  return null
 }
 
 export async function getSchools() {
@@ -276,5 +388,24 @@ export async function getSchoolProfile() {
     role,
     roleLabel: ROLE_LABELS[role],
     permissions: context?.permissions || ROLE_PERMISSIONS[role],
+  }
+}
+
+export async function getAdminStats() {
+  const auth = await authorizePermission("school.view")
+  if (!auth.allowed) return null
+
+  await connectToDatabase()
+
+  const totalStudents = await StudentModel.countDocuments({})
+  const totalSchools = await SchoolModel.countDocuments({})
+  const approvedSchools = await SchoolModel.countDocuments({ status: "Approved" })
+  const pendingSchools = await SchoolModel.countDocuments({ status: "Pending" })
+
+  return {
+    totalStudents,
+    totalSchools,
+    approvedSchools,
+    pendingSchools,
   }
 }

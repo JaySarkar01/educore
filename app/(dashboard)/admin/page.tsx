@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Building, CheckCircle2, XCircle } from "lucide-react"
-import { getSchools, approveSchool, rejectSchool } from "@/app/actions/school"
+import { getSchools, approveSchool, rejectSchool, getAdminStats } from "@/app/actions/school"
 
 export default async function AdminDashboard() {
   const schools = await getSchools()
+  const stats = await getAdminStats()
 
   return (
     <div className="flex-1 p-8 pt-24 bg-surface-50 dark:bg-surface-950 min-h-screen">
@@ -14,15 +15,15 @@ export default async function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardHeader className="pb-2 text-sm text-muted-fg font-medium">Total registered schools</CardHeader>
-            <CardContent className="text-3xl font-bold text-fg">{schools.length}</CardContent>
+            <CardContent className="text-3xl font-bold text-fg">{stats?.totalSchools || schools.length}</CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2 text-sm text-muted-fg font-medium">Pending Approvals</CardHeader>
-            <CardContent className="text-3xl font-bold text-amber-500">{schools.filter(s => s.status === "Pending").length}</CardContent>
+            <CardContent className="text-3xl font-bold text-amber-500">{stats?.pendingSchools || schools.filter(s => s.status === "Pending").length}</CardContent>
           </Card>
           <Card>
-            <CardHeader className="pb-2 text-sm text-muted-fg font-medium">Active Students (Mock)</CardHeader>
-            <CardContent className="text-3xl font-bold text-brand-600">45,231</CardContent>
+            <CardHeader className="pb-2 text-sm text-muted-fg font-medium">Active Students</CardHeader>
+            <CardContent className="text-3xl font-bold text-brand-600">{stats?.totalStudents || 0}</CardContent>
           </Card>
         </div>
 
@@ -59,9 +60,9 @@ export default async function AdminDashboard() {
                       <td className="px-6 py-4 text-muted-fg">{school.date}</td>
                       <td className="px-6 py-4">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          school.status === "Approved" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400" :
-                          school.status === "Rejected" ? "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400" :
-                          "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400"
+                          school.status === "Approved" ? "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300" :
+                          school.status === "Rejected" ? "bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-300" :
+                          "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300"
                         }`}>
                           {school.status}
                         </span>
@@ -70,12 +71,12 @@ export default async function AdminDashboard() {
                         {school.status === "Pending" && (
                           <div className="flex gap-2 items-center">
                             <form action={approveSchool.bind(null, school.id)}>
-                              <Button type="submit" size="sm" variant="outline" className="text-emerald-600 border-emerald-200 hover:bg-emerald-50 dark:text-emerald-400 dark:border-emerald-500/30 dark:hover:bg-emerald-500/10 h-8">
+                              <Button type="submit" size="sm" variant="outline" className="text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/50 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 h-8">
                                 Approve
                               </Button>
                             </form>
                             <form action={rejectSchool.bind(null, school.id)}>
-                              <Button type="submit" size="sm" variant="ghost" className="text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-500 h-8 px-2">
+                              <Button type="submit" size="sm" variant="ghost" className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 h-8 px-2">
                                 Reject
                               </Button>
                             </form>
