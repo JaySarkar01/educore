@@ -92,7 +92,7 @@ export function AttendanceFilterForm({
       </div>
 
       <Button type="submit" className="h-10 bg-brand-600 hover:bg-brand-700 text-white shadow-sm shadow-brand-500/20 w-full">
-        <Filter className="w-4 h-4 mr-2"/> Load Roster
+        <Filter className="w-4 h-4 mr-2"/> Load
       </Button>
     </form>
   )
