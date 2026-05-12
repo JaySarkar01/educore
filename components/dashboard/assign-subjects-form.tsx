@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Loader2, Check } from "lucide-react"
 import { useEffect } from "react"
 
-export function AssignSubjectsRow({ teacherId, initialSubjects }: { teacherId: string, initialSubjects: string | string[] }) {
+export function AssignSubjectsRow({ teacherId, initialSubjects, isReadonly }: { teacherId: string, initialSubjects: string | string[], isReadonly?: boolean }) {
   const [globalSubjects, setGlobalSubjects] = useState<any[]>([])
   const initialString = typeof initialSubjects === 'string' ? initialSubjects : (initialSubjects || []).join(', ')
   const [selectedFields, setSelectedFields] = useState<string[]>(
@@ -20,6 +20,7 @@ export function AssignSubjectsRow({ teacherId, initialSubjects }: { teacherId: s
   }, [])
 
   const toggleSubject = (sub: string) => {
+    if (isReadonly) return;
     if (selectedFields.includes(sub)) {
       setSelectedFields(selectedFields.filter(s => s !== sub))
     } else {
@@ -43,28 +44,31 @@ export function AssignSubjectsRow({ teacherId, initialSubjects }: { teacherId: s
            <button
              key={sub._id}
              onClick={() => toggleSubject(sub.subjectName)}
+             disabled={isReadonly}
              className={`px-2 py-1 text-xs font-semibold rounded-md border transition-colors ${
                selectedFields.includes(sub.subjectName) 
                  ? 'bg-brand-500/10 border-brand-500/30 text-brand-700 dark:bg-brand-500/20 dark:text-brand-300' 
                  : 'bg-surface-100 dark:bg-surface-900 border-border/40 text-muted-fg hover:bg-surface-200 dark:hover:bg-surface-800'
-             }`}
+             } ${isReadonly ? 'opacity-70 cursor-default' : ''}`}
            >
              {sub.subjectName}
            </button>
          ))}
       </div>
-      <div className="flex justify-end pt-1">
-        <Button 
-          onClick={handleSave} 
-          disabled={isPending || selectedFields.join(', ') === initialString} 
-          size="sm" 
-          variant="secondary"
-          className="h-8 text-xs shadow-sm shadow-brand-500/10 border border-border/50"
-        >
-          {isPending ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : saved ? <Check className="w-3 h-3 mr-1 text-emerald-500"/> : null}
-          {saved ? "Saved Data" : "Update Assignments"}
-        </Button>
-      </div>
+      {!isReadonly && (
+        <div className="flex justify-end pt-1">
+          <Button 
+            onClick={handleSave} 
+            disabled={isPending || selectedFields.join(', ') === initialString} 
+            size="sm" 
+            variant="secondary"
+            className="h-8 text-xs shadow-sm shadow-brand-500/10 border border-border/50"
+          >
+            {isPending ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : saved ? <Check className="w-3 h-3 mr-1 text-emerald-500"/> : null}
+            {saved ? "Saved Data" : "Update Assignments"}
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

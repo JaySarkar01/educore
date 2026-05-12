@@ -1,9 +1,12 @@
 import { getTeachers } from "@/app/actions/teacher"
 import { AssignSubjectsRow } from "@/components/dashboard/assign-subjects-form"
 import { BookOpen } from "lucide-react"
+import { getAuthContext } from "@/lib/auth"
 
 export default async function AssignSubjectsPage() {
   const teachers = await getTeachers()
+  const auth = await getAuthContext()
+  const isReadonly = auth?.roleName !== "SUPER_ADMIN" && auth?.roleName !== "SCHOOL_ADMIN"
 
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
@@ -41,7 +44,7 @@ export default async function AssignSubjectsPage() {
                   </td>
                   <td className="px-6 py-4 text-fg font-medium">{t.department || 'N/A'}</td>
                   <td className="px-6 py-4">
-                     <AssignSubjectsRow teacherId={t._id} initialSubjects={t.subjects || []} />
+                     <AssignSubjectsRow teacherId={t._id} initialSubjects={t.subjects || []} isReadonly={isReadonly} />
                   </td>
                 </tr>
               ))}
