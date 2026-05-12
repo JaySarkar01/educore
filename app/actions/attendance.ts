@@ -17,14 +17,7 @@ export async function getClassAttendance(className: string, section: string, dat
   
   await connectToDatabase()
 
-  if (auth.context.roleName === "TEACHER") {
-    const assigned = await AcademicClassModel.findOne({
-      schoolId: auth.context.schoolId,
-      className,
-      classTeacherId: auth.context.linkedTeacherId,
-    }).lean()
-    if (!assigned) return null
-  }
+
   
   // Build student query
   const studentQuery: any = { 
@@ -73,14 +66,7 @@ export async function saveClassAttendance(className: string, section: string, da
 
   await connectToDatabase()
 
-  if (auth.context.roleName === "TEACHER") {
-    const assigned = await AcademicClassModel.findOne({
-      schoolId: auth.context.schoolId,
-      className,
-      classTeacherId: auth.context.linkedTeacherId,
-    }).lean()
-    if (!assigned) return { error: "Not authorized for this class" }
-  }
+
 
   const sec = (!section || section === 'All') ? "" : section
 
@@ -140,18 +126,6 @@ export async function getStudentAttendanceStats(studentId: string) {
 
   if (auth.context.roleName === "TEACHER") {
     if (!auth.context.linkedTeacherId) return null
-    const student = await StudentModel.findOne({ _id: studentId, schoolId: auth.context.schoolId })
-      .select("className")
-      .lean()
-    if (!student) return null
-
-    const assigned = await AcademicClassModel.findOne({
-      schoolId: auth.context.schoolId,
-      className: (student as any).className,
-      classTeacherId: auth.context.linkedTeacherId,
-    }).lean()
-
-    if (!assigned) return null
   }
 
   // Find all attendance docs that contain exactly this student
@@ -198,14 +172,7 @@ export async function getMonthlyClassAttendance(className: string, section: stri
   
   await connectToDatabase()
 
-  if (auth.context.roleName === "TEACHER") {
-    const assigned = await AcademicClassModel.findOne({
-      schoolId: auth.context.schoolId,
-      className,
-      classTeacherId: auth.context.linkedTeacherId,
-    }).lean()
-    if (!assigned) return []
-  }
+
 
   const sec = (!section || section === 'All') ? "" : section
 

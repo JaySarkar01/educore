@@ -177,7 +177,11 @@ export default async function SchoolDashboard() {
             <CardContent className="space-y-3">
               <Link href="/dashboard/students/add" className="block w-full text-left p-3 rounded-md border border-border/50 text-sm hover:bg-surface-100 dark:hover:bg-surface-900 transition-colors text-fg font-medium bg-surface-50 dark:bg-surface-950">Enroll New Student</Link>
               <Link href="/dashboard/classes/manage" className="block w-full text-left p-3 rounded-md border border-border/50 text-sm hover:bg-surface-100 dark:hover:bg-surface-900 transition-colors text-fg font-medium bg-surface-50 dark:bg-surface-950">Build Master Curriculum</Link>
-              <Link href="/dashboard/teachers/attendance" className="block w-full text-left p-3 rounded-md border border-border/50 text-sm hover:bg-surface-100 dark:hover:bg-surface-900 transition-colors text-fg font-medium bg-surface-50 dark:bg-surface-950">Mark Master Attendance</Link>
+              {auth?.roleName === "TEACHER" ? (
+                <Link href="/dashboard/students/attendance" className="block w-full text-left p-3 rounded-md border border-border/50 text-sm hover:bg-surface-100 dark:hover:bg-surface-900 transition-colors text-fg font-medium bg-surface-50 dark:bg-surface-950">Mark Student Attendance</Link>
+              ) : (
+                <Link href="/dashboard/teachers/attendance" className="block w-full text-left p-3 rounded-md border border-border/50 text-sm hover:bg-surface-100 dark:hover:bg-surface-900 transition-colors text-fg font-medium bg-surface-50 dark:bg-surface-950">Mark Master Attendance</Link>
+              )}
               <Link href="/dashboard/students/fees" className="block w-full text-left p-3 rounded-md border border-border/50 text-sm hover:bg-surface-100 dark:hover:bg-surface-900 transition-colors text-fg font-medium bg-surface-50 dark:bg-surface-950">Track Invoices</Link>
             </CardContent>
           </Card>

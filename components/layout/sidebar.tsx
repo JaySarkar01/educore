@@ -229,13 +229,17 @@ export function Sidebar({
     // minimal student-focused navigation
     sections = [
       { items: [ { label: 'Overview', href: '/dashboard', icon: LayoutDashboard, key: 'overview' } ] },
-      { heading: 'MY', items: [ { label: 'My Profile', href: '/dashboard/students', icon: GraduationCap, key: 'my-profile' }, { label: 'Attendance', href: '/dashboard/students/attendance', icon: ClipboardCheck, key: 'my-attendance' }, { label: 'Fees', href: '/dashboard/students/fees', icon: CreditCard, key: 'my-fees' } ] }
+      { heading: 'MY', items: [
+        { label: 'My Profile', href: '/dashboard/students', icon: GraduationCap, key: 'my-profile' },
+        { label: 'Attendance', href: '/dashboard/students/attendance', icon: ClipboardCheck, key: 'my-attendance' },
+        { label: 'Fees', href: '/dashboard/students/fees', icon: CreditCard, key: 'my-fees' }
+      ] }
     ]
   } else if (isTeacher) {
     // teacher-focused navigation
     sections = [
       { items: [ { label: 'Overview', href: '/dashboard', icon: LayoutDashboard, key: 'overview' } ] },
-      { heading: 'CLASS', items: [ { label: 'My Students', href: '/dashboard/students', icon: GraduationCap, key: 'students' }, { label: 'Attendance', href: '/dashboard/teachers/attendance', icon: ClipboardCheck, key: 'attendance' }, { label: 'Subjects', href: '/dashboard/teachers/subjects', icon: BookOpen, key: 'subjects' } ] },
+      { heading: 'CLASS', items: [ { label: 'My Students', href: '/dashboard/students', icon: GraduationCap, key: 'students' }, { label: 'Student Attendance', href: '/dashboard/students/attendance', icon: ClipboardCheck, key: 'attendance' }, { label: 'Subjects', href: '/dashboard/teachers/subjects', icon: BookOpen, key: 'subjects' } ] },
       { heading: 'AI TOOLS', items: [ { label: 'Homework Generator', href: '/dashboard/teachers/homework-generator', icon: Sparkles, key: 'homework-generator' } ] }
     ]
   } else {
