@@ -64,6 +64,7 @@ export const ROLE_PERMISSIONS: Record<RoleName, PermissionKey[]> = {
     "dashboard.view",
     "announcement.view",
     "student.view",
+    "student.edit",
     "student.academic.view",
     "student.academic.edit",
     "teacher.view",

@@ -38,19 +38,7 @@ export async function getStudents(querySearch?: string, classFilter?: string) {
     query._id = auth.context.linkedStudentId
   }
 
-  if (auth.context.roleName === "TEACHER") {
-    if (!auth.context.linkedTeacherId) return []
-    const classRows = await AcademicClassModel.find({
-      schoolId: auth.context.schoolId,
-      classTeacherId: auth.context.linkedTeacherId,
-    })
-      .select("className")
-      .lean()
 
-    const allowedClasses = Array.from(new Set((classRows as any[]).map((c) => c.className).filter(Boolean)))
-    if (!allowedClasses.length) return []
-    query.className = { $in: allowedClasses }
-  }
 
   if (querySearch) {
     query.$or = [
@@ -87,19 +75,7 @@ export async function getStudentById(id: string) {
       if (!auth.context.linkedStudentId || auth.context.linkedStudentId !== id) return null
     }
 
-    if (auth.context.roleName === "TEACHER") {
-      if (!auth.context.linkedTeacherId) return null
-      const classRows = await AcademicClassModel.find({
-        schoolId: auth.context.schoolId,
-        classTeacherId: auth.context.linkedTeacherId,
-      })
-        .select("className")
-        .lean()
 
-      const allowedClasses = Array.from(new Set((classRows as any[]).map((c) => c.className).filter(Boolean)))
-      if (!allowedClasses.length) return null
-      query.className = { $in: allowedClasses }
-    }
 
     const student = await StudentModel.findOne(query).lean()
     if (!student) return null

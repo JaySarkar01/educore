@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { getAllInvoices } from "@/app/actions/fees"
 import { getAuthContext } from "@/lib/auth"
+import { hasPermission } from "@/lib/rbac"
 
 export default async function StudentsDashboard() {
   const auth = await getAuthContext()
@@ -71,11 +72,13 @@ export default async function StudentsDashboard() {
           <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-fg tracking-tight">Students Dashboard</h1>
           <p className="text-muted-fg mt-1 text-sm md:text-base">Overview of institutional enrollment metrics.</p>
         </div>
-        <Link href="/dashboard/students/add">
-          <Button className="gap-2 shadow-sm shadow-brand-500/20 w-full sm:w-auto">
-            <Plus className="w-4 h-4" /> Enroll Student
-          </Button>
-        </Link>
+        {hasPermission(auth?.permissions, "student.create") && (
+          <Link href="/dashboard/students/add">
+            <Button className="gap-2 shadow-sm shadow-brand-500/20 w-full sm:w-auto">
+              <Plus className="w-4 h-4" /> Enroll Student
+            </Button>
+          </Link>
+        )}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
