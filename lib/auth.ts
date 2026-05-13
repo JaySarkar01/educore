@@ -4,6 +4,7 @@ import { connectToDatabase } from "@/lib/db"
 import { RoleModel } from "@/lib/models/Role"
 import { UserModel } from "@/lib/models/User"
 import { hasPermission, normalizeRoleName, ROLE_PERMISSIONS, RoleName } from "@/lib/rbac"
+import { AcademicClassModel } from "@/lib/models/AcademicClass"
 import { decrypt, SessionPayload } from "@/lib/session"
 
 export type AuthContext = {
@@ -14,6 +15,7 @@ export type AuthContext = {
   userId?: string
   linkedTeacherId?: string
   linkedStudentId?: string
+  isClassTeacher?: boolean
 }
 
 type PermissionAuthorized = {
@@ -47,6 +49,7 @@ async function resolveContextFromSession(session: SessionPayload | null): Promis
 
   let linkedTeacherId = ""
   let linkedStudentId = ""
+  let isClassTeacher = false
 
   if (session.roleId || session.userId) {
     await connectToDatabase()
@@ -64,6 +67,11 @@ async function resolveContextFromSession(session: SessionPayload | null): Promis
       if (user) {
         linkedTeacherId = (user as any).linkedTeacherId || ""
         linkedStudentId = (user as any).linkedStudentId || ""
+        
+        if (linkedTeacherId) {
+          const assignedClass = await AcademicClassModel.findOne({ classTeacherId: linkedTeacherId }).lean()
+          isClassTeacher = !!assignedClass
+        }
       }
     }
   }
@@ -76,6 +84,7 @@ async function resolveContextFromSession(session: SessionPayload | null): Promis
     userId: session.userId,
     linkedTeacherId,
     linkedStudentId,
+    isClassTeacher,
   }
 }
 

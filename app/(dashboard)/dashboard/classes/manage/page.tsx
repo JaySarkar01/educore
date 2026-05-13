@@ -1,10 +1,13 @@
 import { getClasses, deleteClass } from "@/app/actions/academic"
+import { getTeachers } from "@/app/actions/teacher"
 import { AddClassForm } from "@/components/dashboard/add-class-form"
+import { AssignClassTeacherSelect } from "@/components/dashboard/assign-class-teacher-select"
 import { Button } from "@/components/ui/button"
 import { Trash2, Layers } from "lucide-react"
 
 export default async function ManageClassesPage() {
   const classes = await getClasses()
+  const teachers = await getTeachers()
 
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
@@ -25,15 +28,16 @@ export default async function ManageClassesPage() {
           <table className="w-full text-sm text-left">
             <thead className="text-xs text-muted-fg uppercase bg-surface-50 dark:bg-surface-900/50 border-b border-border/40">
               <tr>
-                <th className="px-6 py-4 font-semibold w-1/3">Class / Grade Name</th>
-                <th className="px-6 py-4 font-semibold w-1/3">Active Sections</th>
-                <th className="px-6 py-4 font-semibold text-right w-1/3">Actions</th>
+                <th className="px-6 py-4 font-semibold w-1/4">Class / Grade Name</th>
+                <th className="px-6 py-4 font-semibold w-1/4">Active Sections</th>
+                <th className="px-6 py-4 font-semibold w-1/4">Class Teacher</th>
+                <th className="px-6 py-4 font-semibold text-right w-1/4">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/40">
               {classes.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-6 py-12 text-center text-muted-fg">
+                  <td colSpan={4} className="px-6 py-12 text-center text-muted-fg">
                     No classes registered. Determine your school topology to begin.
                   </td>
                 </tr>
@@ -49,6 +53,9 @@ export default async function ManageClassesPage() {
                          <span key={i} className="px-2.5 py-1 bg-surface-200 dark:bg-surface-800 rounded text-xs font-semibold text-fg">{s}</span>
                        )) : <span className="text-muted-fg text-xs">No sub-sections</span>}
                     </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <AssignClassTeacherSelect classId={c._id} initialTeacherId={c.classTeacherId} teachers={teachers} />
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">

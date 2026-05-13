@@ -17,6 +17,16 @@ export async function getClassAttendance(className: string, section: string, dat
   
   await connectToDatabase()
 
+  if (auth.context.roleName === "TEACHER") {
+    if (!auth.context.linkedTeacherId || !auth.context.isClassTeacher) return null
+    const assigned = await AcademicClassModel.findOne({
+      schoolId: auth.context.schoolId,
+      className,
+      classTeacherId: auth.context.linkedTeacherId,
+    }).lean()
+    if (!assigned) return null
+  }
+
 
   
   // Build student query
@@ -65,6 +75,16 @@ export async function saveClassAttendance(className: string, section: string, da
   if (!auth.allowed || !auth.context.schoolId) return { error: "Not authorized" }
 
   await connectToDatabase()
+
+  if (auth.context.roleName === "TEACHER") {
+    if (!auth.context.linkedTeacherId || !auth.context.isClassTeacher) return { error: "Not authorized for this class" }
+    const assigned = await AcademicClassModel.findOne({
+      schoolId: auth.context.schoolId,
+      className,
+      classTeacherId: auth.context.linkedTeacherId,
+    }).lean()
+    if (!assigned) return { error: "Not authorized for this class" }
+  }
 
 
 
@@ -125,7 +145,19 @@ export async function getStudentAttendanceStats(studentId: string) {
   }
 
   if (auth.context.roleName === "TEACHER") {
-    if (!auth.context.linkedTeacherId) return null
+    if (!auth.context.linkedTeacherId || !auth.context.isClassTeacher) return null
+    const student = await StudentModel.findOne({ _id: studentId, schoolId: auth.context.schoolId })
+      .select("className")
+      .lean()
+    if (!student) return null
+
+    const assigned = await AcademicClassModel.findOne({
+      schoolId: auth.context.schoolId,
+      className: (student as any).className,
+      classTeacherId: auth.context.linkedTeacherId,
+    }).lean()
+
+    if (!assigned) return null
   }
 
   // Find all attendance docs that contain exactly this student
@@ -171,6 +203,16 @@ export async function getMonthlyClassAttendance(className: string, section: stri
   if (auth.context.roleName === "STUDENT") return []
   
   await connectToDatabase()
+
+  if (auth.context.roleName === "TEACHER") {
+    if (!auth.context.linkedTeacherId || !auth.context.isClassTeacher) return []
+    const assigned = await AcademicClassModel.findOne({
+      schoolId: auth.context.schoolId,
+      className,
+      classTeacherId: auth.context.linkedTeacherId,
+    }).lean()
+    if (!assigned) return []
+  }
 
 
 

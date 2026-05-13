@@ -5,6 +5,8 @@ import { AcademicClassModel } from "@/lib/models/AcademicClass"
 import { SubjectModel } from "@/lib/models/Subject"
 import { revalidatePath } from "next/cache"
 import { authorizePermission } from "@/lib/auth"
+import { logAudit } from "@/lib/audit"
+import { TeacherModel } from "@/lib/models/Teacher"
 
 // ---- CLASSES ----
 export async function getClasses() {
@@ -51,6 +53,36 @@ export async function deleteClass(id: string) {
   await connectToDatabase()
   await AcademicClassModel.findOneAndDelete({ _id: id, schoolId: auth.context.schoolId })
   revalidatePath('/dashboard/classes/manage')
+}
+
+export async function assignClassTeacher(classId: string, teacherId: string) {
+  const auth = await authorizePermission("class.manage")
+  if (!auth.allowed || !auth.context.schoolId) return { error: "Not authorized" }
+  
+  await connectToDatabase()
+  
+  const classRecord = await AcademicClassModel.findOne({ _id: classId, schoolId: auth.context.schoolId })
+  if (!classRecord) return { error: "Class not found" }
+  
+  let teacherName = "Unassigned"
+  if (teacherId) {
+    const teacher = await TeacherModel.findOne({ _id: teacherId, schoolId: auth.context.schoolId })
+    if (!teacher) return { error: "Teacher not found" }
+    teacherName = teacher.name
+  }
+  
+  classRecord.classTeacherId = teacherId || null
+  await classRecord.save()
+  
+  revalidatePath('/dashboard/classes/manage')
+  await logAudit(auth.context, {
+    action: "class.manage",
+    resource: "Class",
+    resourceId: classId,
+    details: { message: `Assigned ${teacherName} as Class Teacher for ${classRecord.className}` },
+  })
+  
+  return { success: true }
 }
 
 // ---- SUBJECTS ----

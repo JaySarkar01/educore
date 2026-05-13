@@ -19,7 +19,7 @@ type NavSubItem = {
   permission?: string
 }
 
-function isRouteAllowedForRole(role: RoleName, href?: string) {
+function isRouteAllowedForRole(role: RoleName, href?: string, isClassTeacher?: boolean) {
   if (!href || role === "SUPER_ADMIN" || role === "SCHOOL_ADMIN") return true
 
   if (role === "ACCOUNTANT") {
@@ -36,17 +36,27 @@ function isRouteAllowedForRole(role: RoleName, href?: string) {
   }
 
   if (role === "TEACHER") {
-    return (
+    if (
       href === "/dashboard" ||
-      href === "/dashboard/students" ||
-      href.startsWith("/dashboard/students/manage") ||
-      href.startsWith("/dashboard/students/attendance") ||
       href === "/dashboard/teachers" ||
       href.startsWith("/dashboard/teachers/attendance") ||
       href.startsWith("/dashboard/teachers/subjects") ||
       href.startsWith("/dashboard/teachers/reports") ||
       href.startsWith("/dashboard/teachers/homework-generator")
-    )
+    ) {
+      return true
+    }
+
+    // Teacher needs to be assigned to a class to view/manage students
+    if (isClassTeacher) {
+      return (
+        href === "/dashboard/students" ||
+        href.startsWith("/dashboard/students/manage") ||
+        href.startsWith("/dashboard/students/attendance")
+      )
+    }
+
+    return false
   }
 
   return true
@@ -213,11 +223,13 @@ export function Sidebar({
   studentCount = 0,
   role = 'SCHOOL_ADMIN',
   permissions = [],
+  isClassTeacher = false,
 }: {
   schoolName?: string
   studentCount?: number
   role?: RoleName
   permissions?: string[]
+  isClassTeacher?: boolean
 }) {
   const pathname = usePathname()
   const isSuperAdmin = role === 'SUPER_ADMIN' || pathname.startsWith('/admin')
@@ -240,12 +252,14 @@ export function Sidebar({
     // teacher-focused navigation
     sections = [
       { items: [ { label: 'Overview', href: '/dashboard', icon: LayoutDashboard, key: 'overview' } ] },
-      { heading: 'CLASS', items: [ 
-        { label: 'All Students', href: '/dashboard/students', icon: GraduationCap, key: 'students' }, 
-        { label: 'Manage Students', href: '/dashboard/students/manage', icon: Users, key: 'manage-students' },
-        { label: 'Student Attendance', href: '/dashboard/students/attendance', icon: ClipboardCheck, key: 'attendance' }, 
-        { label: 'Subjects', href: '/dashboard/teachers/subjects', icon: BookOpen, key: 'subjects' } 
-      ] },
+      ...(isClassTeacher ? [{
+        heading: 'CLASS', items: [ 
+          { label: 'All Students', href: '/dashboard/students', icon: GraduationCap, key: 'students' }, 
+          { label: 'Manage Students', href: '/dashboard/students/manage', icon: Users, key: 'manage-students' },
+          { label: 'Student Attendance', href: '/dashboard/students/attendance', icon: ClipboardCheck, key: 'attendance' }, 
+          { label: 'Subjects', href: '/dashboard/teachers/subjects', icon: BookOpen, key: 'subjects' } 
+        ]
+      }] : []),
       { heading: 'AI TOOLS', items: [ { label: 'Homework Generator', href: '/dashboard/teachers/homework-generator', icon: Sparkles, key: 'homework-generator' } ] }
     ]
   } else {
@@ -278,7 +292,7 @@ export function Sidebar({
 
       const filteredItems = section.items
         .map(item => {
-          if (!isRouteAllowedForRole(role, item.href)) {
+          if (!isRouteAllowedForRole(role, item.href, isClassTeacher)) {
             return null
           }
 
@@ -290,7 +304,7 @@ export function Sidebar({
 
           const children = item.children.filter(
             child =>
-              isRouteAllowedForRole(role, child.href) &&
+              isRouteAllowedForRole(role, child.href, isClassTeacher) &&
               (!child.permission || hasPermission(permissions, child.permission))
           )
           if (!children.length) return null

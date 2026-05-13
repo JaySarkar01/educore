@@ -38,6 +38,7 @@ export default async function DashboardLayout({
           studentCount={stats?.studentCount}
           role={role}
           permissions={profile?.permissions || []}
+          isClassTeacher={auth?.isClassTeacher}
         />
         <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
           <DashboardNavbar

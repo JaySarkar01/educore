@@ -9,7 +9,7 @@ const plans = [
   {
     name: "Starter",
     description: "Perfect for single, small schools just getting started.",
-    price: "$49",
+    price: "Free",
     features: ["Up to 500 Students", "Basic Attendance & Exams", "1 Admin Account", "Standard Support"],
     popular: false,
   },
