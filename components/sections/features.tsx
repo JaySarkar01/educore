@@ -9,12 +9,10 @@ const features = [
   { title: "Teacher Management", description: "Staff attendance, payroll, and performance tracking.", icon: Users },
   { title: "Smart Attendance", description: "Automated daily attendance with instant parent notifications.", icon: Calendar },
   { title: "Fees & Finance", description: "Online payments, automated invoicing in ₹ (INR), and financial AI.", icon: DollarSign },
-  { title: "Exams & Results", description: "Custom grading systems and instant report card generation.", icon: FileText },
-  { title: "Timetable Management", description: "Conflict-free automatic scheduling for classes and exams.", icon: Clock },
   { title: "Role-Based Access", description: "Secure portals for Admins, Teachers, Students, and Parents.", icon: ShieldCheck },
   { title: "Group Management", description: "Manage multiple schools from one centralized super-admin dashboard.", icon: Building },
   { title: "Advanced Analytics", description: "AI-driven insights into academic performance and school health.", icon: BarChart3 },
-  { title: "Secure Cloud", description: "World-class security with anywhere access on any modern device.", icon: Cloud },
+  
 ]
 
 export function Features() {

@@ -35,7 +35,7 @@ export default async function StudentIDCardsPage() {
   };
 
   return (
-    <div className="p-4 md:p-6 lg:p-8 min-h-screen bg-slate-50/50">
+    <div className="p-4 md:p-6 lg:p-8 min-h-screen bg-slate-50/50 dark:bg-black">
       <IDCardManagement
         students={students as any}
         classes={classes}

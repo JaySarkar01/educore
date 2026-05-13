@@ -4,19 +4,32 @@ import { connectToDatabase } from "@/lib/db"
 import { AcademicClassModel } from "@/lib/models/AcademicClass"
 import { SubjectModel } from "@/lib/models/Subject"
 import { revalidatePath } from "next/cache"
-import { authorizePermission } from "@/lib/auth"
+import { authorizePermission, getAuthContext } from "@/lib/auth"
+import { hasPermission } from "@/lib/rbac"
 import { logAudit } from "@/lib/audit"
 import { TeacherModel } from "@/lib/models/Teacher"
 
 // ---- CLASSES ----
 export async function getClasses() {
-  const auth = await authorizePermission("class.manage")
-  if (!auth.allowed || !auth.context.schoolId) return []
+  const auth = await getAuthContext()
+  if (!auth || !auth.schoolId) return []
   await connectToDatabase()
-  const classes = await AcademicClassModel.find({ schoolId: auth.context.schoolId }).sort({ className: 1 }).lean()
+
+  let classes: any[] = []
+  // Admins (or users with class.manage) see all classes
+  if (hasPermission(auth.permissions, "class.manage")) {
+    classes = await AcademicClassModel.find({ schoolId: auth.schoolId }).sort({ className: 1 }).lean()
+  } else if (auth.linkedTeacherId) {
+    // Teachers see only classes assigned to them
+    classes = await AcademicClassModel.find({ schoolId: auth.schoolId, classTeacherId: auth.linkedTeacherId }).sort({ className: 1 }).lean()
+  } else {
+    return []
+  }
+
   return classes.map((c: any) => ({
     ...JSON.parse(JSON.stringify(c)),
-    id: c._id.toString()
+    id: c._id.toString(),
+    _id: c._id.toString()
   }))
 }
 

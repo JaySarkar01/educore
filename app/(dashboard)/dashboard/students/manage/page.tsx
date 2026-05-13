@@ -1,5 +1,7 @@
 import { getStudents, deleteStudent } from "@/app/actions/student"
 import { getClasses } from "@/app/actions/academic"
+import { getAuthContext } from "@/lib/auth"
+import { hasPermission } from "@/lib/rbac"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { UserMinus, Search, Plus } from "lucide-react"
@@ -13,6 +15,8 @@ export default async function ManageStudentsPage({ searchParams }: { searchParam
   
   const students = await getStudents(q, className)
   const classes = await getClasses()
+  const auth = await getAuthContext()
+  const canCreateStudent = auth ? hasPermission(auth.permissions, "student.create") : false
 
   return (
     <div className="p-4 md:p-6 lg:p-8 max-w-[1400px] mx-auto space-y-6 md:space-y-8 animate-in fade-in duration-500">
@@ -22,11 +26,13 @@ export default async function ManageStudentsPage({ searchParams }: { searchParam
           <p className="text-muted-fg mt-1 text-sm md:text-base">Manage enrollments, classes, and student records.</p>
         </div>
         
-        <Link href="/dashboard/students/add">
-          <Button className="gap-2 shadow-sm shadow-brand-500/20 w-full sm:w-auto">
-            <Plus className="w-4 h-4" /> Add New Student
-          </Button>
-        </Link>
+        {canCreateStudent && (
+          <Link href="/dashboard/students/add">
+            <Button className="gap-2 shadow-sm shadow-brand-500/20 w-full sm:w-auto">
+              <Plus className="w-4 h-4" /> Add New Student
+            </Button>
+          </Link>
+        )}
       </div>
 
       <Card className="shadow-lg shadow-brand-500/5 overflow-hidden border-border/50">
