@@ -5,7 +5,8 @@ import { usePathname } from 'next/navigation'
 import {
   Building2, LayoutDashboard, Users, UserSquare2, BookOpen,
   ChevronDown, ChevronRight, GraduationCap,
-  ClipboardCheck, CreditCard, BarChart3, Cog, X, Sparkles
+  ClipboardCheck, CreditCard, BarChart3, Cog, X, Sparkles,
+  Receipt, Wallet, Bus, Home, FileText
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useMobileSidebar } from './mobile-sidebar-context'
@@ -23,7 +24,13 @@ function isRouteAllowedForRole(role: RoleName, href?: string, isClassTeacher?: b
   if (!href || role === "SUPER_ADMIN" || role === "SCHOOL_ADMIN") return true
 
   if (role === "ACCOUNTANT") {
-    return href === "/dashboard" || href.startsWith("/dashboard/students/fees")
+    return (
+      href === "/dashboard" ||
+      href === "/dashboard/students" ||
+      href.startsWith("/dashboard/students/fees") ||
+      href.startsWith("/dashboard/finance") ||
+      href.startsWith("/dashboard/settings")
+    )
   }
 
   if (role === "STUDENT") {
@@ -149,14 +156,35 @@ const schoolNav: NavSection[] = [
     heading: 'FINANCE',
     items: [
       {
-        label: 'Fees',
+        label: 'Fee Management',
         icon: CreditCard,
         key: 'fees',
         permissionsAny: ['fees.view', 'fees.collect'],
         children: [
-          { label: 'Fee Records',        href: '/dashboard/students/fees', permission: 'fees.view' },
+          { label: 'Fee Workbench',      href: '/dashboard/students/fees', permission: 'fees.collect' },
+          { label: 'Fee Structure',      href: '/dashboard/finance/fee-structure', permission: 'fees.view' },
         ],
       },
+      {
+        label: 'Expenses & Vendors',
+        icon: Receipt,
+        key: 'expenses',
+        permissionsAny: ['expenses.manage', 'vendor.manage'],
+        children: [
+          { label: 'Manage Expenses',    href: '/dashboard/finance/expenses', permission: 'expenses.manage' },
+          { label: 'Vendors',            href: '/dashboard/finance/vendors', permission: 'vendor.manage' },
+        ],
+      },
+      {
+        label: 'Facilities',
+        icon: Bus,
+        key: 'facilities_finance',
+        permissionsAny: ['transport.fees.view', 'hostel.fees.view'],
+        children: [
+          { label: 'Transport Fees',     href: '/dashboard/finance/transport', permission: 'transport.fees.view' },
+          { label: 'Hostel Fees',        href: '/dashboard/finance/hostel', permission: 'hostel.fees.view' },
+        ],
+      }
     ],
   },
   {
@@ -169,6 +197,7 @@ const schoolNav: NavSection[] = [
         permissionsAny: ['report.view', 'finance.report.view'],
         children: [
           { label: 'Teacher Reports',    href: '/dashboard/teachers/reports', permission: 'report.view' },
+          { label: 'Financial Reports',  href: '/dashboard/finance/reports', permission: 'finance.report.view' },
         ],
       },
     ],

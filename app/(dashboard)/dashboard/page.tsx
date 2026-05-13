@@ -1,16 +1,18 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Users, GraduationCap, IndianRupee, Calendar, Layers } from "lucide-react"
+import { Users, GraduationCap, IndianRupee, Calendar, Layers, CreditCard, Receipt, BarChart3, AlertCircle } from "lucide-react"
 import { getDashboardStats } from "@/app/actions/dashboard"
 import Link from "next/link"
 import { getAuthContext } from "@/lib/auth"
 import { getStudents } from "@/app/actions/student"
 import { getStudentAttendanceStats } from "@/app/actions/attendance"
-import { getStudentFeeStats } from "@/app/actions/fees"
+import { getStudentFeeStats, getFeeDashboardSummary } from "@/app/actions/fees"
+import { getExpenseSummary } from "@/app/actions/finance"
 
 export default async function SchoolDashboard() {
   const stats = await getDashboardStats()
   const auth = await getAuthContext()
   const isTeacher = auth?.roleName === "TEACHER"
+  const isAccountant = auth?.roleName === "ACCOUNTANT"
 
   // If logged in as a student, show a focused student dashboard instead of school telemetry
   if (auth?.roleName === "STUDENT") {
@@ -85,6 +87,106 @@ export default async function SchoolDashboard() {
               </CardContent>
             </Card>
           </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (isAccountant) {
+    const feeSummary = await getFeeDashboardSummary()
+    const expSummary = await getExpenseSummary()
+
+    return (
+      <div className="flex-1 p-4 md:p-6 lg:p-8 pt-6 md:pt-8 lg:pt-10 bg-surface-50 dark:bg-surface-950 min-h-[calc(100vh-4rem)]">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-6 md:mb-8">
+            <div>
+              <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-fg tracking-tight">Finance Dashboard</h1>
+              <p className="text-muted-fg mt-1 text-sm md:text-base">Financial overview of fees, collections, and expenses.</p>
+            </div>
+            <div className="flex gap-2">
+              <Link href="/dashboard/finance/expenses" className="px-4 py-2 text-sm font-medium bg-surface-100 hover:bg-surface-200 border border-border/50 rounded-md">Manage Expenses</Link>
+              <Link href="/dashboard/students/fees" className="px-4 py-2 text-sm font-medium bg-brand-500 text-white rounded-md hover:bg-brand-600">Fee Workbench</Link>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <Card className="border-emerald-500/20 bg-gradient-to-br from-surface-100 to-emerald-50 dark:from-surface-900 dark:to-emerald-950/30">
+              <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                <div className="text-sm font-medium text-muted-fg">Total Collected (Cash/Online)</div>
+                <IndianRupee className="w-5 h-5 text-emerald-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">₹{feeSummary?.totalCollected?.toLocaleString() || '0.00'}</div>
+                <div className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">Historically collected</div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                <div className="text-sm font-medium text-muted-fg">Pending Fees</div>
+                <AlertCircle className="w-5 h-5 text-amber-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-amber-600 dark:text-amber-400">₹{(feeSummary?.pendingCollection || 0).toLocaleString()}</div>
+                <div className="text-xs text-muted-fg mt-1">Unpaid balances across all students</div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                <div className="text-sm font-medium text-muted-fg">Total Billed</div>
+                <CreditCard className="w-5 h-5 text-blue-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-fg">₹{(feeSummary?.totalBilled || 0).toLocaleString()}</div>
+                <div className="text-xs text-muted-fg mt-1">Gross generated invoices</div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                <div className="text-sm font-medium text-muted-fg">This Month's Expenses</div>
+                <Receipt className="w-5 h-5 text-rose-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-rose-600 dark:text-rose-400">₹{(expSummary?.totalMonthly || 0).toLocaleString()}</div>
+                <div className="text-xs text-muted-fg mt-1">Total outflows this month</div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+             {/* Charts placeholders utilizing native styling as per requirements without external chart libs right now */}
+             <Card>
+              <CardHeader>
+                <h3 className="font-semibold text-lg text-fg flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-brand-500"/>
+                  Monthly Income vs Expense
+                </h3>
+              </CardHeader>
+              <CardContent>
+                <div className="h-48 flex items-center justify-center bg-surface-100/50 dark:bg-surface-900/50 rounded-md border border-dashed border-border/50 text-muted-fg text-sm">
+                  [Chart: Revenue vs Expenses Visualization]
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <h3 className="font-semibold text-lg text-fg flex items-center gap-2">
+                  <CreditCard className="w-5 h-5 text-brand-500"/>
+                  Fee Collection Analytics
+                </h3>
+              </CardHeader>
+              <CardContent>
+                <div className="h-48 flex items-center justify-center bg-surface-100/50 dark:bg-surface-900/50 rounded-md border border-dashed border-border/50 text-muted-fg text-sm">
+                  [Chart: Cash vs Online Payment Breakdown]
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
         </div>
       </div>
     )

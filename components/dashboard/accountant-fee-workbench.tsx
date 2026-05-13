@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { RecordPaymentForm } from "@/components/dashboard/record-payment-form"
 import { getOutstandingInvoicesForStudent, searchStudentsForFeePayment, getFeeStudentClassOptions, getStudentsByClass, generateBulkFeeInvoices } from "@/app/actions/fees"
-import { Search, UserRound, FileText, AlertCircle } from "lucide-react"
+import { Search, UserRound, FileText, AlertCircle, Printer, Download, MessageCircle } from "lucide-react"
 
 type FeeSummary = {
   totalBilled: number
@@ -275,23 +275,42 @@ export function AccountantFeeWorkbench({
                 {studentInvoices.map((inv: any) => {
                   const pending = Math.max((inv.amount || 0) - (inv.amountPaid || 0), 0)
                   return (
-                    <div key={inv._id} className="flex flex-col md:flex-row md:items-center gap-3 justify-between border border-border/40 rounded-lg p-3">
-                      <div className="min-w-0">
-                        <p className="font-semibold text-sm text-fg truncate">{inv.title}</p>
-                        <p className="text-xs text-muted-fg">Due: {inv.dueDate} · Invoice: ₹{inv.amount.toFixed(2)} · Pending: ₹{pending.toFixed(2)}</p>
+                      <div className="flex flex-col md:flex-row md:items-center gap-3 justify-between border border-border/40 rounded-lg p-3 group">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold text-sm text-fg truncate">{inv.title}</p>
+                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold tracking-wider uppercase border bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
+                              {inv.status}
+                            </span>
+                          </div>
+                          <p className="text-xs text-muted-fg mt-1">Due: {inv.dueDate} · Invoice: ₹{inv.amount.toFixed(2)} · Pending: ₹{pending.toFixed(2)}</p>
+                        </div>
+                        <div className="flex items-center gap-1.5 md:justify-end opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                          {inv.status !== 'Pending' && (
+                            <>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-fg hover:text-brand-500 hover:bg-brand-50" title="Print Receipt">
+                                <Printer className="w-4 h-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-fg hover:text-brand-500 hover:bg-brand-50" title="Download PDF">
+                                <Download className="w-4 h-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-fg hover:text-emerald-500 hover:bg-emerald-50" title="Email/WhatsApp">
+                                <MessageCircle className="w-4 h-4" />
+                              </Button>
+                            </>
+                          )}
+                          <div className="pl-1">
+                            {inv.status !== "Paid" && (
+                              <RecordPaymentForm
+                                invoiceId={inv._id}
+                                pendingAmount={pending}
+                                invoiceTitle={inv.title}
+                                onSuccess={() => reloadSelectedStudentInvoices()}
+                              />
+                            )}
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 md:justify-end">
-                        <span className="px-2 py-0.5 rounded text-xs font-semibold border bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
-                          {inv.status}
-                        </span>
-                        <RecordPaymentForm
-                          invoiceId={inv._id}
-                          pendingAmount={pending}
-                          invoiceTitle={inv.title}
-                          onSuccess={() => reloadSelectedStudentInvoices()}
-                        />
-                      </div>
-                    </div>
                   )
                 })}
               </div>
