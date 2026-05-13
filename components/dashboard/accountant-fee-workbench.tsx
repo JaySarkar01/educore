@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { RecordPaymentForm } from "@/components/dashboard/record-payment-form"
-import { getOutstandingInvoicesForStudent, searchStudentsForFeePayment } from "@/app/actions/fees"
+import { getOutstandingInvoicesForStudent, searchStudentsForFeePayment, getFeeStudentClassOptions, getStudentsByClass, generateBulkFeeInvoices } from "@/app/actions/fees"
 import { Search, UserRound, FileText, AlertCircle } from "lucide-react"
 
 type FeeSummary = {
@@ -25,6 +25,15 @@ export function AccountantFeeWorkbench({
   const [query, setQuery] = useState("")
   const [isPending, startTransition] = useTransition()
   const [results, setResults] = useState<any[]>([])
+  const [classOptions, setClassOptions] = useState<string[]>([])
+  const [selectedClass, setSelectedClass] = useState("")
+  const [classStudents, setClassStudents] = useState<any[]>([])
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [selectAll, setSelectAll] = useState(false)
+  const [bulkTitle, setBulkTitle] = useState("Monthly Fee")
+  const [bulkAmount, setBulkAmount] = useState<string>("")
+  const [bulkDueDate, setBulkDueDate] = useState<string>(new Date().toISOString().split('T')[0])
+  const [isBulkPending, startBulk] = useTransition()
   const [selectedStudent, setSelectedStudent] = useState<any | null>(null)
   const [studentInvoices, setStudentInvoices] = useState<any[]>([])
   const [searchInfo, setSearchInfo] = useState("")
@@ -58,11 +67,80 @@ export function AccountantFeeWorkbench({
     return () => clearTimeout(handle)
   }, [query])
 
+  useEffect(() => {
+    startTransition(async () => {
+      const opts = await getFeeStudentClassOptions()
+      setClassOptions(opts || [])
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!selectedClass) {
+      setClassStudents([])
+      setSelectedIds(new Set())
+      setSelectAll(false)
+      return
+    }
+
+    startTransition(async () => {
+      const rows = await getStudentsByClass(selectedClass)
+      setClassStudents(rows || [])
+      setSelectedIds(new Set())
+      setSelectAll(false)
+    })
+  }, [selectedClass])
+
   const selectStudent = (student: any) => {
     setSelectedStudent(student)
     setResults([])
     setQuery(student.name)
     reloadSelectedStudentInvoices(student.id)
+  }
+
+  const toggleSelectId = (id: string) => {
+    const s = new Set(Array.from(selectedIds))
+    if (s.has(id)) s.delete(id)
+    else s.add(id)
+    setSelectedIds(s)
+    setSelectAll(s.size === classStudents.length && classStudents.length > 0)
+  }
+
+  const toggleSelectAll = () => {
+    if (selectAll) {
+      setSelectedIds(new Set())
+      setSelectAll(false)
+    } else {
+      const all = new Set(classStudents.map(s => s.id))
+      setSelectedIds(all)
+      setSelectAll(true)
+    }
+  }
+
+  const submitBulk = async () => {
+    if (!selectedClass) return
+    if (!bulkAmount || parseFloat(bulkAmount) <= 0) return
+
+    startBulk(async () => {
+      const fd = new FormData()
+      fd.set('className', selectedClass)
+      fd.set('title', bulkTitle)
+      fd.set('amount', bulkAmount)
+      fd.set('dueDate', bulkDueDate)
+      // pass selected ids if any
+      if (selectedIds.size > 0) {
+        fd.set('selectedStudentIds', JSON.stringify(Array.from(selectedIds)))
+      }
+
+      const res: any = await generateBulkFeeInvoices(fd)
+      if (res && res.success) {
+        // reload recent invoices and class students outstanding status
+        setSelectedIds(new Set())
+        setSelectAll(false)
+        setBulkAmount("")
+        // best-effort: refresh selected student invoices if a student is selected
+        reloadSelectedStudentInvoices()
+      }
+    })
   }
 
   const kpis = useMemo(
@@ -94,6 +172,45 @@ export function AccountantFeeWorkbench({
               placeholder="Search by student name, admission no, roll no or parent phone"
             />
           </div>
+
+            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <select value={selectedClass} onChange={(e) => setSelectedClass(e.target.value)} className="w-full h-9 rounded-md border border-border px-3 bg-surface-50 text-sm">
+                  <option value="">Select Class (Bulk Generate)</option>
+                  {classOptions.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div className="flex items-center gap-2">
+                <Input value={bulkAmount} onChange={(e) => setBulkAmount(e.target.value)} placeholder="Amount (₹)" className="h-9" />
+                <Input value={bulkDueDate} onChange={(e) => setBulkDueDate(e.target.value)} type="date" className="h-9" />
+                <Button onClick={submitBulk} className="h-9" disabled={isBulkPending || !selectedClass || !bulkAmount}>Generate</Button>
+              </div>
+            </div>
+
+            {selectedClass && (
+              <div className="mt-3 rounded-lg border border-border/50 overflow-hidden">
+                <div className="flex items-center justify-between px-3 py-2 bg-surface-100/50 border-b border-border/40">
+                  <div className="flex items-center gap-3">
+                    <input type="checkbox" checked={selectAll} onChange={toggleSelectAll} />
+                    <div className="text-sm font-medium">{selectedClass} · Students ({classStudents.length})</div>
+                  </div>
+                  <div className="text-xs text-muted-fg">Select students to include</div>
+                </div>
+                <div className="max-h-48 overflow-y-auto divide-y divide-border/40">
+                  {classStudents.map((s: any) => (
+                    <div key={s.id} className="px-3 py-2 flex items-center justify-between">
+                      <div>
+                        <div className="font-medium text-sm">{s.name}</div>
+                        <div className="text-xs text-muted-fg">Adm: {s.admissionNo || '-'} · Roll: {s.rollNumber || '-'}{s.section ? ` · Sec ${s.section}` : ''}</div>
+                      </div>
+                      <div>
+                        <input type="checkbox" checked={selectedIds.has(s.id)} onChange={() => toggleSelectId(s.id)} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
           {results.length > 0 && (
             <div className="rounded-lg border border-border/50 overflow-hidden">

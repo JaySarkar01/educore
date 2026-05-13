@@ -225,6 +225,106 @@ export async function getFeeStudentClassOptions() {
   return (classes as string[]).filter(Boolean).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
 }
 
+export async function getStudentsByClass(className: string) {
+  const auth = await authorizePermission("fees.collect")
+  if (!auth.allowed || !auth.context.schoolId) return []
+
+  await connectToDatabase()
+
+  if (!className) return []
+
+  const students = await StudentModel.find({ schoolId: auth.context.schoolId, className, status: "Active" })
+    .select("name admissionNo rollNumber className section")
+    .sort({ name: 1 })
+    .lean()
+
+  return students.map((s: any) => ({
+    id: s._id.toString(),
+    name: s.name,
+    admissionNo: s.admissionNo,
+    rollNumber: s.rollNumber,
+    className: s.className,
+    section: s.section,
+  }))
+}
+
+export async function generateBulkFeeInvoices(formData: FormData) {
+  const auth = await authorizePermission("fees.collect")
+  if (!auth.allowed || !auth.context.schoolId) return { error: "Not authorized" }
+
+  await connectToDatabase()
+
+  const className = formData.get("className")?.toString() || ""
+  const selectedJson = formData.get("selectedStudentIds")?.toString() || ""
+  const title = formData.get("title")?.toString() || "General Fee"
+  const amount = parseFloat(formData.get("amount")?.toString() || "0")
+  const dueDate = formData.get("dueDate")?.toString() || new Date().toISOString().split('T')[0]
+
+  if (!className && !selectedJson) return { error: "No target students specified" }
+  if (amount <= 0) return { error: "Invalid amount" }
+
+  let targetIds: string[] = []
+  if (selectedJson) {
+    try {
+      const parsed = JSON.parse(selectedJson)
+      if (Array.isArray(parsed)) targetIds = parsed.map(String)
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  if (targetIds.length === 0 && className) {
+    const students = await StudentModel.find({ schoolId: auth.context.schoolId, className, status: "Active" }).select("_id name className").lean()
+    targetIds = students.map((s: any) => (s._id as any).toString())
+  }
+
+  if (targetIds.length === 0) return { error: "No students found" }
+
+  const created: string[] = []
+
+  for (const sid of targetIds) {
+    const student = await StudentModel.findOne({ _id: sid, schoolId: auth.context.schoolId })
+    if (!student) continue
+
+    const invoice = await FeeInvoiceModel.create({
+      schoolId: auth.context.schoolId,
+      studentId: sid,
+      studentName: student.name,
+      className: student.className,
+      title,
+      amount,
+      dueDate,
+      status: 'Pending',
+      amountPaid: 0,
+      payments: []
+    })
+
+    await StudentModel.findByIdAndUpdate(sid, {
+      $push: {
+        timeline: {
+          title: "Fee Invoice Generated",
+          description: `An invoice of ₹${amount} for '${title}' was issued.`,
+          date: new Date(),
+        }
+      }
+    })
+
+    created.push(invoice._id.toString())
+  }
+
+  revalidatePath('/dashboard/students/fees')
+  for (const sid of targetIds) revalidatePath(`/dashboard/students/${sid}`)
+
+  await logAudit(auth.context, {
+    action: "fees.collect",
+    resource: "FeeInvoice",
+    resourceId: created[0] || null,
+    details: { createdCount: created.length, className, amount, title },
+  })
+
+  return { success: true, createdCount: created.length }
+}
+
 export async function getOutstandingInvoicesForStudent(studentId: string) {
   const auth = await authorizePermission("fees.collect")
   if (!auth.allowed || !auth.context.schoolId) return []
