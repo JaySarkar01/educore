@@ -18,9 +18,11 @@ type FeeSummary = {
 export function AccountantFeeWorkbench({
   summary,
   recentInvoices,
+  feeStructures = [],
 }: {
   summary: FeeSummary
   recentInvoices: any[]
+  feeStructures?: any[]
 }) {
   const [query, setQuery] = useState("")
   const [isPending, startTransition] = useTransition()
@@ -33,6 +35,7 @@ export function AccountantFeeWorkbench({
   const [bulkTitle, setBulkTitle] = useState("Monthly Fee")
   const [bulkAmount, setBulkAmount] = useState<string>("")
   const [bulkDueDate, setBulkDueDate] = useState<string>(new Date().toISOString().split('T')[0])
+  const [selectedFeeStructure, setSelectedFeeStructure] = useState<string>("")
   const [isBulkPending, startBulk] = useTransition()
   const [selectedStudent, setSelectedStudent] = useState<any | null>(null)
   const [studentInvoices, setStudentInvoices] = useState<any[]>([])
@@ -116,6 +119,21 @@ export function AccountantFeeWorkbench({
     }
   }
 
+  const handleFeeStructureSelect = (fsId: string) => {
+    setSelectedFeeStructure(fsId)
+    const fs = feeStructures.find(f => f._id === fsId)
+    if (fs) {
+      setBulkTitle(fs.name)
+      setBulkAmount(fs.amount.toString())
+      if (fs.targetClass && fs.targetClass !== "All") {
+        setSelectedClass(fs.targetClass)
+      }
+    } else {
+      setBulkTitle("Monthly Fee")
+      setBulkAmount("")
+    }
+  }
+
   const submitBulk = async () => {
     if (!selectedClass) return
     if (!bulkAmount || parseFloat(bulkAmount) <= 0) return
@@ -174,16 +192,21 @@ export function AccountantFeeWorkbench({
           </div>
 
             <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div>
-                <select value={selectedClass} onChange={(e) => setSelectedClass(e.target.value)} className="w-full h-9 rounded-md border border-border px-3 bg-surface-50 text-sm">
-                  <option value="">Select Class (Bulk Generate)</option>
+              <div className="flex gap-2">
+                <select value={selectedFeeStructure} onChange={(e) => handleFeeStructureSelect(e.target.value)} className="w-1/2 h-9 rounded-md border border-border px-3 bg-surface-50 text-sm">
+                  <option value="">Custom Fee / Structure</option>
+                  {feeStructures.map(fs => <option key={fs._id} value={fs._id}>{fs.name} (₹{fs.amount})</option>)}
+                </select>
+                <select value={selectedClass} onChange={(e) => setSelectedClass(e.target.value)} className="w-1/2 h-9 rounded-md border border-border px-3 bg-surface-50 text-sm">
+                  <option value="">Select Class</option>
                   {classOptions.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
               <div className="flex items-center gap-2">
-                <Input value={bulkAmount} onChange={(e) => setBulkAmount(e.target.value)} placeholder="Amount (₹)" className="h-9" />
-                <Input value={bulkDueDate} onChange={(e) => setBulkDueDate(e.target.value)} type="date" className="h-9" />
-                <Button onClick={submitBulk} className="h-9" disabled={isBulkPending || !selectedClass || !bulkAmount}>Generate</Button>
+                <Input value={bulkTitle} onChange={(e) => setBulkTitle(e.target.value)} placeholder="Title" className="h-9 w-1/3" />
+                <Input value={bulkAmount} onChange={(e) => setBulkAmount(e.target.value)} placeholder="₹ Amount" className="h-9 w-1/4" />
+                <Input value={bulkDueDate} onChange={(e) => setBulkDueDate(e.target.value)} type="date" className="h-9 w-1/4" />
+                <Button onClick={submitBulk} className="h-9 w-auto" disabled={isBulkPending || !selectedClass || !bulkAmount}>Generate</Button>
               </div>
             </div>
 

@@ -1,4 +1,4 @@
-import { getAllInvoices, getFeeDashboardSummary, getRecentInvoices, getStudentsForFeeModule } from "@/app/actions/fees"
+import { getAllInvoices, getFeeDashboardSummary, getRecentInvoices, getStudentsForFeeModule, getFeeStructures } from "@/app/actions/fees"
 import { GenerateInvoiceForm } from "@/components/dashboard/generate-invoice-form"
 import { AccountantFeeWorkbench } from "@/components/dashboard/accountant-fee-workbench"
 import { RecordPaymentForm } from "@/components/dashboard/record-payment-form"
@@ -23,6 +23,7 @@ export default async function FeesPage() {
 
   if (isAccountant) {
     const recentInvoices = (await getRecentInvoices(10)).filter((inv: any) => studentIds.has(inv.studentId))
+    const feeStructures = await getFeeStructures()
 
     return (
       <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 md:space-y-8 animate-in fade-in duration-500">
@@ -31,12 +32,13 @@ export default async function FeesPage() {
             <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-fg tracking-tight">Fee Collection Workbench</h1>
             <p className="text-muted-fg mt-1 text-sm md:text-base">Professional accountant workflow for fast student lookup and secure payment posting.</p>
           </div>
-          {canIssueInvoice ? <GenerateInvoiceForm /> : null}
+          {canIssueInvoice ? <GenerateInvoiceForm feeStructures={feeStructures} /> : null}
         </div>
 
         <AccountantFeeWorkbench
           summary={summary || { totalBilled: 0, totalCollected: 0, pendingCollection: 0, outstandingInvoices: 0 }}
           recentInvoices={recentInvoices}
+          feeStructures={feeStructures}
         />
       </div>
     )

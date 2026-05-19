@@ -7,7 +7,7 @@ import { X, Loader2, FilePlus2, Search, CheckCircle2 } from "lucide-react"
 import { generateFeeInvoice, getFeeStudentClassOptions, searchStudentsForFeePayment } from "@/app/actions/fees"
 import { useRouter } from "next/navigation"
 
-export function GenerateInvoiceForm() {
+export function GenerateInvoiceForm({ feeStructures = [] }: { feeStructures?: any[] }) {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
@@ -17,6 +17,18 @@ export function GenerateInvoiceForm() {
   const [results, setResults] = useState<any[]>([])
   const [selectedStudent, setSelectedStudent] = useState<any | null>(null)
   const [errorMsg, setErrorMsg] = useState("")
+  const [selectedFeeStructure, setSelectedFeeStructure] = useState<string>("")
+  const [formDataState, setFormDataState] = useState({ title: "", amount: "" })
+
+  const handleFeeStructureSelect = (fsId: string) => {
+    setSelectedFeeStructure(fsId)
+    const fs = feeStructures.find(f => f._id === fsId)
+    if (fs) {
+      setFormDataState({ title: fs.name, amount: fs.amount.toString() })
+    } else {
+      setFormDataState({ title: "", amount: "" })
+    }
+  }
 
   useEffect(() => {
     if (!isOpen) return
@@ -175,15 +187,33 @@ export function GenerateInvoiceForm() {
               )}
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="title">Invoice Title / Particulars</Label>
-              <Input id="title" name="title" required placeholder="e.g. Term 1 Tuition Fee" />
-            </div>
+              {feeStructures.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Quick Select Fee Structure</Label>
+                  <select 
+                    value={selectedFeeStructure} 
+                    onChange={(e) => handleFeeStructureSelect(e.target.value)} 
+                    className="w-full flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <option value="">Custom Entry</option>
+                    {feeStructures.map(fs => <option key={fs._id} value={fs._id}>{fs.name} (₹{fs.amount})</option>)}
+                  </select>
+                </div>
+              )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="amount">Total Amount (₹)</Label>
-                <Input id="amount" name="amount" type="number" step="0.01" min="1" required placeholder="500.00" />
+                <Label htmlFor="title">Invoice Title / Particulars</Label>
+                <Input id="title" name="title" required placeholder="e.g. Term 1 Tuition Fee" 
+                  value={formDataState.title} onChange={e => setFormDataState({...formDataState, title: e.target.value})} 
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="amount">Total Amount (₹)</Label>
+                  <Input id="amount" name="amount" type="number" step="0.01" min="1" required placeholder="500.00" 
+                    value={formDataState.amount} onChange={e => setFormDataState({...formDataState, amount: e.target.value})}
+                  />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="dueDate">Due Date</Label>
