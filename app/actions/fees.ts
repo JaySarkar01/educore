@@ -2,6 +2,7 @@
 
 import { connectToDatabase } from "@/lib/db"
 import { FeeInvoiceModel } from "@/lib/models/Fee"
+import { FeeStructureModel } from "@/lib/models/FeeStructure"
 import { StudentModel } from "@/lib/models/Student"
 import { revalidatePath } from "next/cache"
 import { authorizePermission } from "@/lib/auth"
@@ -443,3 +444,70 @@ export async function getStudentFeeStats(studentId: string) {
     invoices
   }))
 }
+
+// Fee Structure Actions
+export async function getFeeStructures() {
+  const auth = await authorizePermission("fees.view")
+  if (!auth.allowed || !auth.context.schoolId) return []
+
+  await connectToDatabase()
+  const structures = await FeeStructureModel.find({ schoolId: auth.context.schoolId }).sort({ createdAt: -1 }).lean()
+  return JSON.parse(JSON.stringify(structures))
+}
+
+export async function createFeeStructure(formData: FormData) {
+  const auth = await authorizePermission("fees.manage")
+  if (!auth.allowed || !auth.context.schoolId) return { error: "Not authorized" }
+
+  await connectToDatabase()
+
+  const name = formData.get("name")?.toString()
+  const targetClass = formData.get("targetClass")?.toString() || "ALL"
+  const amount = parseFloat(formData.get("amount")?.toString() || "0")
+  const frequency = formData.get("frequency")?.toString()
+
+  if (!name || amount <= 0 || !frequency) return { error: "Invalid data" }
+
+  const component = await FeeStructureModel.create({
+    schoolId: auth.context.schoolId,
+    name,
+    targetClass,
+    amount,
+    frequency
+  })
+
+  revalidatePath('/dashboard/finance/fee-structure')
+  
+  await logAudit(auth.context, {
+    action: "fees.manage",
+    resource: "FeeStructure",
+    resourceId: component._id.toString(),
+    details: { name, amount, frequency, targetClass },
+  })
+  
+  return { success: true }
+}
+
+export async function deleteFeeStructure(id: string) {
+  const auth = await authorizePermission("fees.manage")
+  if (!auth.allowed || !auth.context.schoolId) return { error: "Not authorized" }
+
+  await connectToDatabase()
+
+  const structure = await FeeStructureModel.findOneAndDelete({ _id: id, schoolId: auth.context.schoolId })
+  if (!structure) return { error: "Fee component not found" }
+
+  revalidatePath('/dashboard/finance/fee-structure')
+  
+  await logAudit(auth.context, {
+    action: "fees.manage",
+    resource: "FeeStructure",
+    resourceId: id,
+    details: { deleted: true },
+  })
+
+  return { success: true }
+}
+
+ 
+
