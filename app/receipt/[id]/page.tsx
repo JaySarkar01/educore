@@ -7,15 +7,16 @@ import { notFound, redirect } from "next/navigation"
 import ReceiptClient from "./receipt-client"
 import { School, Building, Phone, Mail, MapPin } from "lucide-react"
 
-export default async function ReceiptPage({ params }: { params: { id: string } }) {
+export default async function ReceiptPage({ params }: { params: Promise<{ id: string }> | { id: string } }) {
   const auth = await getAuthContext()
-  if (!auth?.isAuthenticated) {
+  if (!auth) {
     redirect('/login')
   }
 
+  const resolvedParams = await params
   await connectToDatabase()
   
-  const invoice = await FeeInvoiceModel.findOne({ _id: params.id, schoolId: auth.schoolId || auth.context?.schoolId }).lean()
+  const invoice = await FeeInvoiceModel.findOne({ _id: resolvedParams.id, schoolId: auth.schoolId }).lean()
   if (!invoice) return notFound()
 
   // Security check: if student, can only view their own invoice

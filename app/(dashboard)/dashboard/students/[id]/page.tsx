@@ -360,6 +360,11 @@ export default async function StudentProfilePage(
                               ) : (
                                 <span className="inline-flex items-center text-xs font-semibold text-emerald-600 dark:text-emerald-400"><CheckCircle className="w-3.5 h-3.5 mr-1" /> Settled</span>
                               )}
+                              {inv.status !== 'Pending' && (
+                                <Link href={`/receipt/${inv._id}`} target="_blank" className="ml-3 inline-flex items-center justify-center rounded-md text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring bg-surface-100 hover:bg-surface-200 text-fg h-8 px-3 py-1">
+                                  Receipt
+                                </Link>
+                              )}
                             </td>
                           </tr>
                         )

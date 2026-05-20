@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState, useTransition } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -311,11 +312,15 @@ export function AccountantFeeWorkbench({
                         <div className="flex items-center gap-1.5 md:justify-end opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                           {inv.status !== 'Pending' && (
                             <>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-fg hover:text-brand-500 hover:bg-brand-50" title="Print Receipt">
-                                <Printer className="w-4 h-4" />
-                              </Button>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-fg hover:text-brand-500 hover:bg-brand-50" title="Download PDF">
-                                <Download className="w-4 h-4" />
+                                <Button asChild variant="ghost" size="icon" className="h-8 w-8 text-muted-fg hover:text-brand-500 hover:bg-brand-50" title="Print Receipt">
+                                  <Link href={`/receipt/${inv._id}`} target="_blank">
+                                    <Printer className="w-4 h-4" />
+                                  </Link>
+                                </Button>
+                                <Button asChild variant="ghost" size="icon" className="h-8 w-8 text-muted-fg hover:text-brand-500 hover:bg-brand-50" title="Download PDF">
+                                  <Link href={`/receipt/${inv._id}`} target="_blank">
+                                    <Download className="w-4 h-4" />
+                                  </Link>
                               </Button>
                               <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-fg hover:text-emerald-500 hover:bg-emerald-50" title="Email/WhatsApp">
                                 <MessageCircle className="w-4 h-4" />
