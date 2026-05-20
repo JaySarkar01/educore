@@ -37,17 +37,17 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
   const studentData = JSON.parse(JSON.stringify(student))
 
   return (
-    <div className="min-h-screen bg-surface-100/50 print:bg-white flex items-center justify-center p-4 print:p-0 font-sans">
-      <div className="w-full max-w-3xl bg-white shadow-xl print:shadow-none rounded-lg overflow-hidden border border-border/50 print:border-none print:w-full">
+    <div className="min-h-screen bg-surface-100/50 dark:bg-surface-950 print:bg-white flex items-center justify-center p-4 print:p-0 font-sans">
+      <div className="w-full max-w-3xl bg-white dark:bg-surface-900 shadow-xl print:shadow-none rounded-lg overflow-hidden border border-border/50 print:border-none print:w-full">
         {/* Receipt Controls - hidden on print */}
         <ReceiptClient />
 
         {/* Printable Area */}
-        <div id="printable-receipt" className="p-8 sm:p-12 text-fg">
+        <div id="printable-receipt" className="p-8 sm:p-12 text-fg print:text-black">
           {/* Header */}
           <div className="flex justify-between items-start border-b-2 border-brand-100 pb-8 mb-8">
             <div className="flex gap-4 items-center">
-              <div className="w-16 h-16 bg-brand-50 rounded-xl flex items-center justify-center text-brand-600 border border-brand-100">
+              <div className="w-16 h-16 bg-brand-50 dark:bg-brand-900/20 rounded-xl flex items-center justify-center text-brand-600 border border-brand-100">
                 <Building className="w-8 h-8" />
               </div>
               <div>
@@ -87,7 +87,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
           {/* Invoice Particulars */}
           <div className="mb-8 rounded-lg overflow-hidden border border-border/50">
             <table className="w-full text-sm text-left">
-              <thead className="bg-surface-50 text-xs uppercase text-muted-fg">
+              <thead className="bg-surface-50 dark:bg-surface-950 text-xs uppercase text-muted-fg">
                 <tr>
                   <th className="px-4 py-3 font-semibold">Description / Particulars</th>
                   <th className="px-4 py-3 font-semibold text-right">Amount (₹)</th>
@@ -108,7 +108,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
               <p className="text-xs font-semibold text-muted-fg uppercase tracking-wider mb-2">Payment History Table</p>
               <div className="rounded-lg overflow-hidden border border-border/50">
                 <table className="w-full text-sm text-left">
-                  <thead className="bg-surface-50 text-xs uppercase text-muted-fg">
+                  <thead className="bg-surface-50 dark:bg-surface-950 text-xs uppercase text-muted-fg">
                     <tr>
                       <th className="px-4 py-2 font-semibold">Date</th>
                       <th className="px-4 py-2 font-semibold">Method</th>

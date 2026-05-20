@@ -281,7 +281,10 @@ export default async function StudentProfilePage(
                               {h.status}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-muted-fg">{h.remarks || '-'}</td>
+                          <td className="px-6 py-4 text-muted-fg">
+                            <p>{h.remarks || '-'}</p>
+                            {h.markedByName && <p className="text-[10px] mt-1 opacity-70">Marked by: {h.markedByName}</p>}
+                          </td>
                         </tr>
                       ))}
                     </tbody>

@@ -14,6 +14,7 @@ export interface IAttendance extends Document {
   section: string;
   date: string; // YYYY-MM-DD
   records: IAttendanceRecord[];
+  markedByName?: string;
 }
 
 const AttendanceSchema = new Schema({
@@ -21,6 +22,7 @@ const AttendanceSchema = new Schema({
   className: { type: String, required: true },
   section: { type: String, default: "" },
   date: { type: String, required: true },
+  markedByName: { type: String },
   records: [{
     studentId: { type: String, required: true },
     studentName: { type: String, required: true },

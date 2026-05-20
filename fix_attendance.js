@@ -1,0 +1,1 @@
+﻿require('dotenv').config({path: '.env.local'}); const mongoose = require('mongoose'); mongoose.connect(process.env.MONGODB_URI).then(async () => { const db = mongoose.connection.db; await db.collection('attendances').updateMany({ }, { $set: { markedByName: 'Neha Sharma' } }); console.log('Fixed records'); process.exit(0); });

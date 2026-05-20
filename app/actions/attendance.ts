@@ -4,6 +4,7 @@ import { connectToDatabase } from "@/lib/db"
 import { AttendanceModel, IAttendanceRecord } from "@/lib/models/Attendance"
 import { StudentModel } from "@/lib/models/Student"
 import { AcademicClassModel } from "@/lib/models/AcademicClass"
+import { UserModel } from "@/lib/models/User"
 import { revalidatePath } from "next/cache"
 import { authorizePermission } from "@/lib/auth"
 import { logAudit } from "@/lib/audit"
@@ -90,10 +91,20 @@ export async function saveClassAttendance(className: string, section: string, da
 
   const sec = (!section || section === 'All') ? "" : section
 
+  let markedByName = "System/Admin"
+  if (auth.context.userId) {
+    const user = await UserModel.findById(auth.context.userId).select('fullName').lean()
+    if (user && (user as any).fullName) markedByName = (user as any).fullName
+  } else if (auth.context.roleName === "SCHOOL_ADMIN" && auth.context.schoolId) {
+    const SchoolModel = require("@/lib/models/School").SchoolModel
+    const school = await SchoolModel.findById(auth.context.schoolId).select('adminName').lean()
+    if (school && school.adminName) markedByName = school.adminName
+  }
+
   // Upsert the attendance document
   await AttendanceModel.findOneAndUpdate(
     { schoolId: auth.context.schoolId, className, section: sec, date },
-    { records, updatedAt: new Date() },
+    { records, markedByName, updatedAt: new Date() },
     { upsert: true, new: true, setDefaultsOnInsert: true }
   )
 
@@ -180,7 +191,8 @@ export async function getStudentAttendanceStats(studentId: string) {
       history.push({
         date: (att as any).date,
         status: studentRecord.status,
-        remarks: studentRecord.remarks
+        remarks: studentRecord.remarks,
+        markedByName: (att as any).markedByName || 'System/Admin'
       })
     }
   }

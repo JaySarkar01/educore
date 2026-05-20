@@ -17,7 +17,7 @@ export default function ReceiptClient() {
   }
 
   return (
-    <div className="bg-surface-50 border-b border-border/50 p-4 flex justify-between items-center print:hidden rounded-t-lg">
+    <div className="bg-surface-50 dark:bg-surface-900 border-b border-border/50 p-4 flex justify-between items-center print:hidden rounded-t-lg">
       <Button variant="ghost" size="sm" onClick={() => router.back()}>
         <ArrowLeft className="w-4 h-4 mr-2" /> Back
       </Button>
