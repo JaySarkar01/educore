@@ -50,11 +50,11 @@ export function StudentsFilterBar({ initialQuery, initialClass, classes }: { ini
               ))}
             </select>
           </div>
-          <select title="Gender" name="gender" className="h-9 rounded-md border border-surface-200 dark:border-surface-800 text-sm px-3 bg-surface-50 dark:bg-surface-950 text-muted-fg focus:outline-none focus:ring-1 focus:ring-brand-500">
+          {/* <select title="Gender" name="gender" className="h-9 rounded-md border border-surface-200 dark:border-surface-800 text-sm px-3 bg-surface-50 dark:bg-surface-950 text-muted-fg focus:outline-none focus:ring-1 focus:ring-brand-500">
              <option value="">Gender</option>
              <option value="Male">Male</option>
              <option value="Female">Female</option>
-          </select>
+          </select> */}
           <select title="Status" name="status" className="h-9 rounded-md border border-surface-200 dark:border-surface-800 text-sm px-3 bg-surface-50 dark:bg-surface-950 text-muted-fg focus:outline-none focus:ring-1 focus:ring-brand-500">
              <option value="">Status</option>
              <option value="Active">Active</option>
