@@ -1,4 +1,6 @@
-import TransportClient from "./transport-client"
+const fs = require('fs');
+
+const content = `import TransportClient from "./transport-client"
 import { getTransportRoutes } from "@/app/actions/finance"
 
 export default async function TransportPage() {
@@ -17,3 +19,6 @@ export default async function TransportPage() {
     </div>
   )
 }
+`;
+
+fs.writeFileSync('app/(dashboard)/dashboard/finance/transport/page.tsx', content);

@@ -298,7 +298,7 @@ export function AccountantFeeWorkbench({
                 {studentInvoices.map((inv: any) => {
                   const pending = Math.max((inv.amount || 0) - (inv.amountPaid || 0), 0)
                   return (
-                      <div className="flex flex-col md:flex-row md:items-center gap-3 justify-between border border-border/40 rounded-lg p-3 group">
+                        <div key={inv._id} className="flex flex-col md:flex-row md:items-center gap-3 justify-between border border-border/40 rounded-lg p-3 group">
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
                             <p className="font-semibold text-sm text-fg truncate">{inv.title}</p>

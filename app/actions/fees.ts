@@ -3,6 +3,8 @@
 import { connectToDatabase } from "@/lib/db"
 import { FeeInvoiceModel } from "@/lib/models/Fee"
 import { FeeStructureModel } from "@/lib/models/FeeStructure"
+import { TransportRouteModel } from "@/lib/models/TransportRoute"
+import { HostelRoomModel } from "@/lib/models/HostelRoom"
 import { StudentModel } from "@/lib/models/Student"
 import { revalidatePath } from "next/cache"
 import { authorizePermission } from "@/lib/auth"
@@ -452,7 +454,28 @@ export async function getFeeStructures() {
 
   await connectToDatabase()
   const structures = await FeeStructureModel.find({ schoolId: auth.context.schoolId }).sort({ createdAt: -1 }).lean()
-  return JSON.parse(JSON.stringify(structures))
+  
+  const routes = await TransportRouteModel.find({ schoolId: auth.context.schoolId }).lean()
+  const transportStructures = routes.map((r: any) => ({
+    _id: r._id,
+    name: `Transport: ${r.routeName}`,
+    amount: r.monthlyFee,
+    targetClass: "ALL",
+    frequency: "Monthly",
+    isVirtual: true
+  }))
+
+  const rooms = await HostelRoomModel.find({ schoolId: auth.context.schoolId }).lean()
+  const hostelStructures = rooms.map((r: any) => ({
+    _id: r._id,
+    name: `Hostel: ${r.block} - ${r.roomType}`,
+    amount: r.monthlyFee,
+    targetClass: "ALL",
+    frequency: "Monthly",
+    isVirtual: true
+  }))
+
+  return JSON.parse(JSON.stringify([...structures, ...transportStructures, ...hostelStructures]))
 }
 
 export async function createFeeStructure(formData: FormData) {

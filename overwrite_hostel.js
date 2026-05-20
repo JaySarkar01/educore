@@ -1,4 +1,6 @@
-import HostelClient from "./hostel-client"
+const fs = require('fs');
+
+const content = `import HostelClient from "./hostel-client"
 import { getHostelRooms } from "@/app/actions/finance"
 
 export default async function HostelPage() {
@@ -17,3 +19,6 @@ export default async function HostelPage() {
     </div>
   )
 }
+`;
+
+fs.writeFileSync('app/(dashboard)/dashboard/finance/hostel/page.tsx', content);
