@@ -367,7 +367,7 @@ export default function SchoolsManagementPage() {
                               onClick={() => openEditForm(school)}
                             >
                               <Edit2 className="w-3.5 h-3.5" />
-                              Edit
+                              Details
                             </Button>
                             <Button
                               size="sm"
