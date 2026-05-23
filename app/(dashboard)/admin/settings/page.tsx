@@ -456,7 +456,7 @@ export default function SettingsPage() {
 
                   <div className="space-y-3">
                     {[
-                      { key: 'enableStudentRegistration', label: 'Student Registration', desc: 'Allow new students to register' },
+                      // { key: 'enableStudentRegistration', label: 'Student Registration', desc: 'Allow new students to register' },
                       { key: 'enableSchoolRegistration', label: 'School Registration', desc: 'Allow new schools to register' },
                       { key: 'enablePayments', label: 'Payment Processing', desc: 'Enable fee payment functionality' },
                       { key: 'enableEmailNotifications', label: 'Email Notifications', desc: 'Send email notifications to users' },

@@ -1,5 +1,5 @@
 "use client"
-import { useState, useTransition } from "react"
+import { useEffect, useState, useTransition } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,6 +12,32 @@ export default function InquiryPage() {
   const [isPending, startTransition] = useTransition()
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [errorMsg, setErrorMsg] = useState("")
+  const [isCheckingSettings, setIsCheckingSettings] = useState(true)
+  const [schoolRegistrationEnabled, setSchoolRegistrationEnabled] = useState(true)
+
+  useEffect(() => {
+    let active = true
+
+    async function loadPublicSettings() {
+      try {
+        const response = await fetch("/api/public-settings", { cache: "no-store" })
+        const data = await response.json()
+        if (!active) return
+        setSchoolRegistrationEnabled(data.enableSchoolRegistration !== false)
+      } catch {
+        if (!active) return
+        setSchoolRegistrationEnabled(true)
+      } finally {
+        if (active) setIsCheckingSettings(false)
+      }
+    }
+
+    loadPublicSettings()
+
+    return () => {
+      active = false
+    }
+  }, [])
 
   const handleAction = (formData: FormData) => {
     setErrorMsg("")
@@ -64,9 +90,47 @@ export default function InquiryPage() {
     )
   }
 
+  if (isCheckingSettings) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-4 py-24 bg-surface-50 dark:bg-surface-950 min-h-[calc(100vh-4rem)]">
+        <div className="max-w-md w-full text-center space-y-6">
+          <div className="w-16 h-16 bg-brand-100 dark:bg-brand-500/20 text-brand-600 dark:text-brand-400 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+            <Building2 className="w-8 h-8" />
+          </div>
+          <h2 className="text-3xl font-bold text-fg">Checking registration status</h2>
+          <p className="text-muted-fg text-lg">Please wait while we verify whether school registration is available.</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!schoolRegistrationEnabled) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-4 py-24 bg-surface-50 dark:bg-surface-950 min-h-[calc(100vh-4rem)]">
+        <div className="max-w-xl w-full text-center space-y-6">
+          <div className="w-16 h-16 bg-brand-100 dark:bg-brand-500/20 text-brand-600 dark:text-brand-400 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Building2 className="w-8 h-8" />
+          </div>
+          <h2 className="text-3xl font-bold text-fg">Registrations are temporarily paused</h2>
+          <p className="text-muted-fg text-lg leading-7">
+            Please wait, registrations for new schools will be available soon.
+          </p>
+          <div className="mx-auto max-w-md rounded-2xl border border-border bg-bg/80 p-5 text-sm text-muted-fg shadow-sm">
+            Our team is preparing the school onboarding process. We appreciate your patience and will reopen registration as soon as it is ready.
+          </div>
+          <Link href="/" className="block mt-8">
+            <Button className="w-full gap-2 text-lg h-12">
+              Return Home <ArrowRight className="w-4 h-4" />
+            </Button>
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex-1 py-12 bg-surface-50 dark:bg-surface-950 mt-16 relative overflow-hidden">
-      <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-[800px] h-[800px] bg-brand-500/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+      <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-200 h-200 bg-brand-500/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
           <h1 className="text-4xl font-bold mb-4 text-fg flex items-center justify-center gap-3">
@@ -188,7 +252,7 @@ export default function InquiryPage() {
                 <textarea
                   id="message"
                   name="message"
-                  className="flex w-full rounded-md border border-border bg-surface-50 dark:bg-surface-900 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 min-h-[100px] resize-y"
+                  className="flex w-full rounded-md border border-border bg-surface-50 dark:bg-surface-900 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 min-h-25 resize-y"
                   placeholder="Any specific requirements or number of students you currently manage?"
                 ></textarea>
               </div>

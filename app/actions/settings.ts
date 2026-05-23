@@ -5,23 +5,46 @@ import { SystemSettingsModel } from "@/lib/models/SystemSettings"
 import { authorizePermission } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
 
-export async function getSystemSettings() {
-  const auth = await authorizePermission("settings.manage")
-  if (!auth.allowed) return null
-
+async function fetchSystemSettings() {
   await connectToDatabase()
-  
+
   let settings = await SystemSettingsModel.findOne({}).lean()
-  
-  // Create default settings if none exist
+
   if (!settings) {
     const newSettings = new SystemSettingsModel({})
     await newSettings.save()
     settings = newSettings.toObject()
   }
-  
-  // Explicitly serialize to plain object to avoid serialization issues
-  const plainSettings = JSON.parse(JSON.stringify(settings))
+
+  return JSON.parse(JSON.stringify(settings))
+}
+
+export async function getPublicSystemSettings() {
+  try {
+    const plainSettings = await fetchSystemSettings()
+    return {
+      appName: plainSettings?.appName || "EduCore",
+      maintenanceMode: !!plainSettings?.maintenanceMode,
+      maintenanceMessage:
+        plainSettings?.maintenanceMessage || "EduCore is currently under maintenance. Some features may contain bugs or be temporarily unavailable.",
+      enableSchoolRegistration: plainSettings?.enableSchoolRegistration !== false,
+    }
+  } catch {
+    return {
+      appName: "EduCore",
+      maintenanceMode: false,
+      maintenanceMessage:
+        "EduCore is currently under maintenance. Some features may contain bugs or be temporarily unavailable.",
+      enableSchoolRegistration: true,
+    }
+  }
+}
+
+export async function getSystemSettings() {
+  const auth = await authorizePermission("settings.manage")
+  if (!auth.allowed) return null
+
+  const plainSettings = await fetchSystemSettings()
   
   return {
     id: plainSettings._id.toString(),

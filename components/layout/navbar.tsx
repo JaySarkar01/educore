@@ -47,7 +47,7 @@ export function Navbar({ session, appName = 'EduCore' }: NavbarProps) {
           ) : (
             <>
               <Link href="/login">
-                <Button variant="ghost">Login</Button>
+                <Button type="submit" variant="ghost">Login</Button>
               </Link>
               <Link href="/inquiry">
                 <Button className="shadow-lg shadow-brand-500/20 px-3 sm:px-4">

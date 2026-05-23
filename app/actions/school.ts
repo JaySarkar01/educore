@@ -12,6 +12,7 @@ import bcrypt from "bcryptjs"
 import { ensureRBACSeeded } from "@/lib/rbac-seed"
 import { ROLE_PERMISSIONS, normalizeRoleName, ROLE_LABELS } from "@/lib/rbac"
 import { authorizePermission, getAuthContext } from "@/lib/auth"
+import { getPublicSystemSettings } from "@/app/actions/settings"
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -46,6 +47,11 @@ function validateRegistration(data: Record<string, string>) {
 // ── Actions ───────────────────────────────────────────────────────────────────
 
 export async function registerSchool(formData: FormData) {
+  const publicSettings = await getPublicSystemSettings()
+  if (!publicSettings.enableSchoolRegistration) {
+    return { error: "School registration is currently disabled." }
+  }
+
   const data = {
     registrationNo:  formData.get("registrationNo")?.toString()  ?? "",
     schoolName:      formData.get("schoolName")?.toString()      ?? "",
