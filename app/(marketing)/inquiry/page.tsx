@@ -227,7 +227,7 @@ export default function InquiryPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="adminName">Admin Full Name *</Label>
-                    <Input id="adminName" name="adminName" required placeholder="John Doe" />
+                    <Input id="adminName" name="adminName" required placeholder="" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="adminEmail">Admin Email *</Label>
@@ -259,7 +259,7 @@ export default function InquiryPage() {
             </CardContent>
             <CardFooter className="bg-surface-100 dark:bg-surface-900/50 pt-6 rounded-b-xl border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-4">
               <p className="text-sm text-muted-fg text-center sm:text-left">
-                By submitting this form, you agree to our Terms of Service and Privacy Policy.
+                By submitting this form, you agree to our <Link href="/terms-of-service" className="text-brand-600 dark:text-brand-400 hover:underline">Terms of Service</Link> and <Link href="/privacy-policy" className="text-brand-600 dark:text-brand-400 hover:underline">Privacy Policy</Link>.
               </p>
               <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={isPending}>
                 {isPending ? "Submitting..." : "Submit Registration"}

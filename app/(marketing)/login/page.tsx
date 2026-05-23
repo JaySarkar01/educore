@@ -80,7 +80,7 @@ export default function LoginPage() {
                   id="email" 
                   name="email"
                   type="email" 
-                  placeholder="admin@school.edu" 
+                  placeholder="Enter your email" 
                   required 
                   className="bg-white dark:bg-black/50"
                   autoComplete="username"

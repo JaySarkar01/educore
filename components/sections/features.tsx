@@ -9,7 +9,7 @@ const features = [
   { title: "Teacher Management", description: "Staff attendance, payroll, and performance tracking.", icon: Users },
   { title: "Smart Attendance", description: "Automated daily attendance with instant parent notifications.", icon: Calendar },
   { title: "Fees & Finance", description: "Online payments, automated invoicing in ₹ (INR), and financial AI.", icon: DollarSign },
-  { title: "Role-Based Access", description: "Secure portals for Admins, Teachers, Students, and Parents.", icon: ShieldCheck },
+  { title: "Role-Based Access", description: "Secure portals for Admins, Teachers, Students, and Accountants.", icon: ShieldCheck },
   { title: "Group Management", description: "Manage multiple schools from one centralized super-admin dashboard.", icon: Building },
   { title: "Advanced Analytics", description: "AI-driven insights into academic performance and school health.", icon: BarChart3 },
   
