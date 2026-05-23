@@ -274,14 +274,15 @@ export default function SettingsPage() {
                         <p className="text-xs text-muted-fg mt-1">Enable to temporarily disable the application</p>
                       </div>
                       <button
+                        type="button"
                         onClick={() => updateField('maintenanceMode', !settings.maintenanceMode)}
-                        className={`relative w-12 h-6 rounded-full transition-colors ${
+                        className={`relative w-12 h-6 p-0.5 rounded-full overflow-hidden transition-colors ${
                           settings.maintenanceMode ? 'bg-red-600 dark:bg-red-700' : 'bg-gray-300 dark:bg-gray-600'
                         }`}
                       >
                         <span
-                          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
-                            settings.maintenanceMode ? 'translate-x-5' : 'translate-x-0.5'
+                          className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ease-out ${
+                            settings.maintenanceMode ? 'translate-x-6' : 'translate-x-0'
                           }`}
                         />
                       </button>
@@ -467,14 +468,15 @@ export default function SettingsPage() {
                           <p className="text-xs text-muted-fg mt-1">{feature.desc}</p>
                         </div>
                         <button
+                          type="button"
                           onClick={() => updateField(feature.key as keyof SettingsData, !settings[feature.key as keyof SettingsData])}
-                          className={`relative w-12 h-6 rounded-full transition-colors ${
+                          className={`relative w-12 h-6 p-0.5 rounded-full overflow-hidden transition-colors ${
                             settings[feature.key as keyof SettingsData] ? 'bg-green-600 dark:bg-green-700' : 'bg-gray-300 dark:bg-gray-600'
                           }`}
                         >
                           <span
-                            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
-                              settings[feature.key as keyof SettingsData] ? 'translate-x-5' : 'translate-x-0.5'
+                            className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ease-out ${
+                              settings[feature.key as keyof SettingsData] ? 'translate-x-6' : 'translate-x-0'
                             }`}
                           />
                         </button>
@@ -536,14 +538,15 @@ export default function SettingsPage() {
                       <p className="text-xs text-muted-fg mt-1">Automatically backup database</p>
                     </div>
                     <button
+                      type="button"
                       onClick={() => updateField('backupEnabled', !settings.backupEnabled)}
-                      className={`relative w-12 h-6 rounded-full transition-colors ${
+                      className={`relative w-12 h-6 p-0.5 rounded-full overflow-hidden transition-colors ${
                         settings.backupEnabled ? 'bg-green-600 dark:bg-green-700' : 'bg-gray-300 dark:bg-gray-600'
                       }`}
                     >
                       <span
-                        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
-                          settings.backupEnabled ? 'translate-x-5' : 'translate-x-0.5'
+                        className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ease-out ${
+                          settings.backupEnabled ? 'translate-x-6' : 'translate-x-0'
                         }`}
                       />
                     </button>
