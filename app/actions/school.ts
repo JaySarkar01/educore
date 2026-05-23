@@ -20,11 +20,13 @@ function isValidEmail(email: string) {
 }
 
 function validateRegistration(data: Record<string, string>) {
+  if (!data.registrationNo.trim())
+    return "Registration number is required."
   if (!data.schoolName.trim())
     return "School name is required."
   if (!data.schoolEmail.trim() || !isValidEmail(data.schoolEmail))
     return "A valid school email is required."
-  if (!/^\d{10}$/.test(data.phone))
+  if (!data.registrationNo.trim())
     return "Phone number must be exactly 10 digits (numbers only)."
   if (!data.city.trim())
     return "City is required."
@@ -45,6 +47,7 @@ function validateRegistration(data: Record<string, string>) {
 
 export async function registerSchool(formData: FormData) {
   const data = {
+    registrationNo:  formData.get("registrationNo")?.toString()  ?? "",
     schoolName:      formData.get("schoolName")?.toString()      ?? "",
     schoolEmail:     formData.get("schoolEmail")?.toString()     ?? "",
     phone:           formData.get("phone")?.toString()           ?? "",
@@ -73,6 +76,7 @@ export async function registerSchool(formData: FormData) {
   const hashedPassword = await bcrypt.hash(data.password, 12)
 
   const school = await SchoolModel.create({
+    registrationNo: data.registrationNo,
     schoolName:  data.schoolName,
     schoolEmail: data.schoolEmail,
     phone:       data.phone,
@@ -183,6 +187,7 @@ export async function createSchool(data: Record<string, any>) {
   const hashedPassword = await bcrypt.hash(data.password, 12)
 
   const school = await SchoolModel.create({
+    registrationNo: data.registrationNo,
     schoolName: data.schoolName,
     schoolEmail: data.schoolEmail,
     phone: data.phone,
@@ -249,6 +254,7 @@ export async function getSchools() {
   const schools = await SchoolModel.find().sort({ _id: -1 }).lean()
   return schools.map((s: any) => ({
     id: s._id.toString(),
+    registrationNo: s.registrationNo,
     schoolName: s.schoolName,
     schoolEmail: s.schoolEmail,
     phone: s.phone,

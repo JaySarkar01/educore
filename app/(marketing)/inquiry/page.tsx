@@ -93,6 +93,10 @@ export default function InquiryPage() {
               {/* School Details */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
+                  <Label htmlFor="registrationNo">Registration No. *</Label>
+                  <Input id="registrationNo" name="registrationNo" required placeholder="SCH-2026-001" />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="schoolName">School Name *</Label>
                   <Input id="schoolName" name="schoolName" required placeholder="Greenwood High School" />
                 </div>

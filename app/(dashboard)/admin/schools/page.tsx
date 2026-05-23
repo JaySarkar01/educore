@@ -12,6 +12,7 @@ import { useEffect } from 'react'
 
 interface School {
   id: string
+  registrationNo: string
   schoolName: string
   schoolEmail: string
   phone: string
@@ -112,6 +113,7 @@ export default function SchoolsManagementPage() {
 
     try {
       const data = {
+        registrationNo: formState.school?.registrationNo || '',
         schoolName: formState.school?.schoolName,
         schoolEmail: formState.school?.schoolEmail,
         phone: formState.school?.phone,
@@ -150,6 +152,7 @@ export default function SchoolsManagementPage() {
     setFormState({
       mode: 'create',
       school: {
+        registrationNo: '',
         schoolName: '',
         schoolEmail: '',
         phone: '',
@@ -415,6 +418,18 @@ export default function SchoolsManagementPage() {
                   )}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="registrationNo">Registration No. *</Label>
+                      <Input
+                        id="registrationNo"
+                        value={formState.school?.registrationNo || ''}
+                        onChange={(e) => setFormState({
+                          ...formState,
+                          school: { ...formState.school, registrationNo: e.target.value }
+                        })}
+                        placeholder="SCH-2026-001"
+                      />
+                    </div>
                     <div>
                       <Label htmlFor="schoolName">School Name *</Label>
                       <Input
