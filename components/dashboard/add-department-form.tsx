@@ -30,7 +30,7 @@ export function AddDepartmentForm() {
       </div>
       <div className="space-y-2">
         <Label htmlFor="headOfDepartment">Head of Department</Label>
-        <Input id="headOfDepartment" name="headOfDepartment" placeholder="e.g. Dr. Jane Doe" />
+        <Input id="headOfDepartment" name="headOfDepartment" placeholder="e.g. Dr. -" />
       </div>
       <div className="space-y-2">
         <Label htmlFor="description">Description (Optional)</Label>

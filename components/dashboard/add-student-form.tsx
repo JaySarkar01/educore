@@ -122,7 +122,7 @@ export function AddStudentForm() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-2">
                   <Label htmlFor="parentName">Father / Guardian Name *</Label>
-                  <Input id="parentName" name="parentName" required placeholder="Jane Doe" />
+                  <Input id="parentName" name="parentName" required placeholder="" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="parentPhone">Primary Emergency Phone *</Label>

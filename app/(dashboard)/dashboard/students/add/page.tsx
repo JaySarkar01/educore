@@ -255,7 +255,7 @@ export default function AddStudentPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="parentName">Father / Guardian Name *</Label>
-                <Input id="parentName" name="parentName" required value={formValues.parentName} onChange={handleChange} placeholder="Jane Doe" className={errors.parentName ? "border-red-500" : ""} />
+                <Input id="parentName" name="parentName" required value={formValues.parentName} onChange={handleChange} placeholder="" className={errors.parentName ? "border-red-500" : ""} />
                 <ErrorWarning field="parentName" />
               </div>
               <div className="space-y-2">
