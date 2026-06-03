@@ -66,17 +66,7 @@ export function StudentsFilterBar({ initialQuery, initialClass, classes }: { ini
           </Button>
         </form>
         
-        <div className="flex items-center gap-2 border-t w-full xl:w-auto xl:border-t-0 pt-3 xl:pt-0 border-border/40">
-           <Button variant="outline" size="sm" className="h-9 gap-2 shadow-sm text-muted-fg hover:text-fg">
-             <Upload className="w-4 h-4"/> Import
-           </Button>
-           <Button variant="outline" size="sm" className="h-9 gap-2 shadow-sm text-emerald-600 border-emerald-200 hover:bg-emerald-50 dark:text-emerald-400 dark:border-emerald-500/20 dark:hover:bg-emerald-500/10">
-             <Download className="w-4 h-4"/> Export Excel
-           </Button>
-           <Button variant="outline" size="icon" className="h-9 shadow-sm text-muted-fg">
-             <MoreHorizontal className="w-4 h-4"/>
-           </Button>
-        </div>
+        
       </div>
     </div>
   )

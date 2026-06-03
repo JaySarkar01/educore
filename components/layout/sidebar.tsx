@@ -206,7 +206,7 @@ const schoolNav: NavSection[] = [
     heading: 'SYSTEM',
     items: [
       { label: 'Users', href: '/dashboard/users', icon: Users, key: 'users', permissionsAny: ['user.manage'] },
-      { label: 'Settings', href: '/dashboard/settings', icon: Cog, key: 'settings', permissionsAny: ['settings.manage'] },
+      // { label: 'Settings', href: '/dashboard/settings', icon: Cog, key: 'settings', permissionsAny: ['settings.manage'] },
     ],
   },
 ]
