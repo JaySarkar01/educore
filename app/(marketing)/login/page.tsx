@@ -103,13 +103,13 @@ export default function LoginPage() {
                 />
               </div>
               
-              <div className="bg-brand-50 dark:bg-brand-500/10 p-4 rounded-lg text-xs leading-relaxed text-brand-900 dark:text-brand-100 mt-6 border border-brand-200 dark:border-brand-500/20">
+              {/* <div className="bg-brand-50 dark:bg-brand-500/10 p-4 rounded-lg text-xs leading-relaxed text-brand-900 dark:text-brand-100 mt-6 border border-brand-200 dark:border-brand-500/20">
                 <p className="mb-1 font-semibold">Demo Login Accounts:</p>
                 <ul className="list-disc list-inside space-y-1 ml-1 opacity-80">
                   <li>Super Admin: <code className="bg-white/50 dark:bg-black/20 px-1 py-0.5 rounded">superadmin@educore.com</code> (Pass: <code className="bg-white/50 dark:bg-black/20 px-1 py-0.5 rounded">admin</code>)</li>
                   <li>School Admin: Credentials of school admin during registration</li>
                 </ul>
-              </div>
+              </div> */}
             </CardContent>
             <CardFooter className="flex flex-col gap-4">
               <Button className="w-full h-11 text-base shadow-lg shadow-brand-500/20" type="submit" disabled={isPending}>
